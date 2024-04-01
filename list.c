@@ -27,6 +27,26 @@ void add_element(struct list *l, int value) {
     }
 }
 
+/*Sets the element at position i in the list l to x. Element must exist first.*/
+void set_element(struct list *l, int index, int value) {
+    if (index < 0 || index >= l->size) {
+        return -1;
+    }
+    struct list_element *e;
+    if (index > l->middle) {
+        e = l->tail;
+        for (int i = l->size - 1; i > index; i--) {
+            e = e->prev;
+        }
+    } else {
+        e = l->head;
+        for (int i = 0; i < index; i++) {
+            e = e->next;
+        }
+    }
+    e->value = value;
+}
+
 /*Removes element x from the list l*/
 void remove_element(struct list *l, int index) {
     struct list_element *e = l->head;

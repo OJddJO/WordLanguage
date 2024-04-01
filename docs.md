@@ -19,8 +19,15 @@
 | `int var assign a plus b` | Assign `a + b` to an integer variable `var` |
 | `str var assign a` | Assign `a` to a string variable `var` |
 | `bool var assign a` | Assign `a` to a boolean variable `var` |
+
+# Lists
+| Expression | Description |
+|---|---|
 | `list var assign a, b, c, d` | Assign the list `a, b, c, d` to a list variable `var` |
 | `get var index a` | Get the value at index `a` from the list variable `var` |
+| `set var index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
+| `append var with a` | Append `a` to the list variable `var` |
+| `remove var index a` | Remove the value at index `a` from the list variable `var` |
 
 # Output
 | Expression | Description |
@@ -77,7 +84,8 @@
 # Functions
 | Expression | Description |
 |---|---|
-| `def funcName with a, b then` | Define a function `funcName` with arguments `a` and `b` |
+| `def funcName` | Define a function `funcName` |
+| `def funcName with bool a, int b` | Define a function `funcName` with arguments `a` and `b` |
 | `return a plus b` | Return `a + b` from the function |
 | `return a` | Return `a` from the function |
 | `enddef` | End function |
