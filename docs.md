@@ -35,6 +35,7 @@
 |---|---|
 | `print Hello World` | Print `Hello World` in the terminal |
 | `print int var` | Print the integer in the variable `var` in the terminal |
+| `print float var` | Print the float in the variable `var` in the terminal |
 | `print str var` | Print the string in the variable `var` in the terminal |
 | `print bool var` | Print the boolean in the variable `var` in the terminal |
 | `print var` | Print the variable `var` in the terminal (multitype) |
