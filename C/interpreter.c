@@ -9,7 +9,7 @@ int execute_line(char *line, struct pile *p) {
 }
 
 int main(void) {
-    char code[] = "";
+    char *code = "Hello World\nprint oy\n int var assign 10\nBruh not working";
     size_t code_len = strlen(code);
     int num_lines = 0;
     for (size_t i = 0; i < code_len; i++) {
@@ -33,4 +33,5 @@ int main(void) {
     }
     struct pile p;
     init_pile(&p);
+    printf("%c", lines[3]);
 }

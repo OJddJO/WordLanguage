@@ -16,7 +16,7 @@ typedef struct list {
 
 void init_list(struct list *l);
 void add_element(struct list *l, int value);
-void set_element(struct list *l, int index, int value);
+int set_element(struct list *l, int index, int value);
 void remove_element(struct list *l, int value);
 int get_element(struct list *l, int index);
 int get_position(struct list *l, int value);

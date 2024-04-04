@@ -15,7 +15,7 @@ struct pile {
 
 void init_pile(struct pile *p);
 void push(struct pile *p, int value);
-int pop(struct pile *p);
+void pop(struct pile *p);
 int top(struct pile *p);
 int is_empty(struct pile *p);
 int pile_size(struct pile *p);

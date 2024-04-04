@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "list.h"
 
 /*Initializes list structure l*/
@@ -11,7 +12,7 @@ void init_list (struct list *l) {
 
 /*Adds element x to the list l*/
 void add_element(struct list *l, int value) {
-    struct list_element *e = (struct element *)malloc(sizeof(struct list_element));
+    struct list_element *e = (struct list_element *)malloc(sizeof(struct list_element));
     e->value = value;
     e->prev = l->tail;
     e->next = NULL;
@@ -28,7 +29,7 @@ void add_element(struct list *l, int value) {
 }
 
 /*Sets the element at position i in the list l to x. Element must exist first.*/
-void set_element(struct list *l, int index, int value) {
+int set_element(struct list *l, int index, int value) {
     if (index < 0 || index >= l->size) {
         return -1;
     }
@@ -45,6 +46,7 @@ void set_element(struct list *l, int index, int value) {
         }
     }
     e->value = value;
+    return 1;
 }
 
 /*Removes element x from the list l*/

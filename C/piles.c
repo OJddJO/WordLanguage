@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "piles.h"
 
 /*Initializes pile structure p*/

@@ -19,6 +19,7 @@
 | `int var assign a plus b` | Assign `a + b` to an integer variable `var` |
 | `str var assign a` | Assign `a` to a string variable `var` |
 | `bool var assign a` | Assign `a` to a boolean variable `var` |
+| `var assign a` | Assign `a` to a variable `var` (multitype) |
 
 # Lists
 | Expression | Description |
@@ -36,6 +37,7 @@
 | `print int var` | Print the integer in the variable `var` in the terminal |
 | `print str var` | Print the string in the variable `var` in the terminal |
 | `print bool var` | Print the boolean in the variable `var` in the terminal |
+| `print var` | Print the variable `var` in the terminal (multitype) |
 
 # Input
 | Expression | Description |
