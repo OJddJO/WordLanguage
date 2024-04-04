@@ -28,17 +28,16 @@
 | `get var index a` | Get the value at index `a` from the list variable `var` |
 | `set var index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
 | `append var with a` | Append `a` to the list variable `var` |
-| `remove var index a` | Remove the value at index `a` from the list variable `var` |
+| `remove var a` | Remove the value at index `a` from the list variable `var` |
+| `length var` | Get the length of the list variable `var` |
 
 # Output
 | Expression | Description |
 |---|---|
-| `print Hello World` | Print `Hello World` in the terminal |
 | `print int var` | Print the integer in the variable `var` in the terminal |
 | `print float var` | Print the float in the variable `var` in the terminal |
 | `print str var` | Print the string in the variable `var` in the terminal |
 | `print bool var` | Print the boolean in the variable `var` in the terminal |
-| `print var` | Print the variable `var` in the terminal (multitype) |
 
 # Input
 | Expression | Description |
@@ -58,19 +57,20 @@
 # Comparison
 | Expression | Description |
 |---|---|
-| `a equals b` | Returns true if `a` is equal to `b`, else false |
-| `a not equals b` | Returns true if `a` is not equal to `b`, else false |
+| `a equal b` | Returns true if `a` is equal to `b`, else false |
+| `not a equal b` | Returns true if `a` is not equal to `b`, else false |
 | `a greater b` | Returns true if `a` is greater than `b`, else false |
 | `a less b` | Returns true if `a` is less than `b`, else false |
-| `a gEquals b` | Returns true if `a` is greater than or equal to `b`, else false |
-| `a lEquals b` | Returns true if `a` is less than or equal to `b`, else false |
+| `a gEqual b` | Returns true if `a` is greater than or equal to `b`, else false |
+| `a lEqual b` | Returns true if `a` is less than or equal to `b`, else false |
+| `.not a .equal b and b equal c` | Returns true if (`a` is not equal to `b`) and `b` is equal to `c`, else false (priority)|
 
 # Control Flow
 | Expression | Description |
 |---|---|
-| `if a equals b then` | If `a` is equal to `b`, then |
-| `if a not gEquals b and c equals a plus b then` | If `a` is not greater than or equal to `b` and `c` is equal to `a+b`, then |
-| `elif a equals b then` | Else if `a` is equal to `b`, then |
+| `if a equal b then` | If `a` is equal to `b`, then |
+| `if not a gEqual b and c equals a plus b then` | If `a` is not greater than or equal to `b` and `c` is equal to `a+b`, then |
+| `elif a equal b then` | Else if `a` is equal to `b`, then |
 | `else` | Else |
 | `endif` | End if |
 
