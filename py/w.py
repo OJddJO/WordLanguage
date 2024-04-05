@@ -1,11 +1,11 @@
 class W:
     def __init__(self):
-        self._INT_VARS = {}
-        self._FLOAT_VARS = {}
-        self._STR_VARS = {}
-        self._BOOL_VARS = {}
-        self._LISTS = {}
-        self._FUNCTIONS = {}
+        self.INT_VARS = {}
+        self.FLOAT_VARS = {}
+        self.STR_VARS = {}
+        self.BOOL_VARS = {}
+        self.LISTS = {}
+        self.FUNCTIONS = {}
 
     #math
     def plus(var1:int|float, var2:int|float, line:int) -> int|float:
@@ -72,32 +72,32 @@ class W:
     def setIntVar(var:str, val:int, line:int) -> None:
         if type(val) != int:
             raise TypeError(f"line {line}: Using 'int {var} assign' with non-int value")
-        W._INT_VARS[var] = val
+        W.INT_VARS[var] = val
 
     def setFloatVar(var:str, val:float, line:int) -> None:
         if type(val) != float:
             raise TypeError(f"line {line}: Using 'float {var} assign' with non-float value")
-        W._FLOAT_VARS[var] = val
+        W.FLOAT_VARS[var] = val
 
     def setStrVar(var:str, val:str, line:int) -> None:
         if type(val) != str:
             raise TypeError(f"line {line}: Using 'str {var} assign' with non-str value")
-        W._STR_VARS[var] = val
+        W.STR_VARS[var] = val
 
     def setBoolVar(var:str, val:bool, line:int) -> None:
         if type(val) != bool:
             raise TypeError(f"line {line}: Using 'bool {var} assign' with non-bool value")
-        W._BOOL_VARS[var] = val
+        W.BOOL_VARS[var] = val
     
     def getVar(var:str, line:int) -> int|float|str|bool:
-        if var in W._INT_VARS:
-            return W._INT_VARS[var]
-        elif var in W._FLOAT_VARS:
-            return W._FLOAT_VARS[var]
-        elif var in W._STR_VARS:
-            return W._STR_VARS[var]
-        elif var in W._BOOL_VARS:
-            return W._BOOL_VARS[var]
+        if var in W.INT_VARS:
+            return W.INT_VARS[var]
+        elif var in W.FLOAT_VARS:
+            return W.FLOAT_VARS[var]
+        elif var in W.STR_VARS:
+            return W.STR_VARS[var]
+        elif var in W.BOOL_VARS:
+            return W.BOOL_VARS[var]
         else:
             raise NameError(f"line {line}: Using undeclared variable '{var}'")
     
@@ -204,4 +204,4 @@ class W:
 
     #functions
     def defineFunction(name:str, startLine:int, endLine:int, line:int) -> None:
-        W._FUNCTIONS[name] = (startLine, endLine)
+        W.FUNCTIONS[name] = (startLine, endLine)
