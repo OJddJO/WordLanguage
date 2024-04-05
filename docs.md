@@ -10,6 +10,7 @@
 | `a power b` | `a` raised to the power of `b` |
 | `a root b` | `a`th root of `b` |
 | `a factorial` | Factorial of `a` |
+| `abs a` | Absolute value of `a` |
 | `a .plus b times c` | `a + b` times `c` (priority) |
 
 # Variables
@@ -17,6 +18,7 @@
 |---|---|
 | `int var assign a` | Assign `a` to an integer variable `var` |
 | `int var assign a plus b` | Assign `a + b` to an integer variable `var` |
+| `float var assign a` | Assign `a` to a float variable `var` |
 | `str var assign a` | Assign `a` to a string variable `var` |
 | `bool var assign a` | Assign `a` to a boolean variable `var` |
 | `var assign a` | Assign `a` to a variable `var` (multitype) |

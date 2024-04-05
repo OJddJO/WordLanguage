@@ -1,3 +1,4 @@
+from math import sqrt, factorial, inf
 from w import W
 
 class Interpreter:
@@ -5,6 +6,16 @@ class Interpreter:
         self.inputPath = inputPath
         self.outputPath = outputPath
         self.w = W()
+        self.words = [
+            "plus", "minus", "times", "div", "floorDiv", "power", "mod", "root", "factorial",
+            "int", "float", "str", "bool", "assign",
+            "list", "get", "set", "append", "remove", "length",
+            "print", "input", "ask",
+            "and", "or", "not", "equal", "greater", "less", "gEqual", "lEqual",
+            "if", "elif", "else", "endif", "then",
+            "for", "in", "range", "to", "step", "endfor", "while", "endwhile",
+            "def", "with", "return", "enddef"
+        ]
 
 
     def setOutputPath(self, path:str):
@@ -27,6 +38,8 @@ class Interpreter:
         priority = {} #stores the index of the word as the key and its priority as the value
 
         def checkPriority(word:str): #returns the priority of the word
+            if word not in self.words:
+                return inf
             priority = 0
             for i in range(len(word)):
                 if word[i] == ".":
@@ -42,16 +55,53 @@ class Interpreter:
         def interpreteWord(index:int, word:str):
             #interprete and execute the word
             match word[priority[i]:]:
+                case "power":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.power(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "root":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.root(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "times":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.times(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "div":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.div(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "floorDiv":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.floorDiv(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "mod":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.mod(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
                 case "plus":
-                    #get the two values to add
-                    #test if there is an expression to evaluate
-                    #add the two values
-                    pass
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.add(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
+                case "minus":
+                    a, b = words[index-1], words[index+1]
+                    value = self.w.minus(a, b, lineNum)
+                    for n in [-1, 0, 1]: words[index+n] = value
+                    return value
                 case _ :
-                    pass 
+                    allVar = list(self.w.INT_VARS.keys()) + list(self.w.FLOAT_VARS.keys()) + list(self.w.STR_VARS.keys()) + list(self.w.BOOL_VARS.keys()) + list(self.w.LISTS.keys()) + list(self.w.FUNCTIONS.keys())
+                    if word in allVar:
+                        self.w.getVar(word, lineNum)
+                    else:
+                        raise NameError(f"line {lineNum}: {word} is not defined")
 
-        res = {} #stores the result of the index of the word as the key and its value as the value
-        #execute the words in the order of their priority
 
 
 
