@@ -6,7 +6,7 @@
 | `a times b` | Multiply `a` and `b` |
 | `a div b` | Divide `a` by `b` |
 | `a mod b` | Remainder of `a` divided by `b` |
-| `a floorDiv b` | Floor division of `a` by `b` |
+| `a ediv b` | Euclidean division of `a` by `b` |
 | `a power b` | `a` raised to the power of `b` |
 | `a root b` | `a`th root of `b` |
 | `a factorial` | Factorial of `a` |
@@ -16,32 +16,40 @@
 # Variables
 | Expression | Description |
 |---|---|
-| `int var assign a` | Assign `a` to an integer variable `var` |
-| `int var assign a plus b` | Assign `a + b` to an integer variable `var` |
-| `float var assign a` | Assign `a` to a float variable `var` |
-| `str var assign "Hello World"` | Assign `Hello World` to a string variable `var` |
-| `bool var assign true` | Assign `true` to a boolean variable `var` |
+| `int var assign a` | Assign `a` to a new integer variable `var` |
+| `int var assign a plus b` | Assign `a + b` to a new integer variable `var` |
+| `float var assign a` | Assign `a` to a float new variable `var` |
+| `str var assign "Hello World"` | Assign `Hello World` to a new string variable `var` |
+| `bool var assign true` | Assign `true` to a new boolean variable `var` |
+| `var assign a` | Assign the value of `a` to the variable `var` without redifining variable |
 | `delete var` | Delete the variable `var` |
 
-# Lists
+# Arrays (Type safe)
 | Expression | Description |
 |---|---|
-| `list var assign a, b, c, d` | Assign the list `a, b, c, d` () to a list variable `var` |
+| `int array var size 10` | Create a new integer array variable `var` of size 10 |
+| `var get index a` | Get the value at index `a` from the array variable `var` |
+| `var set index a assign b` | Set the value at index `a` in the array variable `var` to `b` |
+| `var length` | Get the length of the array variable `var` |
+| `delete var` | Delete the array variable `var` |
+
+# Lists (Not type safe)
+| Expression | Description |
+|---|---|
+| `list var` | Create a new list variable `var` (not type safe, can contain any type of data) |
 | `var get index a` | Get the value at index `a` from the list variable `var` |
 | `var set index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
-| `var append a` | Append `a` to the list variable `var` |
+| `var append a` | Append `a` to the list variable `var` (not type safe) |
 | `var remove a` | Remove the value at index `a` from the list variable `var` |
 | `var length` | Get the length of the list variable `var` |
+| `delete var` | Delete the list variable `var` |
 
 # Output
 | Expression | Description |
 |---|---|
 | `print "Hello World"` | Print `Hello World` in the terminal |
-| `print int var` | Print the integer in the variable `var` in the terminal |
-| `print float var` | Print the float in the variable `var` in the terminal |
-| `print str var` | Print the string in the variable `var` in the terminal |
-| `print bool var` | Print the boolean in the variable `var` in the terminal |
-| `print int var sep " " end "\n"` | Print the integer in the variable `var` with a space separator and a newline at the end |
+| `print var` | Print the value of the variable `var` in the terminal |
+| `print int var sep " " end "\n"` | Print the value of the variable `var` with a space separator and a newline at the end |
 
 # Input
 | Expression | Description |
@@ -67,7 +75,7 @@
 | `a less b` | Returns true if `a` is less than `b`, else false |
 | `a gEqual b` | Returns true if `a` is greater than or equal to `b`, else false |
 | `a lEqual b` | Returns true if `a` is less than or equal to `b`, else false |
-| `.not a ..equal b and b equal c` | Returns true if (`a` is not equal to `b`) and `b` is equal to `c`, else false (priority)|
+| `.not a ..equal b and b equal c` | Returns true if (`a` is not equal to `b`) and `b` is equal to `c`, else false (priority) |
 
 # Control Flow
 | Expression | Description |

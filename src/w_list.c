@@ -1,10 +1,10 @@
-#include "list.h"
+#include "w_list.h"
 
 /**
  * \brief Initialize a list
  **/
-list *list_init() {
-    list *l = (list *)malloc(sizeof(list));
+W_List *list_init() {
+    W_List *l = (W_List *)malloc(sizeof(W_List));
     l->head = NULL;
     l->tail = NULL;
     l->size = 0;
@@ -17,8 +17,8 @@ list *list_init() {
  * \param l The list to add the element to
  * \param value The value of the element to add
  **/
-void list_append(list *l, void *value) {
-    element *e = (element *)malloc(sizeof(element));
+void list_append(W_List *l, void *value) {
+    W_ListElement *e = (W_ListElement *)malloc(sizeof(W_ListElement));
     e->value = value;
     e->prev = l->tail;
     e->next = NULL;
@@ -35,17 +35,17 @@ void list_append(list *l, void *value) {
 }
 
 /**
- * \brief Replace the value of an element in the list
+ * \brief Replace the value of an element in the W_List
  * \param l The list to set the value in
  * \param index The index of the element to set
  * \param value The value to set
  * \return 0 if successful, -1 if the index is out of bounds
  **/
-int list_replace(list *l, int index, void *value) {
+int list_replace(W_List *l, int index, void *value) {
     if (index < 0 || index >= l->size) {
         return -1;
     }
-    element *e;
+    W_ListElement *e;
     if (index > l->middle) {
         e = l->tail;
         for (int i = l->size - 1; i > index; i--) {
@@ -69,8 +69,8 @@ int list_replace(list *l, int index, void *value) {
  * \param l The list to remove the element from
  * \param index The index of the element to remove
  **/
-void list_remove(list *l, int index) {
-    element *e = l->head;
+void list_remove(W_List *l, int index) {
+    W_ListElement *e = l->head;
     for (int i = 0; i < index; i++) {
         e = e->next;
     }
@@ -97,11 +97,11 @@ void list_remove(list *l, int index) {
  * \param index The index of the element to get
  * \return The value of the element at the given index, or NULL if the index is out of bounds
  **/
-void *list_get(list *l, int index) {
+void *list_get(W_List *l, int index) {
     if (index < 0 || index >= l->size) {
         return NULL;
     }
-    element *e;
+    W_ListElement *e;
     if (index > l->middle) {
         e = l->tail;
         for (int i = l->size - 1; i > index; i--) {
@@ -122,8 +122,8 @@ void *list_get(list *l, int index) {
  * \param value The value to search for
  * \return The index of the value in the list, or -1 if the value is not found
  **/
-int list_index(list *l, void *value) {
-    element *e = l->head;
+int list_index(W_List *l, void *value) {
+    W_ListElement *e = l->head;
     int position = 0;
     while (e != NULL) {
         if (e == value) {
@@ -140,7 +140,7 @@ int list_index(list *l, void *value) {
  * \param l The list to get the size of
  * \return The size of the list
  **/
-int list_size(list *l) {
+int list_size(W_List *l) {
     return l->size;
 }
 
@@ -148,10 +148,10 @@ int list_size(list *l) {
  * \brief Destroy a list
  * \param l The list to destroy
  **/
-void list_destroy(list *l) {
-    element *e = l->head;
+void list_destroy(W_List *l) {
+    W_ListElement *e = l->head;
     while (e != NULL) {
-        element *next = e->next;
+        W_ListElement *next = e->next;
         free(e);
         e = next;
     }
