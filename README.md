@@ -8,4 +8,4 @@ WordLanguage is a programming language designed to minimize the use of symbols, 
 - Ease of Use: Easy to learn and use, suitable for beginners and advanced users alike.
 
 ---
-[Wiki](wiki)
+[Wiki](https://github.com/OJddJO/WordLanguage/wiki)
