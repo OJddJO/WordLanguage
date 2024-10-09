@@ -6,3 +6,6 @@ WordLanguage is a programming language designed to minimize the use of symbols, 
 - Minimal Symbols: Uses the least amount of symbols possible.
 - Natural Language Syntax: Designed to be as close to natural language as possible.
 - Ease of Use: Easy to learn and use, suitable for beginners and advanced users alike.
+
+---
+[Wiki](wiki)
