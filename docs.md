@@ -19,34 +19,36 @@
 | `int var assign a` | Assign `a` to an integer variable `var` |
 | `int var assign a plus b` | Assign `a + b` to an integer variable `var` |
 | `float var assign a` | Assign `a` to a float variable `var` |
-| `str var assign a` | Assign `a` to a string variable `var` |
-| `bool var assign a` | Assign `a` to a boolean variable `var` |
-| `var assign a` | Assign `a` to a variable `var` (multitype) |
+| `str var assign "Hello World"` | Assign `Hello World` to a string variable `var` |
+| `bool var assign true` | Assign `true` to a boolean variable `var` |
+| `delete var` | Delete the variable `var` |
 
 # Lists
 | Expression | Description |
 |---|---|
-| `list var assign a, b, c, d` | Assign the list `a, b, c, d` to a list variable `var` |
-| `get var index a` | Get the value at index `a` from the list variable `var` |
-| `set var index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
-| `append var with a` | Append `a` to the list variable `var` |
-| `remove var a` | Remove the value at index `a` from the list variable `var` |
-| `length var` | Get the length of the list variable `var` |
+| `list var assign a, b, c, d` | Assign the list `a, b, c, d` () to a list variable `var` |
+| `var get index a` | Get the value at index `a` from the list variable `var` |
+| `var set index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
+| `var append a` | Append `a` to the list variable `var` |
+| `var remove a` | Remove the value at index `a` from the list variable `var` |
+| `var length` | Get the length of the list variable `var` |
 
 # Output
 | Expression | Description |
 |---|---|
+| `print "Hello World"` | Print `Hello World` in the terminal |
 | `print int var` | Print the integer in the variable `var` in the terminal |
 | `print float var` | Print the float in the variable `var` in the terminal |
 | `print str var` | Print the string in the variable `var` in the terminal |
 | `print bool var` | Print the boolean in the variable `var` in the terminal |
+| `print int var sep " " end "\n"` | Print the integer in the variable `var` with a space separator and a newline at the end |
 
 # Input
 | Expression | Description |
 |---|---|
 | `int var input` | Take an integer input and assign it to the variable `var` |
 | `str var input` | Take a string input and assign it to the variable `var` |
-| `str var input ask Enter your name` | Take a string input with the prompt `Enter your name` and assign it to the variable `var` |
+| `str var input ask "Enter your name"` | Take a string input with the prompt `Enter your name` and assign it to the variable `var` |
 
 # Logic
 | Expression | Description |
@@ -60,38 +62,38 @@
 | Expression | Description |
 |---|---|
 | `a equal b` | Returns true if `a` is equal to `b`, else false |
-| `not a equal b` | Returns true if `a` is not equal to `b`, else false |
+| `not a equal b` | Returns true if `not a` is equal to `b`, else false |
 | `a greater b` | Returns true if `a` is greater than `b`, else false |
 | `a less b` | Returns true if `a` is less than `b`, else false |
 | `a gEqual b` | Returns true if `a` is greater than or equal to `b`, else false |
 | `a lEqual b` | Returns true if `a` is less than or equal to `b`, else false |
-| `.not a .equal b and b equal c` | Returns true if (`a` is not equal to `b`) and `b` is equal to `c`, else false (priority)|
+| `.not a ..equal b and b equal c` | Returns true if (`a` is not equal to `b`) and `b` is equal to `c`, else false (priority)|
 
 # Control Flow
 | Expression | Description |
 |---|---|
-| `if a equal b then` | If `a` is equal to `b`, then |
-| `if not a gEqual b and c equals a plus b then` | If `a` is not greater than or equal to `b` and `c` is equal to `a+b`, then |
-| `elif a equal b then` | Else if `a` is equal to `b`, then |
+| `if a equal b do` | If `a` is equal to `b`, do |
+| `if not a gEqual b and c equals a plus b do` | If `a` is not greater than or equal to `b` and `c` is equal to `a+b`, do |
+| `elif a equal b do` | Else if `a` is equal to `b`, do |
 | `else` | Else |
 | `endif` | End if |
 
 # Loops
 | Expression | Description |
 |---|---|
-| `for i in range 1 to 10 then` | Loop from 1 to 10 |
-| `for i in range 1 to 10 step 2 then` | Loop from 1 to 10 with a step of 2 |
-| `for i in range 10 to 1 step -1 then` | Loop from 10 to 1 with a step of -1 |
-| `endfor` | End for |
-| `while a less b then` | While `a` is less than `b`, then |
-| `endwhile` | End while |
+| `for i in range 1 to 10 do` | Loop from 1 to 10 |
+| `for i in range 1 to 10 step 2 do` | Loop from 1 to 10 with a step of 2 |
+| `for i in range 10 to 1 step -1 do` | Loop from 10 to 1 with a step of -1 |
+| `while <boolean expression> do` | While the `boolean expression` is verified (example: `a less b`) , do |
+| `break` | Break loop |
+| `endloop` | End loop |
 
 # Functions
 | Expression | Description |
 |---|---|
-| `def funcName` | Define a function `funcName` |
-| `def funcName with bool a, int b` | Define a function `funcName` with arguments `a` and `b` |
-| `return a plus b` | Return `a + b` from the function |
+| `def void funcName ` | Define a function `funcName` that returns nothing |
+| `def int funcName with bool a with int b` | Define a function `funcName` with arguments `a` (boolean) and `b` (integer) that returns an integer |
 | `return a` | Return `a` from the function |
+| `return a plus b` | Return `a + b` from the function |
 | `enddef` | End function |
 
