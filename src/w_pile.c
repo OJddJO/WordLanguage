@@ -1,4 +1,4 @@
-#include "w_piles.h"
+#include "w_pile.h"
 
 /**
  * \brief Initialize a new pile

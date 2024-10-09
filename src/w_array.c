@@ -1,13 +1,21 @@
 #include "w_array.h"
 
+
+static void populate_array(W_Array *array, int capacity) {
+    if (array->type == INT) {
+        array->start = (int *)malloc(sizeof(int));
+    }
+}
+
 /**
  * \brief Initializes a new array with the given capacity.
  * \param capacity The initial capacity of the array.
  * \return A pointer to the newly created array.
  */
-W_Array *array_init(int capacity) {
-    W_Array *array = (W_Array *)malloc(sizeof(W_Array));
-    array->data = (void **)malloc(sizeof(void *) * capacity);
+W_Array *array_init(int capacity, W_Type type) {
+    W_Array *array = malloc(sizeof(W_Array));
+    array->start = NULL;
+    array->end = NULL;
     array->size = 0;
     array->capacity = capacity;
     return array;
@@ -22,7 +30,11 @@ void *array_get(W_Array *array, int index) {
     if (index < 0 || index >= array->size) {
         return NULL;
     }
-    return array->data[index];
+    void *element = array->start;
+    for (int i = 0; i < index; i++) {
+        
+    }
+    return array->data;
 }
 
 

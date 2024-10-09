@@ -1,15 +1,15 @@
-# Math
-| Expression | Description |
-|---|---|
-| `a plus b` | Add `a` and `b` |
-| `a minus b` | Subtract `b` from `a` |
-| `a times b` | Multiply `a` and `b` |
-| `a div b` | Divide `a` by `b` |
-| `a mod b` | Remainder of `a` divided by `b` |
-| `a ediv b` | Euclidean division of `a` by `b` |
-| `a power b` | `a` raised to the power of `b` |
-| `a root b` | `a`th root of `b` |
-| `a factorial` | Factorial of `a` |
+# Operations
+| Expression | Description | Types |
+|---|---|---|
+| `a plus b` | Add `a` and `b` | int, float, str |
+| `a minus b` | Subtract `b` from `a` | int, float |
+| `a times b` | Multiply `a` and `b` | int, float |
+| `a div b` | Divide `a` by `b` | int, float |
+| `a mod b` | Remainder of `a` divided by `b` | int |
+| `a ediv b` | Euclidean division of `a` by `b` | int |
+| `a power b` | `a` raised to the power of `b` | a: int, float b: int |
+| `a root b` | `a`th root of `b` |  |
+| `a factorial` | Factorial of `a` | int |
 | `abs a` | Absolute value of `a` |
 | `a .plus b times c` | `a + b` times `c` (priority) |
 

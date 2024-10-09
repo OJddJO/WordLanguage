@@ -1,6 +1,8 @@
 #ifndef __TYPE_H__
 #define __TYPE_H__
 
+#include <stdlib.h>
+
 typedef enum _w_type {
     NULL_TYPE,
     INT,
