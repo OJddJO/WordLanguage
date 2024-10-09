@@ -5,8 +5,8 @@
 #include "w_type.h"
 
 typedef struct _w_list_element {
+    W_Type type;
     void *value;
-    W_Type *type;
     W_ListElement *prev;
     W_ListElement *next;
 } W_ListElement;

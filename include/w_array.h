@@ -11,9 +11,9 @@ typedef struct _w_array_element {
 } W_Array_Element;
 
 typedef struct _w_array {
+    W_Type type;
     void *start;
     void *end;
-    W_Type type;
     int size;
     int capacity;
 } W_Array;

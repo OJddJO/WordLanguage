@@ -5,7 +5,9 @@
  * \return A pointer to the newly created integer.
  */
 W_Int *int_init() {
-    int *i = (int *)malloc(sizeof(int));
+    W_Int *i = (W_Int *)malloc(sizeof(W_Int));
+    i->type = NULL_TYPE;
+    i->value = NULL;
     return i;
 }
 
@@ -15,6 +17,7 @@ W_Int *int_init() {
  * \param value The value to set.
  */
 void int_set(W_Int *i, int value) {
+    i->type = INT;
     i->value = value;
 }
 
