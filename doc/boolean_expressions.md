@@ -7,7 +7,6 @@ Comparison operations are used to compare values. They return a boolean value (`
 | Expression | Description |
 |---|---|
 | `a equal b` | Returns true if `a` is equal to `b`, else false |
-| `not a equal b` | Returns true if `not a` is equal to `b`, else false |
 | `a greater b` | Returns true if `a` is greater than `b`, else false |
 | `a less b` | Returns true if `a` is less than `b`, else false |
 | `a gEqual b` | Returns true if `a` is greater than or equal to `b`, else false |
