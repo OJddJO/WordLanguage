@@ -10,21 +10,43 @@
 #include "w_list.h"
 #include "w_array.h"
 
+static char *keywords[] = {
+    //operations
+    "plus", "minus", "times", "div", "mod", "ediv", "power", "root", "factorial", "abs",
+    //variables
+    "int", "float", "str", "bool", "assign", "delete",
+    //constructed types
+    "array", "list", "size", "get", "index", "set", "append", "remove", "length",
+    //IO expressions
+    "print", "sep", "end", "input",
+    //Boolean expressions
+    //comparison
+    "equal", "greater", "less", "gEqual", "lEqual",
+    //logical
+    "and", "or", "not",
+    //control flow
+    //conditional
+    "if", "elif", "else", "endif",
+    //loop
+    "for", "in", "range", "to", "step", "while", "do", "endloop", "break",
+    //functions
+    "def", "return", "void", "enddef",
+};
+
 typedef enum _w_word_type {
     KEYWORD, 
     IDENTIFIER,
-    LITERAL,
-    OPERATOR
+    LITERAL
 } W_Word_Type;
 
 typedef struct _w_word {
     W_Word_Type type;
+    char *value;
     int line;
-    int start;
-    int end;
 } W_Word;
 
-W_List *word_tokenize(char *source);
+W_List *word_tokenize(FILE *source);
+W_Word_Type word_type(char *value);
 void word_destroy(W_List *words);
 
 #endif
