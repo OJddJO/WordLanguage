@@ -1,7 +1,3 @@
 {
-    "files.associations": {
-        "*.h": "c",
-        "list": "c"
-    },
     "makefile.makefilePath": "makefile",
 }

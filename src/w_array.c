@@ -1,10 +1,24 @@
 #include "w_array.h"
 
-
-static void populate_array(W_Array *array, int capacity) {
-    if (array->type == INT) {
-        array->start = (int *)malloc(sizeof(int));
+static void **populate_array(W_Type type, int capacity) {
+    void **data;
+    if (type == INT) {
+        data = (W_Int **)calloc(capacity, sizeof(W_Int *));
+        for (int i = 0; i < capacity; i++) {
+            data[i] = int_init();
+        }
+    } else if (type == FLOAT) {
+        data = (W_Float **)calloc(capacity, sizeof(W_Float *));
+        for (int i = 0; i < capacity; i++) {
+            data[i] = float_init();
+        }
+    } else if (type == STRING) {
+        data = (W_Str **)calloc(capacity, sizeof(W_Str *));
+        for (int i = 0; i < capacity; i++) {
+            data[i] = str_init();
+        }
     }
+    return data;
 }
 
 /**
@@ -13,10 +27,9 @@ static void populate_array(W_Array *array, int capacity) {
  * \return A pointer to the newly created array.
  */
 W_Array *array_init(int capacity, W_Type type) {
-    W_Array *array = malloc(sizeof(W_Array));
-    array->start = NULL;
-    array->end = NULL;
-    array->size = 0;
+    W_Array *array = (W_Array *)malloc(sizeof(W_Array));
+    array->type = type;
+    array->data = populate_array(type, capacity);
     array->capacity = capacity;
     return array;
 }
@@ -27,14 +40,10 @@ W_Array *array_init(int capacity, W_Type type) {
  * \param index The index of the value to get.
  */
 void *array_get(W_Array *array, int index) {
-    if (index < 0 || index >= array->size) {
+    if (index < 0 || index >= array->capacity) {
         return NULL;
     }
-    void *element = array->start;
-    for (int i = 0; i < index; i++) {
-        
-    }
-    return array->data;
+    return array->data[index];
 }
 
 
@@ -45,7 +54,10 @@ void *array_get(W_Array *array, int index) {
  * \param value The value to set.
  */
 void array_set(W_Array *array, int index, void *value) {
-    if (index < 0 || index >= array->size) {
+    if (index < 0 || index >= array->capacity) {
+        return;
+    }
+    if (((W_Var *) value)->type != array->type) {
         return;
     }
     array->data[index] = value;
@@ -57,7 +69,7 @@ void array_set(W_Array *array, int index, void *value) {
  * \return The size of the array.
  */
 int array_size(W_Array *array) {
-    return array->size;
+    return array->capacity;
 }
 
 /**

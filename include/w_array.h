@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 #include "w_type.h"
+#include "w_int.h"
+#include "w_float.h"
+#include "w_str.h"
 
 typedef struct _w_array_element {
     void *data;
@@ -12,9 +15,7 @@ typedef struct _w_array_element {
 
 typedef struct _w_array {
     W_Type type;
-    void *start;
-    void *end;
-    int size;
+    void **data;
     int capacity;
 } W_Array;
 

@@ -9,4 +9,8 @@ typedef enum _w_type {
     LIST
 } W_Type;
 
+typedef struct _w_var {
+    W_Type type;
+} W_Var;
+
 #endif
