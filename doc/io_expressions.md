@@ -16,8 +16,8 @@ You can use the `input` statement to take input from the user. You can take inte
 
 | Expression | Description |
 |---|---|
-| `int var assign input` | Create a new integer variable `var` and assign it the integer input from the user |
-| `str var assign input "Enter your name: ` | Create a new string variable `var` and assign it the string input from the user with the prompt `Enter your name` |
+| `int var assign input` | Create a new integer variable `var` and assign it the input from the user |
+| `str var assign input "Enter your name: ` | Create a new string variable `var` and assign it the input from the user with the prompt `Enter your name` |
 | `var assign input "Enter a number: "` | Assign the input from the user to the already existing variable `var` |
 
 ---
