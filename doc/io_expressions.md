@@ -16,10 +16,9 @@ You can use the `input` statement to take input from the user. You can take inte
 
 | Expression | Description |
 |---|---|
-| `input int in var` | Take an integer input and assign it to the variable `var` |
-| `input str in var` | Take a string input and assign it to the variable `var` |
-| `input float in var` | Take a float input and assign it to the variable `var` |
-| `input str in var ask "Enter your name"` | Take a string input with the prompt `Enter your name` and assign it to the variable `var` |
+| `int var assign input` | Create a new integer variable `var` and assign it the integer input from the user |
+| `str var assign input "Enter your name: ` | Create a new string variable `var` and assign it the string input from the user with the prompt `Enter your name` |
+| `var assign input "Enter a number: "` | Assign the input from the user to the already existing variable `var` |
 
 ---
 -> [Next: Boolean Expressions](boolean_expressions.md)\
