@@ -9,11 +9,11 @@ typedef struct _w_list_element {
     void *value;
     struct _w_list_element *prev;
     struct _w_list_element *next;
-} W_ListElement;
+} W_List_Element;
 
 typedef struct _w_list {
-    W_ListElement *head;
-    W_ListElement *tail;
+    W_List_Element *head;
+    W_List_Element *tail;
     int size;
     int middle;
 } W_List;

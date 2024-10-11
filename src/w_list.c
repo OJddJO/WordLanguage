@@ -18,7 +18,7 @@ W_List *list_init() {
  * \param value The value of the element to add
  **/
 void list_append(W_List *l, void *value) {
-    W_ListElement *e = (W_ListElement *)malloc(sizeof(W_ListElement));
+    W_List_Element *e = (W_List_Element *)malloc(sizeof(W_List_Element));
     e->value = value;
     e->prev = l->tail;
     e->next = NULL;
@@ -45,7 +45,7 @@ int list_replace(W_List *l, int index, void *value) {
     if (index < 0 || index >= l->size) {
         return -1;
     }
-    W_ListElement *e;
+    W_List_Element *e;
     if (index > l->middle) {
         e = l->tail;
         for (int i = l->size - 1; i > index; i--) {
@@ -70,7 +70,7 @@ int list_replace(W_List *l, int index, void *value) {
  * \param index The index of the element to remove
  **/
 void list_remove(W_List *l, int index) {
-    W_ListElement *e = l->head;
+    W_List_Element *e = l->head;
     for (int i = 0; i < index; i++) {
         e = e->next;
     }
@@ -101,7 +101,7 @@ void *list_get(W_List *l, int index) {
     if (index < 0 || index >= l->size) {
         return NULL;
     }
-    W_ListElement *e;
+    W_List_Element *e;
     if (index > l->middle) {
         e = l->tail;
         for (int i = l->size - 1; i > index; i--) {
@@ -123,7 +123,7 @@ void *list_get(W_List *l, int index) {
  * \return The index of the value in the list, or -1 if the value is not found
  **/
 int list_index(W_List *l, void *value) {
-    W_ListElement *e = l->head;
+    W_List_Element *e = l->head;
     int position = 0;
     while (e != NULL) {
         if (e == value) {
@@ -149,9 +149,9 @@ int list_size(W_List *l) {
  * \param l The list to destroy
  **/
 void list_destroy(W_List *l) {
-    W_ListElement *e = l->head;
+    W_List_Element *e = l->head;
     while (e != NULL) {
-        W_ListElement *next = e->next;
+        W_List_Element *next = e->next;
         free(e);
         e = next;
     }
