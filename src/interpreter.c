@@ -37,17 +37,17 @@ W_List *word_tokenize(FILE *source) { //lexer
     W_List *line = list_init();
     list_append(code, line);
     while (c != EOF) {
-        if ((c != ' ' || c != '\t' || c != '\n') && !eval) {
+        if (c != ' ' && c != '\t' && c != '\n' && !eval) {
             eval = 1;
             start = i;
         }
-        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_litt_str && eval && (i - start) > 0) {
+        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_litt_str && eval) {
             fseek(source, start, SEEK_SET);
             char *value = (char *)malloc(i - start + 1);
             fread(value, 1, i - start, source);
             value[i - start] = '\0';
             w->value = value;
-            printf("value: %s\n", value);
+            // printf("value: %s\n", value); //debug
             w->type = word_type(value);
             w->line = n_line;
             list_append(line, w);
@@ -68,7 +68,7 @@ W_List *word_tokenize(FILE *source) { //lexer
             c = fgetc(source);
             i++;
         }
-        printf("c: %c, i: %d, start:%d, line: %d, eval: %d\n", c, i, start, n_line, eval);
+        // printf("c: %c, i: %d, start:%d, line: %d, eval: %d\n", c, i, start, n_line, eval); //debug
         c = fgetc(source);
         i++;
     }
@@ -111,9 +111,21 @@ W_Word_Type word_type(char *value) {
  * \return void
  */
 void word_destroy(W_List *code) {
+    W_List_Element *current_line = code->head;
+    W_List *line = (W_List *)current_line->value;
+    W_List_Element *current_word = line->head;
     for (int i = 0; i < code->size; i++) {
-        W_List *line = (W_List *)list_get(code, i);
-        list_destroy(line);
+        while (current_word != NULL) {
+            W_Word *w = (W_Word *)current_word->value;
+            free(w->value);
+            free(w);
+            current_word = current_word->next;
+        }
+        if (current_line->next != NULL) {
+            current_line = current_line->next;
+            line = (W_List *)current_line->value;
+            current_word = line->head;
+        }
     }
     list_destroy(code);
 }

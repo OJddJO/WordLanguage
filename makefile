@@ -21,6 +21,3 @@ build/%.o: src/%.c
 
 link: $(OBJ)
 	gcc $(OBJ) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)
-
-debug:
-	gcc $(INCLUDE) $(SRC) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)

@@ -153,7 +153,6 @@ void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
     while (e != NULL) {
         W_List_Element *next = e->next;
-        free(e->value);
         free(e);
         e = next;
     }
