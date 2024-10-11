@@ -8,7 +8,8 @@ typedef enum _w_type {
     STRING, //char * is the same as string
     BOOL,
     ARRAY,
-    LIST
+    LIST,
+    DICT, //dict will not be implemented in the first version due to the memory management
 } W_Type;
 
 typedef struct _w_var {

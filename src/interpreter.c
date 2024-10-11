@@ -1,12 +1,12 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    // if (argc < 2) {
-    //     printf("Usage: %s <file>\n", argv[0]);
-    //     return 1;
-    // }
-    // FILE *source = fopen(argv[1], "r");
-    FILE *source = fopen("test.word", "r"); //debug
+    if (argc < 2) {
+        printf("Usage: %s <file>\n", argv[0]);
+        return 1;
+    }
+    FILE *source = fopen(argv[1], "r");
+    // FILE *source = fopen("test.word", "r"); //debug
     if (source == NULL) {
         printf("Error: Could not open file %s\n", argv[1]);
         return 1;

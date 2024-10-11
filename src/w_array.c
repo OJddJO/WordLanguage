@@ -5,13 +5,13 @@ static void **populate_array(W_Type type, int capacity) {
     for (int i = 0; i < capacity; i++) {
         switch (type) {
             case INT:
-                data[i] = (void *)int_init();
+                data[i] = int_init();
             case FLOAT:
-                data[i] = (void *)float_init();
+                data[i] = float_init();
             case STRING:
-                data[i] = (void *)str_init();
+                data[i] = str_init();
             case BOOL:
-                data[i] = (void *)bool_init();
+                data[i] = bool_init();
         }
     }
     return data;
