@@ -1,3 +1,10 @@
 {
     "makefile.makefilePath": "makefile",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage",
+            "binaryPath": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage\\interpreter",
+            "binaryArgs": []
+        }
+    ],
 }

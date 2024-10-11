@@ -7,10 +7,11 @@
 #include "w_int.h"
 #include "w_float.h"
 #include "w_str.h"
-#include "w_list.h"
+#include "w_bool.h"
 #include "w_array.h"
+#include "w_list.h"
 
-static char *keywords[] = {
+extern char *keywords[] = {
     //operations
     "plus", "minus", "times", "div", "mod", "ediv", "power", "root", "factorial", "abs",
     //variables
@@ -20,6 +21,7 @@ static char *keywords[] = {
     //IO expressions
     "print", "sep", "end", "input",
     //Boolean expressions
+    "true", "false",
     //comparison
     "equal", "greater", "less", "gEqual", "lEqual",
     //logical
@@ -30,7 +32,7 @@ static char *keywords[] = {
     //loop
     "for", "in", "range", "to", "step", "while", "do", "endloop", "break",
     //functions
-    "def", "return", "void", "enddef",
+    "def", "void", "with", "return", "enddef", "null",
 };
 
 typedef enum _w_word_type {
@@ -48,7 +50,6 @@ typedef struct _w_word {
 W_List *word_tokenize(FILE *source);
 W_Word_Type word_type(char *value);
 void word_destroy(W_List *words);
-
 void word_print(W_List *words);
 
 #endif

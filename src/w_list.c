@@ -5,6 +5,7 @@
  **/
 W_List *list_init() {
     W_List *l = (W_List *)malloc(sizeof(W_List));
+    l->type = LIST;
     l->head = NULL;
     l->tail = NULL;
     l->size = 0;
@@ -152,6 +153,7 @@ void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
     while (e != NULL) {
         W_List_Element *next = e->next;
+        free(e->value);
         free(e);
         e = next;
     }

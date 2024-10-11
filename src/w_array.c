@@ -10,6 +10,8 @@ static void **populate_array(W_Type type, int capacity) {
                 data[i] = (void *)float_init();
             case STRING:
                 data[i] = (void *)str_init();
+            case BOOL:
+                data[i] = (void *)bool_init();
         }
     }
     return data;
@@ -22,7 +24,8 @@ static void **populate_array(W_Type type, int capacity) {
  */
 W_Array *array_init(int capacity, W_Type type) {
     W_Array *array = (W_Array *)malloc(sizeof(W_Array));
-    array->type = type;
+    array->type = ARRAY;
+    array->subtype = type;
     array->data = populate_array(type, capacity);
     array->capacity = capacity;
     return array;

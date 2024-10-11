@@ -6,15 +6,11 @@
 #include "w_int.h"
 #include "w_float.h"
 #include "w_str.h"
-
-typedef struct _w_array_element {
-    void *data;
-    struct _w_array_element *next;
-    struct _w_array_element *prev;
-} W_Array_Element;
+#include "w_bool.h"
 
 typedef struct _w_array {
     W_Type type;
+    W_Type subtype;
     void **data;
     int capacity;
 } W_Array;

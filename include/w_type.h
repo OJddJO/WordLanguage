@@ -6,6 +6,8 @@ typedef enum _w_type {
     INT,
     FLOAT, //double is the same as float
     STRING, //char * is the same as string
+    BOOL,
+    ARRAY,
     LIST
 } W_Type;
 

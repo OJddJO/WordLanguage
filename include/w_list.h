@@ -4,14 +4,18 @@
 #include <stdlib.h>
 #include "w_type.h"
 
+typedef struct _w_list_element W_List_Element;
+typedef struct _w_list W_List;
+
 typedef struct _w_list_element {
     W_Type type;
     void *value;
-    struct _w_list_element *prev;
-    struct _w_list_element *next;
+    W_List_Element *prev;
+    W_List_Element *next;
 } W_List_Element;
 
 typedef struct _w_list {
+    W_Type type;
     W_List_Element *head;
     W_List_Element *tail;
     int size;
