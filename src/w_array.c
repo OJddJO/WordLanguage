@@ -1,21 +1,15 @@
 #include "w_array.h"
 
 static void **populate_array(W_Type type, int capacity) {
-    void **data;
-    if (type == INT) {
-        data = (W_Int **)calloc(capacity, sizeof(W_Int *));
-        for (int i = 0; i < capacity; i++) {
-            data[i] = int_init();
-        }
-    } else if (type == FLOAT) {
-        data = (W_Float **)calloc(capacity, sizeof(W_Float *));
-        for (int i = 0; i < capacity; i++) {
-            data[i] = float_init();
-        }
-    } else if (type == STRING) {
-        data = (W_Str **)calloc(capacity, sizeof(W_Str *));
-        for (int i = 0; i < capacity; i++) {
-            data[i] = str_init();
+    void **data = (void **)malloc(capacity * sizeof(void *));
+    for (int i = 0; i < capacity; i++) {
+        switch (type) {
+            case INT:
+                data[i] = (void *)int_init();
+            case FLOAT:
+                data[i] = (void *)float_init();
+            case STRING:
+                data[i] = (void *)str_init();
         }
     }
     return data;

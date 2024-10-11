@@ -5,7 +5,7 @@
 
 typedef struct _w_pile_element {
     void *value;
-    W_PileElement *next;
+    struct _w_pile_element *next;
 } W_PileElement;
 
 typedef struct _pile {

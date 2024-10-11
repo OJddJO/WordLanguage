@@ -7,7 +7,7 @@
 W_Float *float_init() {
     W_Float *f = (W_Float *)malloc(sizeof(W_Float));
     f->type = NULL_TYPE;
-    f->value = 0.0;
+    f->value = NULL;
     return f;
 }
 
@@ -17,8 +17,13 @@ W_Float *float_init() {
  * \param value The value to set.
  */
 void float_set(W_Float *f, double value) {
-    f->type = FLOAT;
-    f->value = value;
+    double *v;
+    if (f->type != NULL_TYPE) {
+        v = (double *)malloc(sizeof(double));
+        f->type = FLOAT;
+    } else v = f->value;
+    *v = value;
+    f->value = v;
 }
 
 /**
@@ -27,7 +32,7 @@ void float_set(W_Float *f, double value) {
  * \return The value of the float.
  */
 double float_value(W_Float *f) {
-    return f->value;
+    return *(f->value);
 }
 
 /**

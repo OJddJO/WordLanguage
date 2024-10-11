@@ -17,8 +17,13 @@ W_Str *str_init() {
  * \param value The new value.
  */
 void str_set(W_Str *s, char *value) {
-    s->type = STRING;
-    s->value = value;
+    if (s->type != NULL_TYPE) {
+        free(s->value);
+        s->type = STRING;
+    }
+    char *v = (char *)malloc(strlen(value) + 1);
+    strcpy(v, value);
+    s->value = v;
 }
 
 /**
@@ -28,19 +33,6 @@ void str_set(W_Str *s, char *value) {
  */
 char *str_value(W_Str *s) {
     return s->value;
-}
-
-/**
- * \brief Concatenates two strings.
- * \param s1 The first string.
- * \param s2 The second string.
- * \return The concatenated string.
- */
-char *str_concat(W_Str *s1, W_Str *s2) {
-    char *result = (char *)malloc(strlen(s1->value) + strlen(s2->value) + 1);
-    strcpy(result, s1->value);
-    strcat(result, s2->value);
-    return result;
 }
 
 char *str_slice(W_Str *s, int start, int end) {

@@ -1,5 +1,4 @@
-EXE         = obj-render
-
+EXE		    = interpreter
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
@@ -14,14 +13,11 @@ all: link
 
 remake: clean all
 
-run:
-    $(EXE)
-
 clean:
-    erase $(subst build/, build\, $(OBJ))
+	erase $(subst build/, build\, $(OBJ))
 
 build/%.o: src/%.c
-    gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
+	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
 
 link: $(OBJ)
-    gcc $(OBJ) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)
+	gcc $(OBJ) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)

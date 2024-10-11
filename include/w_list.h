@@ -7,8 +7,8 @@
 typedef struct _w_list_element {
     W_Type type;
     void *value;
-    W_ListElement *prev;
-    W_ListElement *next;
+    struct _w_list_element *prev;
+    struct _w_list_element *next;
 } W_ListElement;
 
 typedef struct _w_list {

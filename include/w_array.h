@@ -9,8 +9,8 @@
 
 typedef struct _w_array_element {
     void *data;
-    W_Array_Element *next;
-    W_Array_Element *prev;
+    struct _w_array_element *next;
+    struct _w_array_element *prev;
 } W_Array_Element;
 
 typedef struct _w_array {

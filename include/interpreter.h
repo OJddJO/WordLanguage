@@ -49,4 +49,6 @@ W_List *word_tokenize(FILE *source);
 W_Word_Type word_type(char *value);
 void word_destroy(W_List *words);
 
+void word_print(W_List *words);
+
 #endif
