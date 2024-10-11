@@ -1,0 +1,5 @@
+def void helloWorld
+    print "Hello World!"
+enddef
+int myNumber assign 10
+print "myNumber =" int var sep " " end ""

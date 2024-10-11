@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     //     return 1;
     // }
     // FILE *source = fopen(argv[1], "r");
-    FILE *source = fopen("test.w", "r");
+    FILE *source = fopen("test.word", "r"); //debug
     if (source == NULL) {
         printf("Error: Could not open file %s\n", argv[1]);
         return 1;
@@ -29,7 +29,7 @@ W_List *word_tokenize(FILE *source) { //lexer
     int i = 0; //cursor of the file
     int n_line = 1;
     char c = fgetc(source);
-    int eval = 0; //if the word to eval is a keyword, identifier or litteral
+    int eval = 0; //if there is a word to eval
     int eval_litt_str = 0; //if the word to eval is a litteral str
     int eval_litt_number = 0; // if the word to eval is a litteral int, float
 
@@ -41,21 +41,19 @@ W_List *word_tokenize(FILE *source) { //lexer
             eval = 1;
             start = i;
         }
-        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_litt_str) {
-            if (eval) {
-                fseek(source, start, SEEK_SET);
-                char *value = (char *)malloc(i - start + 1);
-                fread(value, 1, i - start, source);
-                value[i - start] = '\0';
-                w->value = value;
-                // printf("value: %s\n", value);
-                w->type = word_type(value);
-                w->line = n_line;
-                list_append(line, w);
-                w = (W_Word *)malloc(sizeof(W_Word));
-                fseek(source, i+1, SEEK_SET);
-                eval = 0;
-            }
+        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_litt_str && eval && (i - start) > 0) {
+            fseek(source, start, SEEK_SET);
+            char *value = (char *)malloc(i - start + 1);
+            fread(value, 1, i - start, source);
+            value[i - start] = '\0';
+            w->value = value;
+            printf("value: %s\n", value);
+            w->type = word_type(value);
+            w->line = n_line;
+            list_append(line, w);
+            w = (W_Word *)malloc(sizeof(W_Word));
+            fseek(source, i+1, SEEK_SET);
+            eval = 0;
         } else if (c == '\"') {
             if (eval_litt_str) eval_litt_str = 0;
             else eval_litt_str = 1;
@@ -70,7 +68,7 @@ W_List *word_tokenize(FILE *source) { //lexer
             c = fgetc(source);
             i++;
         }
-        // printf("c: %c, i: %d, start:%d, line: %d\n", c, i, start, n_line);
+        printf("c: %c, i: %d, start:%d, line: %d, eval: %d\n", c, i, start, n_line, eval);
         c = fgetc(source);
         i++;
     }
@@ -147,8 +145,10 @@ void word_print(W_List *code) { //debug
             current_word = current_word->next;
         }
         printf("\n");
-        current_line = current_line->next;
-        line = (W_List *)current_line->value;
-        current_word = line->head;
+        if (current_line->next != NULL) {
+            current_line = current_line->next;
+            line = (W_List *)current_line->value;
+            current_word = line->head;
+        }
     }
 }

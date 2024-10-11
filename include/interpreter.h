@@ -11,7 +11,7 @@
 #include "w_array.h"
 #include "w_list.h"
 
-extern char *keywords[] = {
+char *keywords[] = {
     //operations
     "plus", "minus", "times", "div", "mod", "ediv", "power", "root", "factorial", "abs",
     //variables
