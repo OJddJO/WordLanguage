@@ -15,7 +15,7 @@
 | `a ediv b` | Euclidean division of `a` by `b` |
 | `a power b` | `a` raised to the power of `b` |
 | `a root b` | `a`th root of `b` |
-| `a .plus b times c` | `a + b` times `c` (priority) |
+| `a plus b .times c` | `a` times `b * c` (priority) |
 
 ---
 
