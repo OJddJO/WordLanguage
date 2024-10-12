@@ -1,4 +1,5 @@
 # Variables
+> [!NOTE]
 > ***Variables*** are used to store data. They are assigned a value which can be changed later, it can be a number, some text or ***expressions***. Variables can be of different types such as `int`, `float`, `str`, `bool`, `array`, `list`.
 
 | Expression | Description |

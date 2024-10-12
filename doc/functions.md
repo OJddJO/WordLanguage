@@ -1,4 +1,5 @@
 # Functions
+> [!NOTE]
 > Functions are used to group code into reusable blocks. They can take arguments and return values. You can use `def`, `return`, `enddef` to define functions.
 
 | Expression | Description |

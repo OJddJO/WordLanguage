@@ -1,7 +1,9 @@
 # Boolean expressions
+> [!NOTE]
 > ***Boolean expressions*** are used to evaluate conditions. They return a ***boolean value*** (`true` or `false`).
 
 ## Logic
+> [!NOTE]
 > Logic operations are used to evaluate ***boolean expressions***. They are used to make decisions in the code. You can use `and`, `or`, `not` to combine ***boolean expressions***. You can also use `.` to specify the priority of the operations. The more `.` you use, the higher the priority.
 
 | Expression | Description |
@@ -12,6 +14,7 @@
 | `a .or b and c` | (`a` or `b`) and `c` (priority)|
 
 ## Comparison
+> [!NOTE]
 > Comparison operations are used to compare values. They return a boolean value (`true` or `false`). You can compare integers, floats, strings, and boolean values. You can use `not` to negate the comparison.
 
 | Expression | Description |

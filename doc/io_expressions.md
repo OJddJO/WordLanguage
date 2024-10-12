@@ -1,7 +1,9 @@
 # I/O Expressions
+> [!NOTE]
 > ***I/O expressions*** are used to input and output data. They are used to interact with the user and display information.
 
 ## Output
+> [!NOTE]
 > You can use the `print` statement to output data to the terminal. You can print strings, variables, and expressions. You can also specify the separator and the end character.
 
 | Expression | Description |
@@ -12,6 +14,7 @@
 
 
 ## Input
+> [!NOTE]
 > You can use the `input` statement to take input from the user. You can take integer, string and float inputs. You can also specify a prompt to display to the user.
 
 | Expression | Description |

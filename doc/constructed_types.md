@@ -1,8 +1,11 @@
-# Constructed Types
+> [!NOTE]
 > Constructed types are used to store multiple values. They are used to group data together. There are two types of constructed types: ***arrays*** and ***lists***.
 
 ## Arrays (Type safe)
-> ***Arrays*** are used to store multiple values of the same type. They are type safe, meaning that all the values in the array must be of the same type. It is important to note that the size of the array is fixed and cannot be changed. Note that it is not possible to create an array of arrays.
+> [!NOTE]
+> ***Arrays*** are used to store multiple values of the same type. They are type safe, meaning that all the values in the array must be of the same type. 
+> [!IMPORTANT]
+> The size of the array is fixed and cannot be changed. It is also not possible to create an array of arrays.
 
 | Expression | Description |
 |---|---|
@@ -16,6 +19,7 @@
 
 
 ## Lists (Not type safe)
+> [!NOTE]
 > ***Lists*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using lists as they can lead to type errors. ***Arrays*** are safer to use as they are type safe. The size of ***lists*** is dynamic and can change. Unlike ***arrays***, list of lists and list of arrays can be created.
 
 | Expression | Description |
@@ -29,6 +33,5 @@
 | `delete var` | Delete the list variable `var` |
 
 ---
-
--> [Next: I/O Expressions](io_expressions.md)\
-[Return to main page](README.md)
+-> [Next: I/O Expressions](5.-IO-Expressions)\
+[Return to main page](1.-WordLanguage-Documentation)
