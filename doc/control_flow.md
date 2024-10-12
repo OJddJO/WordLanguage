@@ -17,9 +17,9 @@ Loops are used to repeat code blocks. You can use `for` and `while` loops to rep
 
 | Expression | Description |
 |---|---|
-| `for i in range 1 to 10 do` | Loop from 1 to 10 |
-| `for i in range 1 to 10 step 2 do` | Loop from 1 to 10 with a step of 2 |
-| `for i in range 10 to 1 step -1 do` | Loop from 10 to 1 with a step of -1 |
+| `for i from 1 to 10 do` | Loop from 1 to 10 |
+| `for i from 1 to 10 step 2 do` | Loop from 1 to 10 with a step of 2 |
+| `for i from 10 to 1 step -1 do` | Loop from 10 to 1 with a step of -1 |
 | `while <boolean expression> do` | While the `boolean expression` is verified (example: `a less b`) , do |
 | `break` | Break loop |
 | `endloop` | End loop |
