@@ -33,5 +33,5 @@
 | `delete var` | Delete the list variable `var` |
 
 ---
--> [Next: I/O Expressions](5.-IO-Expressions)\
-[Return to main page](1.-WordLanguage-Documentation)
+-> [Next: I/O Expressions](io_expressions.md)\
+[Return to main page](README.md)
