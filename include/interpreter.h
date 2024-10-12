@@ -48,6 +48,7 @@ typedef struct _w_word {
     int line;
 } W_Word;
 
+void create_temp_file(char *filename);
 W_List *word_tokenize(FILE *source);
 W_Word_Type word_type(char *value);
 void word_destroy(W_List *words);
