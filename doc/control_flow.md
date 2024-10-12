@@ -1,8 +1,8 @@
 # Control Flow
-Control flow statements are used to control the flow of the program. They are used to make decisions and to repeat code blocks.
+> Control flow statements are used to control the flow of the program. They are used to make decisions and to repeat code blocks.
 
 ## Conditional Statements
-Conditional statements are used to make decisions in the code. They evaluate a ***boolean expression*** and execute a block of code if the expression is true. You can use `if`, `elif`, `else`, `endif` to create conditional statements.
+> Conditional statements are used to make decisions in the code. They evaluate a ***boolean expression*** and execute a block of code if the expression is true. You can use `if`, `elif`, `else`, `endif` to create conditional statements.
 
 | Expression | Description |
 |---|---|
@@ -13,7 +13,7 @@ Conditional statements are used to make decisions in the code. They evaluate a *
 | `endif` | End if |
 
 ## Loops
-Loops are used to repeat code blocks. You can use `for` and `while` loops to repeat code blocks. You can use `break` to exit a loop.
+> Loops are used to repeat code blocks. You can use `for` and `while` loops to repeat code blocks. You can use `break` to exit a loop.
 
 | Expression | Description |
 |---|---|
@@ -25,5 +25,6 @@ Loops are used to repeat code blocks. You can use `for` and `while` loops to rep
 | `endloop` | End loop |
 
 ---
+
 -> [Next: Functions](functions.md)\
 [Return to main page](README.md)

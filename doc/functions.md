@@ -1,5 +1,5 @@
 # Functions
-Functions are used to group code into reusable blocks. They can take arguments and return values. You can use `def`, `return`, `enddef` to define functions.
+> Functions are used to group code into reusable blocks. They can take arguments and return values. You can use `def`, `return`, `enddef` to define functions.
 
 | Expression | Description |
 |---|---|
@@ -11,4 +11,5 @@ Functions are used to group code into reusable blocks. They can take arguments a
 | `call funcName` | Call the function `funcName` |
 
 ---
+
 -> [Return to main page](README.md)

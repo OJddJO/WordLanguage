@@ -1,8 +1,8 @@
 # I/O Expressions
-***I/O expressions*** are used to input and output data. They are used to interact with the user and display information.
+> ***I/O expressions*** are used to input and output data. They are used to interact with the user and display information.
 
 ## Output
-You can use the `print` statement to output data to the terminal. You can print strings, variables, and expressions. You can also specify the separator and the end character.
+> You can use the `print` statement to output data to the terminal. You can print strings, variables, and expressions. You can also specify the separator and the end character.
 
 | Expression | Description |
 |---|---|
@@ -12,7 +12,7 @@ You can use the `print` statement to output data to the terminal. You can print 
 
 
 ## Input
-You can use the `input` statement to take input from the user. You can take integer, string and float inputs. You can also specify a prompt to display to the user.
+> You can use the `input` statement to take input from the user. You can take integer, string and float inputs. You can also specify a prompt to display to the user.
 
 | Expression | Description |
 |---|---|
@@ -21,5 +21,6 @@ You can use the `input` statement to take input from the user. You can take inte
 | `var assign input "Enter a number: "` | Assign the input from the user to the already existing variable `var` |
 
 ---
+
 -> [Next: Boolean Expressions](boolean_expressions.md)\
 [Return to main page](README.md)

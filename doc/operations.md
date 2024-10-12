@@ -1,5 +1,5 @@
 # Operations
-***Operations*** are the basic building blocks of the language. They are the smallest unit of code that can be executed. They can be combined to form ***expressions*** which can be used to perform more complex operations.
+> ***Operations*** are the basic building blocks of the language. They are the smallest unit of code that can be executed. They can be combined to form ***expressions*** which can be used to perform more complex operations.
 
 | Expression | Description | Types |
 |---|---|---|
@@ -16,5 +16,6 @@
 | `a .plus b times c` | `a + b` times `c` (priority) | int, float |
 
 ---
+
 -> [Next: Variables](variables.md)\
 [Return to main page](README.md)

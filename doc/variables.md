@@ -1,5 +1,5 @@
 # Variables
-***Variables*** are used to store data. They are assigned a value which can be changed later, it can be a number, some text or ***expressions***. Variables can be of different types such as `int`, `float`, `str`, `bool`, `array`, `list`.
+> ***Variables*** are used to store data. They are assigned a value which can be changed later, it can be a number, some text or ***expressions***. Variables can be of different types such as `int`, `float`, `str`, `bool`, `array`, `list`.
 
 | Expression | Description |
 |---|---|
@@ -12,5 +12,6 @@
 | `delete var` | Delete the variable `var` |
 
 ---
+
 -> [Next: Constructed Types](constructed_types.md)\
 [Return to main page](README.md)
