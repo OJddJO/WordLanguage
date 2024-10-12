@@ -13,8 +13,6 @@
 #include "w_dict.h"
 
 char *keywords[] = {
-    //operations
-    "plus", "minus", "times", "div", "mod", "ediv", "power", "root", "factorial", "abs",
     //variables
     "int", "float", "str", "bool", "assign", "delete",
     //constructed types
@@ -23,23 +21,30 @@ char *keywords[] = {
     "print", "sep", "end", "input",
     //Boolean expressions
     "true", "false",
-    //comparison
-    "equal", "greater", "less", "gEqual", "lEqual",
-    //logical
-    "and", "or", "not",
     //control flow
     //conditional
     "if", "elif", "else", "endif",
     //loop
-    "for", "in", "range", "to", "step", "while", "do", "endloop", "break",
+    "for", "from", "to", "step", "while", "do", "endloop", "break",
     //functions
     "def", "void", "with", "return", "enddef", "call",
 };
 
+char *operators[] = {
+    //operations
+    "plus", "minus", "times", "div", "mod", "ediv", "power", "root", "factorial", "abs",
+    //comparison
+    "equal", "greater", "less", "gEqual", "lEqual",
+    //logical
+    "and", "or", "not",
+};
+
 typedef enum _w_word_type {
-    KEYWORD, 
+    KEYWORD,
+    OPERATOR,
     IDENTIFIER,
-    LITERAL
+    STR,
+    NUMBER, 
 } W_Word_Type;
 
 typedef struct _w_word {

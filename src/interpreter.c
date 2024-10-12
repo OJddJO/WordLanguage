@@ -40,12 +40,16 @@ void create_temp_file(char *filename) {
     fclose(temp);
 }
 
+/*****************************************************
+ * Lexer *********************************************
+ *****************************************************/
+
 /**
  * \brief Tokenizes the given file into a list of words.
  * \param source The file to tokenize.
  * \return A list of list of words.
  */
-W_List *word_tokenize(FILE *source) { //lexer
+W_List *word_tokenize(FILE *source) {
     W_List *code = list_init();
     int start = 0; //start of the word
     int i = 0; //cursor of the file
@@ -76,7 +80,7 @@ W_List *word_tokenize(FILE *source) { //lexer
             w = (W_Word *)malloc(sizeof(W_Word));
             fseek(source, i+1, SEEK_SET);
             eval = 0;
-        } else if (c == '\"') {
+        } else if (c == '\"' || c == '\'') {
             if (eval_litt_str) eval_litt_str = 0;
             else eval_litt_str = 1;
         } else if ((c >= '0' && c <= '9') || c == '.') {
@@ -113,11 +117,16 @@ W_List *word_tokenize(FILE *source) { //lexer
  * \return The type of the word.
  */
 W_Word_Type word_type(char *value) {
-    if (value[0] == '\"' && value[strlen(value) - 1] == '\"') {
-        return LITERAL;
+    if ((value[0] == '\"' && value[strlen(value) - 1] == '\"') || (value[0] == '\'' && value[strlen(value) - 1] == '\'')) {
+        return STR;
     }
     if ((value[0] >= '0' && value[0] <= '9') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
-        return LITERAL;
+        return NUMBER;
+    }
+    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+        if (strcmp(value, keywords[i]) == 0) {
+            return KEYWORD;
+        }
     }
     int dot = 0;
     for (int i = 0; i < strlen(value); i++) {
@@ -128,9 +137,9 @@ W_Word_Type word_type(char *value) {
     char without_dot[strlen(value) - dot];
     strncpy(without_dot, value + dot, strlen(value) - dot);
     // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
-    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(without_dot, keywords[i]) == 0) {
-            return KEYWORD;
+    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+        if (strcmp(without_dot, operators[i]) == 0) {
+            return OPERATOR;
         }
     }
     return IDENTIFIER;
@@ -179,10 +188,14 @@ void word_print(W_List *code) { //debug
             printf("Word: %s | ", w->value);
             if (w->type == KEYWORD) {
                 printf("Type: KEYWORD ");
+            } else if (w->type == OPERATOR) {
+                printf("Type: OPERATOR ");
             } else if (w->type == IDENTIFIER) {
                 printf("Type: IDENTIFIER ");
-            } else if (w->type == LITERAL) {
-                printf("Type: LITERAL ");
+            } else if (w->type == STR) {
+                printf("Type: STRING ");
+            } else if (w->type == NUMBER) {
+                printf("Type: NUMBER ");
             }
             printf("| Line: %d\n", w->line);
             current_word = current_word->next;
