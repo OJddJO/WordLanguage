@@ -9,5 +9,6 @@
 
 W_List *parse(W_List *tokenized_code);
 W_List *parse_line(W_List *line);
+W_Tree *parse_operation(W_List_Element *current_word);
 
 #endif

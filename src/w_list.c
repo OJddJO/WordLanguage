@@ -146,6 +146,25 @@ int list_size(W_List *l) {
 }
 
 /**
+ * \brief Concatenate two lists
+ * \param l1 The first list
+ * \param l2 The second list
+ **/
+void list_concat(W_List *l1, W_List *l2) {
+    if (l1->head == NULL) {
+        l1->head = l2->head;
+        l1->tail = l2->tail;
+    } else {
+        l1->tail->next = l2->head;
+        l2->head->prev = l1->tail;
+        l1->tail = l2->tail;
+    }
+    l1->size += l2->size;
+    l1->middle += l2->middle;
+    list_destroy(l2);
+}
+
+/**
  * \brief Destroy a list
  * \param l The list to destroy
  **/

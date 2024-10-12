@@ -29,6 +29,7 @@ void list_remove(W_List *l, int index);
 void *list_get(W_List *l, int index);
 int list_index(W_List *l, void *value);
 int list_size(W_List *l);
+void list_concat(W_List *l1, W_List *l2);
 void list_destroy(W_List *l);
 
 #endif
