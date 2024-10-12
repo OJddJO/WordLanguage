@@ -35,6 +35,19 @@ char *str_value(W_Str *s) {
     return s->value;
 }
 
+/**
+ * \brief Concatenates two strings.
+ * \param s1 The first string.
+ * \param s2 The second string.
+ * \return The concatenation of the two strings.
+ */
+char *str_concat(W_Str *s1, W_Str *s2) {
+    char *result = (char *)malloc(strlen(s1->value) + strlen(s2->value) + 1);
+    strcpy(result, s1->value);
+    strcat(result, s2->value);
+    return result;
+}
+
 char *str_slice(W_Str *s, int start, int end) {
     char *result = (char *)malloc(end - start + 1);
     strncpy(result, s->value + start, end - start);

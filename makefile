@@ -1,4 +1,4 @@
-EXE		    = interpreter
+EXE		    = word
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 

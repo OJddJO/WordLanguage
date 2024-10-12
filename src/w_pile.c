@@ -43,7 +43,7 @@ void *pile_pop(W_Pile *p) {
  * \param p The pile
  * \return 1 if the pile is empty, 0 otherwise
  */
-int pîle_is_empty(W_Pile *p) {
+int pile_is_empty(W_Pile *p) {
     return p->size == 0;
 }
 

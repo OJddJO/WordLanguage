@@ -2,7 +2,6 @@
 #define __W_DICT_H__
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "w_type.h"
 #include "w_list.h"
