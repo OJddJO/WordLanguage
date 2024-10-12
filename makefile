@@ -1,4 +1,4 @@
-EXE		    = word
+EXE		    = ./bin/word
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
