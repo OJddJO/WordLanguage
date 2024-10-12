@@ -97,8 +97,17 @@ W_Word_Type word_type(char *value) {
     if ((value[0] >= '0' && value[0] <= '9') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return LITERAL;
     }
+    int dot = 0;
+    for (int i = 0; i < strlen(value); i++) {
+        if (value[i] == '.') {
+            dot++;
+        } else break;
+    }
+    char without_dot[strlen(value) - dot];
+    strncpy(without_dot, value + dot, strlen(value) - dot);
+    // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
     for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(value, keywords[i]) == 0) {
+        if (strcmp(without_dot, keywords[i]) == 0) {
             return KEYWORD;
         }
     }

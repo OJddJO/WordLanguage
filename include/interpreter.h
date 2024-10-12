@@ -10,6 +10,7 @@
 #include "w_bool.h"
 #include "w_array.h"
 #include "w_list.h"
+#include "w_dict.h"
 
 char *keywords[] = {
     //operations
@@ -32,7 +33,7 @@ char *keywords[] = {
     //loop
     "for", "in", "range", "to", "step", "while", "do", "endloop", "break",
     //functions
-    "def", "void", "with", "return", "enddef", "null",
+    "def", "void", "with", "return", "enddef", "call",
 };
 
 typedef enum _w_word_type {

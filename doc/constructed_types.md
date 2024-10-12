@@ -17,7 +17,7 @@ Constructed types are used to store multiple values. They are used to group data
 
 ## Lists (Not type safe)
 
-***Lists*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using lists as they can lead to type errors. ***Arrays*** are safer to use as they are type safe.
+***Lists*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using lists as they can lead to type errors. ***Arrays*** are safer to use as they are type safe. The size of ***lists*** is dynamic and can change. Unlike ***arrays***, list of lists and list of arrays can be created.
 
 | Expression | Description |
 |---|---|

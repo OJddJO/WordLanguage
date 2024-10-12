@@ -13,7 +13,7 @@ Conditional statements are used to make decisions in the code. They evaluate a *
 | `endif` | End if |
 
 ## Loops
-Loops are used to repeat code blocks. You can use `for` and `while` loops to repeat code blocks. You can use `break` to exit a loop and `endloop` to end a loop.
+Loops are used to repeat code blocks. You can use `for` and `while` loops to repeat code blocks. You can use `break` to exit a loop.
 
 | Expression | Description |
 |---|---|

@@ -3,11 +3,12 @@ Functions are used to group code into reusable blocks. They can take arguments a
 
 | Expression | Description |
 |---|---|
-| `def void funcName ` | Define a function `funcName` that returns nothing |
-| `def int funcName with bool a with int b` | Define a function `funcName` with arguments `a` (boolean) and `b` (integer) that returns an integer |
+| `def void funcName do` | Define a function `funcName` that returns nothing |
+| `def int funcName with bool a with int b do` | Define a function `funcName` with arguments `a` (boolean) and `b` (integer) that returns an integer |
 | `return a` | Return `a` from the function |
 | `return a plus b` | Return `a + b` from the function |
 | `enddef` | End function |
+| `call funcName` | Call the function `funcName` |
 
 ---
 -> [Return to main page](README.md)
