@@ -26,6 +26,7 @@ W_List *list_init();
 void list_append(W_List *l, void *value);
 int list_replace(W_List *l, int index, void *value);
 void list_remove(W_List *l, int index);
+void *list_pop(W_List *l);
 void *list_get(W_List *l, int index);
 int list_index(W_List *l, void *value);
 int list_size(W_List *l);

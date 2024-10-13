@@ -14,7 +14,6 @@ W_List *parse(W_List *tokenized_code) {
         list_append(parsed_code, parsed_line);
         current_line = current_line->next;
     }
-    word_destroy(tokenized_code);
     return parsed_code;
 }
 
@@ -26,21 +25,22 @@ W_List *parse(W_List *tokenized_code) {
 W_List *parse_line(W_List *line) {
     W_List *parsed_line = list_init();
     W_List_Element *current_word = line->head;
+    W_Tree *tree;
     for (int i = 0; i < line->size; i++) {
         W_Word *word = (W_Word *)current_word->value;
-        printf("current_word: %s, type: %d\n", word->value, word->type);
+        // printf("current_word: %s, type: %d\n", word->value, word->type);
         if (word->parsed) {
             current_word = current_word->next;
             continue;
         }
-        W_Tree *tree = tree_init();
+        tree = tree_init();
         if (word->type == KEYWORD || word->type == STR || current_word->next == NULL) {
-            printf("keyword/str: %s\n", word->value);
+            // printf("keyword/str: %s\n", word->value); //debug
             word->parsed = true;
             tree_set(tree, word);
         } else if ((word->type == NUMBER || word->type == IDENTIFIER) && ((W_Word *)current_word->next->value)->type != OPERATOR) {
-            printf("number/id and not op: %s\n", word->value);
-            printf("next: %s, type: %d\n", ((W_Word *)current_word->next->value)->value, ((W_Word *)current_word->next->value)->type);
+            // printf("number/id and not op: %s\n", word->value); //debug
+            // printf("next: %s, type: %d\n", ((W_Word *)current_word->next->value)->value, ((W_Word *)current_word->next->value)->type); //debug
             word->parsed = true;
             tree_set(tree, word);
         } else {
@@ -50,8 +50,7 @@ W_List *parse_line(W_List *line) {
                 while (current_word_copy != NULL) {
                     W_Word *word_copy = (W_Word *)current_word_copy->value;
                     if (word_copy->type == OPERATOR) {
-                        int current_priority = get_priority(word_copy->value);
-                        if (current_priority == j) {
+                        if (get_priority(word_copy->value) == j) {
                             W_Tree *operation = parse_operation(current_word_copy);
                             if (tree->value == NULL) {
                                 tree_destroy(tree);
@@ -72,7 +71,7 @@ W_List *parse_line(W_List *line) {
                 }
             }
         }
-        printf("tree: %s\n", tree->value->value);
+        // printf("tree: %s\n", tree->value->value); //debug
         list_append(parsed_line, tree);
         current_word = current_word->next;
     }
@@ -95,7 +94,7 @@ int parser_highest_priority(W_List_Element *current_word) {
                 highest_priority = current_priority;
             }
         }
-        else if (word->type != NUMBER) break;
+        else if (word->type != NUMBER && word->type != IDENTIFIER) break;
         current_word = current_word->next;
     }
     return highest_priority;
@@ -124,6 +123,7 @@ int get_priority(char *operator) {
 W_Tree *parse_operation(W_List_Element *current_word) {
     W_Tree *tree = tree_init();
     W_Word *word = (W_Word *)current_word->value; //word is an operator
+    printf("operator: %s\n", word->value); //debug
     word->parsed = true;
     tree_set(tree, word); //set the value of the tree to the operator
     W_Word *prev_word = (W_Word *)current_word->prev->value;
@@ -132,11 +132,13 @@ W_Tree *parse_operation(W_List_Element *current_word) {
     //if they are, create a new tree with the value of the word
     //and set the left or right child of the current tree to the new tree
     if (prev_word != NULL) if ((prev_word->type == NUMBER || prev_word->type == IDENTIFIER) && !prev_word->parsed) {
+        printf("prev_word: %s\n", prev_word->value); //debug
         tree->left = tree_init();
         prev_word->parsed = true;
         tree_set(tree->left, prev_word);
     }
     if (next_word != NULL) if ((next_word->type == NUMBER || next_word->type == IDENTIFIER) && !next_word->parsed) {
+        printf("next_word: %s\n", next_word->value); //debug
         tree->right = tree_init();
         next_word->parsed = true;
         tree_set(tree->right, prev_word);
@@ -157,7 +159,7 @@ void print_parsed_code(W_List *parsed_code) { //debug
         W_List_Element *current_tree = line->head;
         for (int j = 0; j < line->size; j++) {
             printf("    {\n");
-            W_List *post_order = tree_in_order((W_Tree *)current_tree->value);
+            W_List *post_order = tree_post_order((W_Tree *)current_tree->value);
             W_List_Element *current_word = post_order->head;
             for (int k = 0; k < post_order->size; k++) {
                 W_Word *word = (W_Word *)current_word->value;
@@ -173,12 +175,13 @@ void print_parsed_code(W_List *parsed_code) { //debug
                 } else if (word->type == NUMBER) {
                     printf("Type: NUMBER ");
                 }
-                printf("| Line: %d, ", word->line);
+                printf("| Line: %d,\n", word->line);
                 current_word = current_word->next;
             }
-            printf("\n    }\n");
+            printf("\n    },\n");
+            current_tree = current_tree->next;
         }
-        printf("}\n");
+        printf("},\n");
         current_line = current_line->next;
     }
 }

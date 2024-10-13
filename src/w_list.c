@@ -93,6 +93,20 @@ void list_remove(W_List *l, int index) {
 }
 
 /**
+ * \brief Remove and return the last element in the list
+ * \param l The list to pop the element from
+ * \return The value of the last element in the list, or NULL if the list is empty
+ **/
+void *list_pop(W_List *l) {
+    if (l->size == 0) {
+        return NULL;
+    }
+    void *value = l->tail->value;
+    list_remove(l, l->size - 1);
+    return value;
+}
+
+/**
  * \brief Get the value of an element in the list
  * \param l The list to get the element from
  * \param index The index of the element to get
