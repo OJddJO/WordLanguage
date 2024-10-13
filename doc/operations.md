@@ -14,7 +14,7 @@
 | `a mod b` | Remainder of `a` divided by `b` |
 | `a ediv b` | Euclidean division of `a` by `b` |
 | `a power b` | `a` raised to the power of `b` |
-| `a root b` | `a`th root of `b` |
+| `sqrt b` | square root of `b` |
 | `a .plus b time c` | `a + b` times `c` (priority) |
 
 ---
