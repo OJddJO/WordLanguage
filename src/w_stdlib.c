@@ -316,15 +316,36 @@ void *w_var_assign(W_Type type, void *value) {
  * \param var The variable to get the value of
  * \return The value of the variable
  */
-void *w_get_value(W_Var *var) {
-    switch (var->type) {
+void *w_get_value(void *var) {
+    switch (((W_Var *)var)->type) {
         case INT:
-            return int_value(var);
+            return int_value((W_Int *)var);
         case FLOAT:
-            return float_value(var);
+            return float_value((W_Float *)var);
         case STRING:
-            return str_value(var);
+            return str_value((W_Str *)var);
         case BOOL:
-            return bool_value(var);
+            return bool_value((W_Bool *)var);
+    }
+}
+
+/**
+ * \brief Delete a variable
+ * \param var The variable to delete
+ */
+void *w_var_delete(void *var) {
+    switch (((W_Var *)var)->type) {
+        case INT:
+            int_destroy((W_Int *)var);
+            break;
+        case FLOAT:
+            float_destroy((W_Float *)var);
+            break;
+        case STRING:
+            str_destroy((W_Str *)var);
+            break;
+        case BOOL:
+            bool_destroy((W_Bool *)var);
+            break;
     }
 }

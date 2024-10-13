@@ -23,8 +23,8 @@ void *w_plus(void *a, void *b);
 void *w_minus(void *a, void *b);
 void *w_time(void *a, void *b);
 W_Float *w_div(void *a, void *b);
-W_Int *w_mod(void *a, void *b);
-W_Int *w_ediv(void *a, void *b);
+W_Int *w_mod(W_Int *a, W_Int *b);
+W_Int *w_ediv(W_Int *a, W_Int *b);
 void *w_power(void *a, void *b);
 W_Float *w_sqrt(void *a);
 
