@@ -28,16 +28,19 @@ W_List *parse_line(W_List *line) {
     W_List_Element *current_word = line->head;
     for (int i = 0; i < line->size; i++) {
         W_Word *word = (W_Word *)current_word->value;
-        printf("current_word: %s\n", word->value);
+        printf("current_word: %s, type: %d\n", word->value, word->type);
         if (word->parsed) {
             current_word = current_word->next;
             continue;
         }
         W_Tree *tree = tree_init();
         if (word->type == KEYWORD || word->type == STR || current_word->next == NULL) {
+            printf("keyword/str: %s\n", word->value);
             word->parsed = true;
             tree_set(tree, word);
         } else if ((word->type == NUMBER || word->type == IDENTIFIER) && ((W_Word *)current_word->next->value)->type != OPERATOR) {
+            printf("number/id and not op: %s\n", word->value);
+            printf("next: %s, type: %d\n", ((W_Word *)current_word->next->value)->value, ((W_Word *)current_word->next->value)->type);
             word->parsed = true;
             tree_set(tree, word);
         } else {
@@ -47,21 +50,21 @@ W_List *parse_line(W_List *line) {
                 while (current_word_copy != NULL) {
                     W_Word *word_copy = (W_Word *)current_word_copy->value;
                     if (word_copy->type == OPERATOR) {
-                        int current_priority = 0;
-                        current_priority = get_priority(word_copy->value);
+                        int current_priority = get_priority(word_copy->value);
                         if (current_priority == j) {
-                            W_Tree *child = parse_operation(current_word_copy);
+                            W_Tree *operation = parse_operation(current_word_copy);
                             if (tree->value == NULL) {
-                                tree = child;
-                            } else if (tree->left == NULL) {
-                                tree->left = child;
-                            } else if (tree->right == NULL) {
-                                tree->right = child;
+                                tree_destroy(tree);
+                                tree = operation;
                             } else {
-                                W_Tree *new_tree = tree_init();
-                                new_tree->left = tree;
-                                new_tree->right = child;
-                                tree = new_tree;
+                                if (operation->left == NULL) {
+                                    operation->left = tree;
+                                    tree = operation;
+                                } else if (operation->right == NULL) {
+                                    operation->right = tree;
+                                    tree = operation;
+                                }
+                                tree = operation;
                             }
                         }
                     } else if (word_copy->type != NUMBER && word_copy->type != IDENTIFIER) break;
@@ -158,21 +161,19 @@ void print_parsed_code(W_List *parsed_code) { //debug
             W_List_Element *current_word = post_order->head;
             for (int k = 0; k < post_order->size; k++) {
                 W_Word *word = (W_Word *)current_word->value;
-                if (word != NULL) {
-                    printf("        Word: %s | ", word->value);
-                    if (word->type == KEYWORD) {
-                        printf("        Type: KEYWORD ");
-                    } else if (word->type == OPERATOR) {
-                        printf("        Type: OPERATOR ");
-                    } else if (word->type == IDENTIFIER) {
-                        printf("        Type: IDENTIFIER ");
-                    } else if (word->type == STR) {
-                        printf("        Type: STRING ");
-                    } else if (word->type == NUMBER) {
-                        printf("        Type: NUMBER ");
-                    }
-                    printf("        | Line: %d, ", word->line);
-                } else printf(" ????\n");
+                printf("        Word: %s | ", word->value);
+                if (word->type == KEYWORD) {
+                    printf("Type: KEYWORD ");
+                } else if (word->type == OPERATOR) {
+                    printf("Type: OPERATOR ");
+                } else if (word->type == IDENTIFIER) {
+                    printf("Type: IDENTIFIER ");
+                } else if (word->type == STR) {
+                    printf("Type: STRING ");
+                } else if (word->type == NUMBER) {
+                    printf("Type: NUMBER ");
+                }
+                printf("| Line: %d, ", word->line);
                 current_word = current_word->next;
             }
             printf("\n    }\n");

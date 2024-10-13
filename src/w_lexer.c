@@ -91,9 +91,10 @@ W_Word_Type word_type(char *value) {
             dot++;
         } else break;
     }
-    char without_dot[strlen(value) - dot];
+    char without_dot[strlen(value) - dot + 1];
     strncpy(without_dot, value + dot, strlen(value) - dot);
-    // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
+    without_dot[strlen(value) - dot] = '\0';
+    printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
     for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
         if (strcmp(without_dot, operators[i]) == 0) {
             return OPERATOR;

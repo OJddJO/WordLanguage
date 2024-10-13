@@ -13,8 +13,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     W_List *lexed_code = word_tokenize(temp);
+    // word_print(lexed_code); //debug
     W_List *parsed_code = parse(lexed_code);
-    print_parsed_code(parsed_code);
+    print_parsed_code(parsed_code); //debug
     word_destroy(lexed_code);
     fclose(temp);
     if (remove("exec.tmp") != 0) {
