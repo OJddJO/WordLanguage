@@ -156,20 +156,8 @@ void parser_destroy(W_List *parsed_code) {
     W_List_Element *current_line = parsed_code->head;
     for (int i = 0; i < parsed_code->size; i++) {
         W_List *line = (W_List *)current_line->value;
-        W_List_Element *current_tree = line->head;
-        for (int j = 0; j < line->size; j++) {
-            W_List *parsed_words = (W_List *)current_tree->value;
-            W_List_Element *current_word = parsed_words->head;
-            for (int k = 0; k < parsed_words->size; k++) {
-                W_Word *word = (W_Word *)current_word->value;
-                free(word->value);
-                free(word);
-                current_word = current_word->next;
-            }
-            list_destroy(parsed_words);
-            current_tree = current_tree->next;
-        }
-        list_destroy(line);
+        W_List_Element *parsed_line = line->head;
+        list_destroy((W_List *)parsed_line->value);
         current_line = current_line->next;
     }
     list_destroy(parsed_code);
