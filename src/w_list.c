@@ -161,7 +161,7 @@ void list_concat(W_List *l1, W_List *l2) {
     }
     l1->size += l2->size;
     l1->middle += l2->middle;
-    list_destroy(l2);
+    free(l2);
 }
 
 /**

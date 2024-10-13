@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "w_list.h"
 
 static char *keywords[] = {
@@ -45,6 +46,7 @@ typedef struct _w_word {
     W_Word_Type type;
     char *value;
     int line;
+    bool parsed;
 } W_Word;
 
 W_List *word_tokenize(FILE *source);

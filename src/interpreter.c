@@ -1,19 +1,21 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <file>\n", argv[0]);
-        return 1;
-    }
-    create_temp_file(argv[1]);
+    // if (argc < 2) {
+    //     printf("Usage: %s <file>\n", argv[0]);
+    //     return 1;
+    // }
+    // create_temp_file(argv[1]);
+    create_temp_file("test.w"); //debug
     FILE *temp = fopen("exec.tmp", "r");
     if (temp == NULL) {
         printf("Error: Could not create temp file\n");
         return 1;
     }
-    W_List *words = word_tokenize(temp);
-    word_print(words);
-    word_destroy(words);
+    W_List *lexed_code = word_tokenize(temp);
+    W_List *parsed_code = parse(lexed_code);
+    print_parsed_code(parsed_code);
+    word_destroy(lexed_code);
     fclose(temp);
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");

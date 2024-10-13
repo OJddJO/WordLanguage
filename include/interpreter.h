@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "w_lexer.h"
+#include "w_parser.h"
 
 void create_temp_file(char *filename);
 int main(int argc, char *argv[]);

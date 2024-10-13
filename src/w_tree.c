@@ -24,21 +24,21 @@ void tree_set(W_Tree *t, W_Word *value) {
 }
 
 /**
- * \brief Returns a list of words in post-order.
+ * \brief Returns a list of words in in-order.
  * \param t The tree to traverse.
- * \return A list of words in post-order.
+ * \return A list of words in int-order.
  */
-W_List *tree_post_order(W_Tree *t) {
+W_List *tree_in_order(W_Tree *t) {
     W_List *l = list_init();
     if (t->left != NULL) {
-        W_List *left = tree_post_order(t->left);
+        W_List *left = tree_in_order(t->left);
         list_concat(l, left);
     }
+    list_append(l, t->value);
     if (t->right != NULL) {
-        W_List *right = tree_post_order(t->right);
+        W_List *right = tree_in_order(t->right);
         list_concat(l, right);
     }
-    list_append(l, t->value);
     return l;
 }
 

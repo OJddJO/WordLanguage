@@ -13,7 +13,7 @@ typedef struct _w_tree {
 
 W_Tree *tree_init();
 void tree_set(W_Tree *t, W_Word *value);
-W_List *tree_post_order(W_Tree *t);
+W_List *tree_in_order(W_Tree *t);
 void tree_destroy(W_Tree *t);
 
 #endif

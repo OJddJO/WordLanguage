@@ -32,6 +32,7 @@ W_List *word_tokenize(FILE *source) {
             // printf("value: %s\n", value); //debug
             w->type = word_type(value);
             w->line = n_line;
+            w->parsed = false;
             list_append(line, w);
             w = (W_Word *)malloc(sizeof(W_Word));
             fseek(source, i+1, SEEK_SET);
