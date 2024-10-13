@@ -18,7 +18,7 @@ W_Int *int_init() {
  */
 void int_set(W_Int *i, int value) {
     int *v;
-    if (i->type != NULL_TYPE) {
+    if (i->type == NULL_TYPE) {
         v = (int *)malloc(sizeof(int));
         i->type = INT;
     } else v = i->value;
@@ -31,8 +31,8 @@ void int_set(W_Int *i, int value) {
  * \param i The integer to get the value of.
  * \return The value of the integer.
  */
-int int_value(W_Int *i) {
-    return *(i->value);
+int *int_value(W_Int *i) {
+    return i->value;
 }
 
 /**

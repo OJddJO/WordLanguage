@@ -17,7 +17,7 @@ W_Str *str_init() {
  * \param value The new value.
  */
 void str_set(W_Str *s, char *value) {
-    if (s->type != NULL_TYPE) {
+    if (s->type == NULL_TYPE) {
         free(s->value);
         s->type = STRING;
     }

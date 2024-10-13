@@ -11,7 +11,7 @@ typedef struct _w_float {
 
 W_Float *float_init();
 void float_set(W_Float *f, double value);
-double float_value(W_Float *f);
+double *float_value(W_Float *f);
 void float_destroy(W_Float *f);
 
 #endif

@@ -18,7 +18,7 @@ W_Bool *bool_init() {
  */
 void bool_set(W_Bool *b, bool value) {
     bool *v;
-    if (b->type != NULL_TYPE) {
+    if (b->type == NULL_TYPE) {
         v = (bool *)malloc(sizeof(bool));
         b->type = BOOL;
     } else v = b->value;
