@@ -1,5 +1,14 @@
 #include "w_stdlib.h"
 
+/***********************************************
+ * Global **************************************
+ ***********************************************/
+
+/**
+ * \brief Get the type of a variable
+ * \param var The variable to get the type of
+ * \return The type of the variable
+ */
 char *w_get_type(W_Var *var) {
     char *type = (char *)malloc(11);
     switch (var->type) {
@@ -36,6 +45,10 @@ char *w_get_type(W_Var *var) {
     }
     return type;
 }
+
+/***********************************************
+ * Operations **********************************
+ ***********************************************/
 
 /**
  * \brief Add two variables
@@ -100,5 +113,218 @@ void *w_minus(void *a, void *b) {
         free(type_a_str);
         free(type_b_str);
         exit(1);
+    }
+}
+
+/**
+ * \brief Multiply two variables
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the multiplication
+ */
+void *w_time(void *a, void *b) {
+    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+    if (type_a == INT && type_b == INT) {
+        W_Int *result = int_init();
+        int_set(result, *int_value(a) * *int_value(b));
+        return result;
+    } else if (type_a == FLOAT && type_b == INT) {
+        W_Float *result = float_init();
+        float_set(result, *float_value(a) * (double)*int_value(b));
+        return result;
+    } else if (type_b == FLOAT && type_a == INT) {
+        W_Float *result = float_init();
+        float_set(result, (double)*int_value(a) * *float_value(b));
+        return result;
+    } else if (type_a == FLOAT && type_b == FLOAT) {
+        W_Float *result = float_init();
+        float_set(result, *float_value(a) * *float_value(b));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        printf("Error: Unsupported types for multiplication. (%s * %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+}
+
+/**
+ * \brief Divide two variables
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the division
+ */
+W_Float *w_div(void *a, void *b) {
+    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+    if (type_a == INT && type_b == INT) {
+        W_Float *result = float_init();
+        float_set(result, (double)*int_value(a) / *int_value(b));
+        return result;
+    } else if (type_a == FLOAT && type_b == INT) {
+        W_Float *result = float_init();
+        float_set(result, *float_value(a) / (double)*int_value(b));
+        return result;
+    } else if (type_b == FLOAT && type_a == INT) {
+        W_Float *result = float_init();
+        float_set(result, (double)*int_value(a) / *float_value(b));
+        return result;
+    } else if (type_a == FLOAT && type_b == FLOAT) {
+        W_Float *result = float_init();
+        float_set(result, *float_value(a) / *float_value(b));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+}
+
+/**
+ * \brief Modulo two variables
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the modulo
+ */
+W_Int *w_mod(void *a, void *b) {
+    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+    if (type_a == INT && type_b == INT) {
+        W_Int *result = int_init();
+        int_set(result, *int_value(a) % *int_value(b));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+}
+
+/**
+ * \brief Integer division two variables
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the integer division
+ */
+W_Int *w_ediv(void *a, void *b) {
+    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+    if (type_a == INT && type_b == INT) {
+        W_Int *result = int_init();
+        int_set(result, *int_value(a) / *int_value(b));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        printf("Error: Unsupported types for integer division. (%s // %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+}
+
+/**
+ * \brief Raise a variable to the power of another variable
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the power operation
+ */
+void *w_power(void *a, void *b) {
+    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+    if (type_a == INT && type_b == INT) {
+        W_Int *result = int_init();
+        int_set(result, (int)pow(*int_value(a), *int_value(b)));
+        return result;
+    } else if (type_a == FLOAT && type_b == INT) {
+        W_Float *result = float_init();
+        float_set(result, pow(*float_value(a), (double)*int_value(b)));
+        return result;
+    } else if (type_b == FLOAT && type_a == INT) {
+        W_Float *result = float_init();
+        float_set(result, pow((double)*int_value(a), *float_value(b)));
+        return result;
+    } else if (type_a == FLOAT && type_b == FLOAT) {
+        W_Float *result = float_init();
+        float_set(result, pow(*float_value(a), *float_value(b)));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        printf("Error: Unsupported types for power operation. (%s ** %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+}
+
+/**
+ * \brief Square root a variable
+ * \param a The variable to square root
+ * \return The result of the square root operation
+ */
+W_Float *w_sqrt(void *a) {
+    W_Type type_a = ((W_Var *)a)->type;
+    if (type_a == INT) {
+        W_Float *result = float_init();
+        float_set(result, sqrt((double)*int_value(a)));
+        return result;
+    } else if (type_a == FLOAT) {
+        W_Float *result = float_init();
+        float_set(result, sqrt(*float_value(a)));
+        return result;
+    } else {
+        char *type_a_str = w_get_type(a);
+        printf("Error: Unsupported type for square root operation. (sqrt(%s))\n", type_a_str);
+        free(type_a_str);
+        exit(1);
+    }
+}
+
+/***********************************************
+ * Variables ***********************************
+ ***********************************************/
+
+/**
+ * \brief Assign a value to a variable
+ * \param type The type of the variable
+ * \param value The value to assign to the variable
+ * \return The variable with the assigned value
+ */
+void *w_var_assign(W_Type type, void *value) {
+    switch (type) {
+        case INT:
+            W_Int *result = int_init();
+            int_set(result, *(int *)value);
+            return result;
+        case FLOAT:
+            W_Float *result = float_init();
+            float_set(result, *(double *)value);
+            return result;
+        case STRING:
+            W_Str *result = str_init();
+            str_set(result, (char *)value);
+            return result;
+        case BOOL:
+            W_Bool *result = bool_init();
+            bool_set(result, *(int *)value);
+            return result;
+    }
+}
+
+/**
+ * \brief Get the value of a variable
+ * \param var The variable to get the value of
+ * \return The value of the variable
+ */
+void *w_get_value(W_Var *var) {
+    switch (var->type) {
+        case INT:
+            return int_value(var);
+        case FLOAT:
+            return float_value(var);
+        case STRING:
+            return str_value(var);
+        case BOOL:
+            return bool_value(var);
     }
 }

@@ -19,6 +19,8 @@ typedef struct _w_var {
 
 typedef struct _w_func {
     W_Type type;
+    int line_start;
+    int line_end;
 } W_Func;
 
 #endif

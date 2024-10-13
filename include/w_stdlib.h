@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "w_array.h"
 #include "w_bool.h"
 #include "w_dict.h"
@@ -21,11 +22,16 @@ char *w_get_type(W_Var *var);
 void *w_plus(void *a, void *b);
 void *w_minus(void *a, void *b);
 void *w_time(void *a, void *b);
-void *w_div(void *a, void *b);
-void *w_mod(void *a, void *b);
-void *w_ediv(void *a, void *b);
+W_Float *w_div(void *a, void *b);
+W_Int *w_mod(void *a, void *b);
+W_Int *w_ediv(void *a, void *b);
 void *w_power(void *a, void *b);
-void *w_sqrt(void *a);
+W_Float *w_sqrt(void *a);
 
+// Variables
+
+void *w_var_assign(W_Type type, void *value);
+void *w_var_delete(void *var);
+void *w_get_value(void *var);
 
 #endif

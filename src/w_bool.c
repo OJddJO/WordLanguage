@@ -31,6 +31,15 @@ void bool_set(W_Bool *b, bool value) {
  * \param b The boolean to get the value of.
  * \return The value of the boolean.
  */
-bool bool_value(W_Bool *b) {
-    return *(b->value);
+bool *bool_value(W_Bool *b) {
+    return b->value;
+}
+
+/**
+ * \brief Destroys the given boolean.
+ * \param b The boolean to destroy.
+ */
+void bool_destroy(W_Bool *b) {
+    free(b->value);
+    free(b);
 }

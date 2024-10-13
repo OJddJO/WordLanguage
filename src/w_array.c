@@ -19,10 +19,11 @@ static void **populate_array(W_Type type, int capacity) {
 
 /**
  * \brief Initializes a new array with the given capacity.
+ * \param type The type of the array.
  * \param capacity The initial capacity of the array.
  * \return A pointer to the newly created array.
  */
-W_Array *array_init(int capacity, W_Type type) {
+W_Array *array_init(W_Type type, int capacity) {
     W_Array *array = (W_Array *)malloc(sizeof(W_Array));
     array->type = ARRAY;
     array->subtype = type;
