@@ -1,5 +1,11 @@
 #include "w_array.h"
 
+/**
+ * \brief Populates an array with the given capacity.
+ * \param type The type of the array.
+ * \param capacity The capacity of the array.
+ * \return A pointer to the populated array.
+ */
 static void **populate_array(W_Type type, int capacity) {
     void **data = (void **)malloc(capacity * sizeof(void *));
     for (int i = 0; i < capacity; i++) {
@@ -18,7 +24,7 @@ static void **populate_array(W_Type type, int capacity) {
 }
 
 /**
- * \brief Initializes a new array with the given capacity.
+ * \brief Initializes a new array with the given capacity. (malloc)
  * \param type The type of the array.
  * \param capacity The initial capacity of the array.
  * \return A pointer to the newly created array.
@@ -83,6 +89,9 @@ int array_size(W_Array *array) {
  * \param array The array to destroy.
  */
 void array_destroy(W_Array *array) {
+    for (int i = 0; i < array->capacity; i++) {
+        free(array->data[i]);
+    }
     free(array->data);
     free(array);
 }

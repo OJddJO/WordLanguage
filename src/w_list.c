@@ -1,7 +1,8 @@
 #include "w_list.h"
 
 /**
- * \brief Initialize a list
+ * \brief Initialize a list (malloc)
+ * \return A pointer to the new list
  **/
 W_List *list_init() {
     W_List *l = (W_List *)malloc(sizeof(W_List));
@@ -14,7 +15,7 @@ W_List *list_init() {
 }
 
 /**
- * \brief Add an element to the list
+ * \brief Add an element to the list (malloc)
  * \param l The list to add the element to
  * \param value The value of the element to add
  **/
@@ -89,11 +90,12 @@ void list_remove(W_List *l, int index) {
         l->middle--;
     }
     l->size--;
+    if (e->value != NULL) free(e->value);
     free(e);
 }
 
 /**
- * \brief Remove and return the last element in the list
+ * \brief Remove and return the last element in the list (malloc)
  * \param l The list to pop the element from
  * \return The value of the last element in the list, or NULL if the list is empty
  **/
@@ -102,7 +104,18 @@ void *list_pop(W_List *l) {
         return NULL;
     }
     void *value = l->tail->value;
-    list_remove(l, l->size - 1);
+    W_List_Element *e = l->tail;
+    l->tail = e->prev;
+    if (l->tail != NULL) {
+        l->tail->next = NULL;
+    } else {
+        l->head = NULL;
+    }
+    l->size--;
+    if (l->size % 2 == 0) {
+        l->middle--;
+    }
+    free(e);
     return value;
 }
 
@@ -160,7 +173,7 @@ int list_size(W_List *l) {
 }
 
 /**
- * \brief Concatenate two lists
+ * \brief Concatenate two lists and destroy the second list
  * \param l1 The first list
  * \param l2 The second list
  **/
@@ -184,11 +197,10 @@ void list_concat(W_List *l1, W_List *l2) {
  **/
 void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
-    while (e != NULL) {
-        W_List_Element *next = e->next;
+    for (int i = 0; i < l->size; i++) {
         if (e->value != NULL) free(e->value);
         free(e);
-        e = next;
+        e = e->next;
     }
     l->head = NULL;
     l->tail = NULL;

@@ -1,7 +1,7 @@
 #include "w_parser.h"
 
 /**
- * \brief Parses the given list of words into a parsing tree.
+ * \brief Parses the given list of words into a parsing tree. (malloc)
  * \param tokenized_code The list of list of words to parse.
  * \return A list of list of words, representing the parsed code.
  */
@@ -14,12 +14,12 @@ W_List *parse(W_List *tokenized_code) {
         list_append(parsed_code, parsed_line);
         current_line = current_line->next;
     }
-    free(tokenized_code);
+    list_destroy(tokenized_code);
     return parsed_code;
 }
 
 /**
- * \brief Parses the given list of words into a parsing tree.
+ * \brief Parses the given list of words into a parsing tree. (malloc)
  * \param line The list of words to parse.
  * \return A list of lists of words, representing the parsed line.
  */
@@ -79,7 +79,7 @@ int get_priority(char *operator) {
 }
 
 /**
- * \brief Returns a list representing the given operation in post-order.
+ * \brief Returns a list representing the given operation in post-order. (malloc)
  * \param current_word The current operation to parse.
  * \return A list representing the operation.
  */
@@ -156,8 +156,7 @@ void parser_destroy(W_List *parsed_code) {
     W_List_Element *current_line = parsed_code->head;
     for (int i = 0; i < parsed_code->size; i++) {
         W_List *line = (W_List *)current_line->value;
-        W_List_Element *parsed_line = line->head;
-        list_destroy((W_List *)parsed_line->value);
+        list_destroy(line);
         current_line = current_line->next;
     }
     list_destroy(parsed_code);

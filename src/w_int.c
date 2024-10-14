@@ -1,7 +1,7 @@
 #include "w_int.h"
 
 /**
- * \brief Initializes a new integer.
+ * \brief Initializes a new integer. (malloc)
  * \return A pointer to the newly created integer.
  */
 W_Int *int_init() {
@@ -12,7 +12,7 @@ W_Int *int_init() {
 }
 
 /**
- * \brief Sets the value of the given integer.
+ * \brief Sets the value of the given integer. (malloc)
  * \param i The integer to set the value of.
  * \param value The value to set.
  */
@@ -40,5 +40,6 @@ int *int_value(W_Int *i) {
  * \param i The integer to destroy.
  */
 void int_destroy(W_Int *i) {
+    if (i->value != NULL) free(i->value);
     free(i);
 }

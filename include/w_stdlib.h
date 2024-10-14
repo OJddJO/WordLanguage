@@ -12,10 +12,12 @@
 #include "w_list.h"
 #include "w_str.h"
 #include "w_type.h"
+#include "w_function.h"
 
 // Global
 
-char *w_get_type(W_Var *var);
+W_Type w_get_type(char *str);
+char *w_get_type_str(void *var);
 
 // Operations
 

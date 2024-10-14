@@ -1,7 +1,7 @@
 #include "w_bool.h"
 
 /**
- * \brief Initializes a new boolean.
+ * \brief Initializes a new boolean. (malloc)
  * \return A pointer to the newly created boolean.
  */
 W_Bool *bool_init() {
@@ -12,7 +12,7 @@ W_Bool *bool_init() {
 }
 
 /**
- * \brief Sets the value of the given boolean.
+ * \brief Sets the value of the given boolean. (malloc)
  * \param b The boolean to set the value of.
  * \param value The value to set.
  */
@@ -40,6 +40,6 @@ bool *bool_value(W_Bool *b) {
  * \param b The boolean to destroy.
  */
 void bool_destroy(W_Bool *b) {
-    free(b->value);
+    if (b->value != NULL) free(b->value);
     free(b);
 }

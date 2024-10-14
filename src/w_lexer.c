@@ -1,7 +1,7 @@
 #include "w_lexer.h"
 
 /**
- * \brief Tokenizes the given file into a list of words.
+ * \brief Tokenizes the given file into a list of words. (malloc)
  * \param source The file to tokenize.
  * \return A list of list of words.
  */
@@ -111,18 +111,11 @@ W_Word_Type word_type(char *value) {
 void word_destroy(W_List *code) {
     W_List_Element *current_line = code->head;
     W_List *line = (W_List *)current_line->value;
-    W_List_Element *current_word = line->head;
     for (int i = 0; i < code->size; i++) {
-        while (current_word != NULL) {
-            W_Word *w = (W_Word *)current_word->value;
-            free(w->value);
-            free(w);
-            current_word = current_word->next;
-        }
+        list_destroy(line);
         if (current_line->next != NULL) {
             current_line = current_line->next;
             line = (W_List *)current_line->value;
-            current_word = line->head;
         }
     }
     list_destroy(code);

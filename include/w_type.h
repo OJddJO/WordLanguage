@@ -1,8 +1,6 @@
 #ifndef __TYPE_H__
 #define __TYPE_H__
 
-#include "w_list.h"
-
 typedef enum _w_type {
     NULL_TYPE,
     INT,
@@ -18,10 +16,5 @@ typedef enum _w_type {
 typedef struct _w_var {
     W_Type type;
 } W_Var;
-
-typedef struct _w_func {
-    W_Type type;
-    W_List *parsed_code;
-} W_Func;
 
 #endif

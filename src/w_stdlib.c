@@ -5,13 +5,13 @@
  ***********************************************/
 
 /**
- * \brief Get the type of a variable
+ * \brief Get the type of a variable as a string (malloc)
  * \param var The variable to get the type of
  * \return The type of the variable
  */
-char *w_get_type(W_Var *var) {
+char *w_get_type_str(void *var) {
     char *type = (char *)malloc(11);
-    switch (var->type) {
+    switch (((W_Var *)var)->type) {
         case INT:
             strcpy(type, "<int>");
             break;
@@ -46,12 +46,39 @@ char *w_get_type(W_Var *var) {
     return type;
 }
 
+/**
+ * \brief Get the type of a variable from a string
+ * \param var The variable to get the type of
+ * \return The type of the variable
+ */
+W_Type w_get_type(char *str) {
+    if (strcmp(str, "int") == 0) {
+        return INT;
+    } else if (strcmp(str, "float") == 0) {
+        return FLOAT;
+    } else if (strcmp(str, "str") == 0) {
+        return STRING;
+    } else if (strcmp(str, "bool") == 0) {
+        return BOOL;
+    } else if (strcmp(str, "list") == 0) {
+        return LIST;
+    } else if (strcmp(str, "array") == 0) {
+        return ARRAY;
+    } else if (strcmp(str, "dict") == 0) {
+        return DICT;
+    } else if (strcmp(str, "function") == 0) {
+        return FUNCTION;
+    } else {
+        return NULL_TYPE;
+    }
+}
+
 /***********************************************
  * Operations **********************************
  ***********************************************/
 
 /**
- * \brief Add two variables
+ * \brief Add two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the addition
@@ -75,7 +102,7 @@ void *w_plus(void *a, void *b) {
         float_set(result, *float_value(a) + *float_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for addition. (%s + %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -84,7 +111,7 @@ void *w_plus(void *a, void *b) {
 }
 
 /**
- * \brief Subtract two variables
+ * \brief Subtract two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the subtraction
@@ -108,7 +135,7 @@ void *w_minus(void *a, void *b) {
         float_set(result, *float_value(a) - *float_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for subtraction. (%s - %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -117,7 +144,7 @@ void *w_minus(void *a, void *b) {
 }
 
 /**
- * \brief Multiply two variables
+ * \brief Multiply two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the multiplication
@@ -141,7 +168,7 @@ void *w_time(void *a, void *b) {
         float_set(result, *float_value(a) * *float_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for multiplication. (%s * %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -150,7 +177,7 @@ void *w_time(void *a, void *b) {
 }
 
 /**
- * \brief Divide two variables
+ * \brief Divide two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the division
@@ -174,7 +201,7 @@ W_Float *w_div(void *a, void *b) {
         float_set(result, *float_value(a) / *float_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -183,7 +210,7 @@ W_Float *w_div(void *a, void *b) {
 }
 
 /**
- * \brief Modulo two variables
+ * \brief Modulo two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the modulo
@@ -195,7 +222,7 @@ W_Int *w_mod(void *a, void *b) {
         int_set(result, *int_value(a) % *int_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -204,7 +231,7 @@ W_Int *w_mod(void *a, void *b) {
 }
 
 /**
- * \brief Integer division two variables
+ * \brief Integer division two variables (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the integer division
@@ -216,7 +243,7 @@ W_Int *w_ediv(void *a, void *b) {
         int_set(result, (*int_value(a) - *int_value(a) % *int_value(b)) / *int_value(b));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -225,7 +252,7 @@ W_Int *w_ediv(void *a, void *b) {
 }
 
 /**
- * \brief Raise a variable to the power of another variable
+ * \brief Raise a variable to the power of another variable (malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the power operation
@@ -249,7 +276,7 @@ void *w_power(void *a, void *b) {
         float_set(result, pow(*float_value(a), *float_value(b)));
         return result;
     } else {
-        char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for power operation. (%s ** %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
@@ -258,7 +285,7 @@ void *w_power(void *a, void *b) {
 }
 
 /**
- * \brief Square root a variable
+ * \brief Square root a variable (malloc)
  * \param a The variable to square root
  * \return The result of the square root operation
  */
@@ -273,7 +300,7 @@ W_Float *w_sqrt(void *a) {
         float_set(result, sqrt(*float_value(a)));
         return result;
     } else {
-        char *type_a_str = w_get_type(a);
+        char *type_a_str = w_get_type_str(a);
         printf("Error: Unsupported type for square root operation. (sqrt(%s))\n", type_a_str);
         free(type_a_str);
         exit(1);
@@ -285,7 +312,7 @@ W_Float *w_sqrt(void *a) {
  ***********************************************/
 
 /**
- * \brief Assign a value to a variable
+ * \brief Assign a value to a variable (malloc)
  * \param type The type of the variable
  * \param value The value to assign to the variable
  * \return The variable with the assigned value

@@ -1,7 +1,7 @@
 #include "w_float.h"
 
 /**
- * \brief Initializes a new float.
+ * \brief Initializes a new float. (malloc)
  * \return A pointer to the newly created float.
  */
 W_Float *float_init() {
@@ -12,7 +12,7 @@ W_Float *float_init() {
 }
 
 /**
- * \brief Sets the value of the given float.
+ * \brief Sets the value of the given float. (malloc)
  * \param f The float to set the value of.
  * \param value The value to set.
  */
@@ -40,5 +40,6 @@ double *float_value(W_Float *f) {
  * \param f The float to destroy.
  */
 void float_destroy(W_Float *f) {
+    if (f->value != NULL) free(f->value);
     free(f);
 }
