@@ -12,6 +12,7 @@
 | `array int var size 10` | Create a new integer array variable `var` of size 10 |
 | `var get index a` | Get the value at index `a` from the array variable `var` |
 | `var set index a assign b` | Set the value at index `a` in the array variable `var` to `b` |
+| `var search a` | Search for the value `a` in the array variable `var` and return the index (-1 if not found) |
 | `var append a` | Append `a` to the array variable `var` |
 | `var remove a` | Remove the value at index `a` from the array variable `var` |
 | `var length` | Get the length of the array variable `var` |
@@ -27,6 +28,7 @@
 | `list var` | Create a new list variable `var` (not type safe, can contain any type of data) |
 | `var get index a` | Get the value at index `a` from the list variable `var` |
 | `var set index a assign b` | Set the value at index `a` in the list variable `var` to `b` |
+| `var search a` | Search for the value `a` in the list variable `var` and return the index (-1 if not found) |
 | `var append a` | Append `a` to the list variable `var` (not type safe) |
 | `var remove a` | Remove the value at index `a` from the list variable `var` |
 | `var length` | Get the length of the list variable `var` |

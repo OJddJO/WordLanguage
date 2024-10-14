@@ -44,7 +44,6 @@ void *array_get(W_Array *array, int index) {
     return array->data[index];
 }
 
-
 /**
  * \brief Sets the value at the given index in the array.
  * \param array The array to set the value in.
@@ -59,6 +58,15 @@ void array_set(W_Array *array, int index, void *value) {
         return;
     }
     array->data[index] = value;
+}
+
+int array_index(W_Array *array, void *value) {
+    for (int i = 0; i < array->capacity; i++) {
+        if (array->data[i] == value) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /**

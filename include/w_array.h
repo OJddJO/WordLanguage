@@ -18,6 +18,7 @@ typedef struct _w_array {
 W_Array *array_init(W_Type type, int capacity);
 void *array_get(W_Array *array, int index);
 void array_set(W_Array *array, int index, void *value);
+int array_index(W_Array *array, void *value);
 int array_size(W_Array *array);
 void array_destroy(W_Array *array);
 

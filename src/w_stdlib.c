@@ -213,11 +213,11 @@ W_Int *w_ediv(void *a, void *b) {
     W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, *int_value(a) / *int_value(b));
+        int_set(result, (*int_value(a) - *int_value(a) % *int_value(b)) / *int_value(b));
         return result;
     } else {
         char *type_a_str = w_get_type(a), *type_b_str = w_get_type(b);
-        printf("Error: Unsupported types for integer division. (%s // %s)\n", type_a_str, type_b_str);
+        printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
         exit(1);
@@ -291,21 +291,22 @@ W_Float *w_sqrt(void *a) {
  * \return The variable with the assigned value
  */
 void *w_var_assign(W_Type type, void *value) {
+    void *result;
     switch (type) {
         case INT:
-            W_Int *result = int_init();
+            result = int_init();
             int_set(result, *(int *)value);
             return result;
         case FLOAT:
-            W_Float *result = float_init();
+            result = float_init();
             float_set(result, *(double *)value);
             return result;
         case STRING:
-            W_Str *result = str_init();
+            result = str_init();
             str_set(result, (char *)value);
             return result;
         case BOOL:
-            W_Bool *result = bool_init();
+            result = bool_init();
             bool_set(result, *(int *)value);
             return result;
     }
@@ -316,16 +317,16 @@ void *w_var_assign(W_Type type, void *value) {
  * \param var The variable to get the value of
  * \return The value of the variable
  */
-void *w_get_value(void *var) {
+void *w_var_get(void *var) {
     switch (((W_Var *)var)->type) {
         case INT:
-            return int_value((W_Int *)var);
+            return int_value(var);
         case FLOAT:
-            return float_value((W_Float *)var);
+            return float_value(var);
         case STRING:
-            return str_value((W_Str *)var);
+            return str_value(var);
         case BOOL:
-            return bool_value((W_Bool *)var);
+            return bool_value(var);
     }
 }
 
@@ -347,5 +348,12 @@ void *w_var_delete(void *var) {
         case BOOL:
             bool_destroy((W_Bool *)var);
             break;
+        case ARRAY:
+            array_destroy((W_Array *)var);
+            break;
+        case LIST:
+            list_destroy((W_List *)var);
+            break;
     }
 }
+

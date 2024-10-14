@@ -70,6 +70,15 @@ void *dict_get(W_Dict *d, char *key) {
 }
 
 /**
+ * \brief Gets the keys of the given dictionary.
+ * \param d The dictionary to get the keys from.
+ * \return The keys of the dictionary.
+ */
+W_List *dict_keys(W_Dict *d) {
+    return d->keys;
+}
+
+/**
  * \brief Removes the given key and value from the given dictionary.
  * \param d The dictionary to remove the key and value from.
  * \param key The key to remove.
