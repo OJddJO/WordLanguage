@@ -93,7 +93,7 @@ void *execute(W_List *parsed_code, W_Dict *args) {
                 if (strcmp(word->value, "void") == 0) {
                     f->return_type = NULL_TYPE;
                 } else {
-                    f->return_type = word->value;
+                    f->return_type = w_get_type(word->value);
                 }
                 current_word = current_word->next;
                 word = current_word->value;
