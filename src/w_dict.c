@@ -20,11 +20,18 @@ W_Dict *dict_init() {
  */
 void dict_set(W_Dict *d, char *key, void *value) {
     if (dict_contains(d, key)) {
+        W_List_Element *current_key = d->keys->head;
+        W_List_Element *current_value = d->values->head;
         for (int i = 0; i < d->keys->size; i++) {
-            if (strcmp(d->keys->head->value, key) == 0) {
-                list_replace(d->values, i, value);
+            if (strcmp((char *)current_key->value, key) == 0) {
+                if (current_value->value != NULL) {
+                    free(current_value->value);
+                }
+                current_value->value = value;
                 return;
             }
+            current_key = current_key->next;
+            current_value = current_value->next;
         }
     } else {
         char *key_copy = (char *)malloc(strlen(key) + 1);
@@ -41,10 +48,12 @@ void dict_set(W_Dict *d, char *key, void *value) {
  * \return 1 if the dictionary contains the key, 0 otherwise.
  */
 int dict_contains(W_Dict *d, char *key) {
+    W_List_Element *current_key = d->keys->head;
     for (int i = 0; i < d->keys->size; i++) {
-        if (strcmp(d->keys->head->value, key) == 0) {
+        if (strcmp((char *)current_key->value, key) == 0) {
             return 1;
         }
+        current_key = current_key->next;
     }
     return 0;
 }
@@ -56,10 +65,14 @@ int dict_contains(W_Dict *d, char *key) {
  * \return The value associated with the key.
  */
 void *dict_get(W_Dict *d, char *key) {
+    W_List_Element *current_key = d->keys->head;
+    W_List_Element *current_value = d->values->head;
     for (int i = 0; i < d->keys->size; i++) {
-        if (strcmp(d->keys->head->value, key) == 0) {
-            return d->values->head->value;
+        if (strcmp((char *)current_key->value, key) == 0) {
+            return current_value->value;
         }
+        current_key = current_key->next;
+        current_value = current_value->next;
     }
     return NULL;
 }
@@ -105,34 +118,4 @@ void dict_destroy(W_Dict *d) {
     list_destroy(d->keys);
     list_destroy(d->values);
     free(d);
-}
-
-/**
- * \brief Prints the given dictionary.
- * \param d The dictionary to print.
- */
-void dict_print(W_Dict *d) {
-    printf("{");
-    W_List_Element *current_key = d->keys->head;
-    W_List_Element *current_value = d->values->head;
-    for (int i = 0; i < d->keys->size; i++) {
-        char *key = (char *)current_key->value;
-        char *value = (char *)current_value->value;
-        printf("%s: ", key);
-        if (value == NULL) {
-            printf("NULL");
-        } else if (((W_Var *)value)->type == INT) {
-            printf("%d", ((W_Int *)value)->value);
-        } else if (((W_Var *)value)->type == FLOAT) {
-            printf("%f", ((W_Float *)value)->value);
-        } else if (((W_Var *)value)->type == STRING) {
-            printf("%s", ((W_Str *)value)->value);
-        } else if (((W_Var *)value)->type == BOOL) {
-            printf("%s", ((W_Bool *)value)->value ? "true" : "false");
-        } else {
-            printf("element at %p", value);
-        }
-        printf(",\n");
-    }
-    printf("}\n");
 }

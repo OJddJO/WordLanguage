@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
-    execute(parsed_code, dict_init());
+    execute(parsed_code, dict_init(), NULL_TYPE);
 
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");
@@ -63,8 +63,9 @@ void create_temp_file(char *filename) {
  * \param args The arguments to pass to the code.
  * \return The result of the execution
  */
-void *execute(W_List *parsed_code, W_Dict *args) {
+void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
     W_Dict *variables = dict_init();
+    void *result = NULL;
 
     W_List *args_keys = dict_keys(args);
     W_List_Element *current_key = args_keys->head;
@@ -77,21 +78,12 @@ void *execute(W_List *parsed_code, W_Dict *args) {
     free(args);
 
     W_List_Element *current_line = parsed_code->head;
-    for (int i = 0; i < parsed_code->size; i++) {
+    while (current_line != NULL) {
         W_List *line = (W_List *)current_line->value;
         W_List_Element *parsed_line = line->head;
 
         W_List *stack = list_init(); //the stack of words to evaluate
-        for (int i_ = 0; i_ < line->size; i_++) {
-            W_List *parsed_words = (W_List *)parsed_line->value;
-            W_List_Element *current_word = parsed_words->head;
-            if (parsed_words->size == 1) { //not an operation
-                list_append(stack, current_word->value); //add to stack
-            } else { //if the size of parsed_line is not 1 then evaluate operation
-                //TODO: evaluate operation
-            }
-            parsed_line = parsed_line->next;
-        }
+        eval_parsed_lines(parsed_line, variables, stack);
 
         W_List_Element *current_word = stack->head;
         W_Word *word = (W_Word *)current_word->value;
@@ -150,8 +142,74 @@ void *execute(W_List *parsed_code, W_Dict *args) {
                 printf("Error: Expected end of line after 'do' keyword, line: %d\n", word->line);
                 exit(1);
             }
+
+            //get function lines
+            int fn_line = word->line;
+            W_List *function_lines = list_init();
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                parsed_line = line->head;
+                current_word = ((W_List *)parsed_line->value)->head;
+                word = (W_Word *)current_word->value;
+                if (strcmp(word->value, "enddef") == 0) {
+                    end = true;
+                    break;
+                }
+                list_append(function_lines, line);
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected 'enddef' at end of the function definition, line: %d\n", fn_line);
+                exit(1);
+            }
+            f->parsed_code = function_lines;
+
+            //add function to variables
             dict_set(variables, name, f);
-            dict_print(args);
+
+        } else if (strcmp(word->value, "return") == 0) { //return statement
+            current_word = current_word->next;
+            word = current_word->value;
+            if (*return_type == NULL_TYPE) {
+                printf("Error: Cannot return value from null function, line: %d\n", word->line);
+                exit(1);
+            }
+            if (word == NULL || word->value == NULL) {
+                printf("Error: Expected value after 'return', line: %d\n", word->line);
+                exit(1);
+            }
+            if (is_type_keyword(word->value)) {
+                printf("Error: Expected value after 'return', not a type, line: %d\n", word->line);
+                exit(1);
+            }
+            W_Type result_type = w_get_type(word->value);
+            char *result_type_str = w_get_type_str(word->value);
+            if (*return_type == INT && result_type != INT) {
+                printf("Error: Expected int return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == FLOAT && result_type != FLOAT) {
+                printf("Error: Expected float return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == STR && result_type != STR) {
+                printf("Error: Expected str return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == BOOL && result_type != BOOL) {
+                printf("Error: Expected bool return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == ARRAY && result_type != ARRAY) {
+                printf("Error: Expected array return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == LIST && result_type != LIST) {
+                printf("Error: Expected list return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            } else if (*return_type == DICT && result_type != DICT) {
+                printf("Error: Expected dict return value, got %s, line: %d\n", result_type_str, word->line);
+                exit(1);
+            }
+            free(result_type_str);
+            return result;
         }
         free(stack);
         current_line = current_line->next;
@@ -169,9 +227,28 @@ void *execute(W_List *parsed_code, W_Dict *args) {
  * \param word The word to check.
  * \return True if the word is a type keyword, false otherwise.
  */
-bool is_type_keyword(char *word) {
+static bool is_type_keyword(char *word) {
     for (int i = 0; i < sizeof(type_keywords) / sizeof(type_keywords[0]); i++) {
         if (strcmp(word, type_keywords[i]) == 0) return true;
     }
     return false;
+}
+
+/**
+ * \brief Evaluates the parsed lines.
+ * \param parsed_line The parsed line to evaluate.
+ * \param variables The variables to use in the evaluation.
+ * \param stack The stack to store the parsed lines.
+ */
+static void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack) {
+    while (parsed_line != NULL) {
+        W_List *parsed_words = (W_List *)parsed_line->value;
+        W_List_Element *current_word = parsed_words->head;
+        if (parsed_words->size == 1) { //not an operation
+            list_append(stack, current_word->value); //add to stack
+        } else { //if the size of parsed_line is not 1 then evaluate operation
+            //TODO: evaluate operation
+        }
+        parsed_line = parsed_line->next;
+    }
 }

@@ -13,10 +13,11 @@ char *type_keywords[] = {
 
 int main(int argc, char *argv[]);
 void create_temp_file(char *filename);
-void *execute(W_List *parsed_code, W_Dict *args);
+void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type);
 
 // Utility
 
-bool is_type_keyword(char *word);
+static bool is_type_keyword(char *word);
+static void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack);
 
 #endif
