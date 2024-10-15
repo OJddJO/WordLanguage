@@ -102,13 +102,37 @@ void dict_remove(W_Dict *d, char *key) {
  * \param d The dictionary to destroy.
  */
 void dict_destroy(W_Dict *d) {
-    for (int i = 0; i < d->keys->size; i++) {
-        free(d->keys->head->value);
-        free(d->values->head->value);
-        list_remove(d->keys, 0);
-        list_remove(d->values, 0);
-    }
     list_destroy(d->keys);
     list_destroy(d->values);
     free(d);
+}
+
+/**
+ * \brief Prints the given dictionary.
+ * \param d The dictionary to print.
+ */
+void dict_print(W_Dict *d) {
+    printf("{");
+    W_List_Element *current_key = d->keys->head;
+    W_List_Element *current_value = d->values->head;
+    for (int i = 0; i < d->keys->size; i++) {
+        char *key = (char *)current_key->value;
+        char *value = (char *)current_value->value;
+        printf("%s: ", key);
+        if (value == NULL) {
+            printf("NULL");
+        } else if (((W_Var *)value)->type == INT) {
+            printf("%d", ((W_Int *)value)->value);
+        } else if (((W_Var *)value)->type == FLOAT) {
+            printf("%f", ((W_Float *)value)->value);
+        } else if (((W_Var *)value)->type == STRING) {
+            printf("%s", ((W_Str *)value)->value);
+        } else if (((W_Var *)value)->type == BOOL) {
+            printf("%s", ((W_Bool *)value)->value ? "true" : "false");
+        } else {
+            printf("element at %p", value);
+        }
+        printf(",\n");
+    }
+    printf("}\n");
 }

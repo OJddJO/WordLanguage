@@ -3,7 +3,8 @@
 /**
  * \brief Parses the given list of words into a parsing tree. (malloc)
  * \param tokenized_code The list of list of words to parse.
- * \return A list of list of words, representing the parsed code.
+ * \return A list (code) of list (line) of list (operation) of words, representing the parsed code.
+ *  [ [ [ word ] ], [ [ word, word, word, ... ] ], ... ]
  */
 W_List *parse(W_List *tokenized_code) {
     W_List *parsed_code = list_init();
@@ -19,7 +20,7 @@ W_List *parse(W_List *tokenized_code) {
 }
 
 /**
- * \brief Parses the given list of words into a parsing tree. (malloc)
+ * \brief Parses the given list of words into a parsing list. (malloc)
  * \param line The list of words to parse.
  * \return A list of lists of words, representing the parsed line.
  */
@@ -118,9 +119,9 @@ void print_parsed_code(W_List *parsed_code) { //debug
     for (int i = 0; i < parsed_code->size; i++) {
         printf("{\n");
         W_List *line = (W_List *)current_line->value;
-        W_List_Element *current_tree = line->head;
+        W_List_Element *parsed_line = line->head;
         for (int j = 0; j < line->size; j++) {
-            W_List *parsed_words = (W_List *)current_tree->value;
+            W_List *parsed_words = (W_List *)parsed_line->value;
             printf("    {\n");
             W_List_Element *current_word = parsed_words->head;
             for (int k = 0; k < parsed_words->size; k++) {
@@ -141,7 +142,7 @@ void print_parsed_code(W_List *parsed_code) { //debug
                 current_word = current_word->next;
             }
             printf("    },\n");
-            current_tree = current_tree->next;
+            parsed_line = parsed_line->next;
         }
         printf("},\n");
         current_line = current_line->next;
@@ -154,11 +155,17 @@ void print_parsed_code(W_List *parsed_code) { //debug
  */
 void parser_destroy(W_List *parsed_code) {
     W_List_Element *current_line = parsed_code->head;
-    for (int i = 0; i < parsed_code->size; i++) {
+    while (current_line != NULL) {
+        W_List_Element *next_line = current_line->next;
         W_List *line = (W_List *)current_line->value;
         W_List_Element *parsed_line = line->head;
-        list_destroy((W_List *)parsed_line->value);
-        current_line = current_line->next;
+        while (parsed_line != NULL) {
+            W_List_Element *next_parsed_line = parsed_line->next;
+            W_List *parsed_words = (W_List *)parsed_line->value;
+            list_destroy(parsed_words);
+            parsed_line = next_parsed_line;
+        }
+        current_line = next_line;
     }
     list_destroy(parsed_code);
 }

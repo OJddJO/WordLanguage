@@ -2,9 +2,14 @@
 #define __W_DICT_H__
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "w_type.h"
 #include "w_list.h"
+#include "w_int.h"
+#include "w_float.h"
+#include "w_str.h"
+#include "w_bool.h"
 
 typedef struct W_Dict {
     W_Type type;
@@ -20,5 +25,6 @@ W_List *dict_keys(W_Dict *d);
 int dict_size(W_Dict *d);
 void dict_remove(W_Dict *d, char *key);
 void dict_destroy(W_Dict *d);
+void dict_print(W_Dict *d);
 
 #endif

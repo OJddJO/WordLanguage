@@ -22,7 +22,7 @@ static char *keywords[] = {
     //loop
     "for", "from", "to", "step", "while", "do", "endloop", "break",
     //functions
-    "def", "void", "with", "return", "enddef", "call",
+    "def", "null", "with", "return", "enddef", "call",
 };
 
 static char *operators[] = {

@@ -4,7 +4,7 @@
 
 | Expression | Description |
 |---|---|
-| `def void funcName do` | Define a function `funcName` that returns nothing |
+| `def null funcName do` | Define a function `funcName` that returns nothing |
 | `def int funcName with bool a with int b do` | Define a function `funcName` with arguments `a` (boolean) and `b` (integer) that returns an integer |
 | `return a` | Return `a` from the function |
 | `return a plus b` | Return `a + b` from the function |

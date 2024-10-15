@@ -3,12 +3,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "w_stdlib.h"
 #include "w_lexer.h"
 #include "w_parser.h"
-#include "w_stdlib.h"
 
 char *type_keywords[] = {
-    "int", "float", "str", "bool", "assign", "delete",
+    "null", "int", "float", "str", "bool", "assign", "delete",
 };
 
 int main(int argc, char *argv[]);

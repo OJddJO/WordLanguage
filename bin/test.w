@@ -1,4 +1,4 @@
-def void helloWorld do
+def null helloWorld do
     print 'Hello World!'
 enddef
 int myNumber assign 1
