@@ -197,14 +197,11 @@ void list_concat(W_List *l1, W_List *l2) {
  **/
 void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
-    for (int i = 0; i < l->size; i++) {
+    while (e != NULL) {
+        W_List_Element *next = e->next;
         if (e->value != NULL) free(e->value);
         free(e);
-        e = e->next;
+        e = next;
     }
-    l->head = NULL;
-    l->tail = NULL;
-    l->size = 0;
-    l->middle = 0;
     free(l);
 }

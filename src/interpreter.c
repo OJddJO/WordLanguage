@@ -1,13 +1,13 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: word.exe <path>\n", argv[0]);
-        return 1;
-    }
-    system("pause"); //debug
-    // create_temp_file("test.w"); //debug
-    create_temp_file(argv[1]);
+    // if (argc < 2) {
+    //     printf("Usage: word.exe <path>\n", argv[0]);
+    //     return 1;
+    // }
+    // system("pause"); //debug
+    create_temp_file("test.w"); //debug
+    // create_temp_file(argv[1]);
     FILE *temp = fopen("exec.tmp", "r");
     if (temp == NULL) {
         printf("Error: Could not create temp file\n");
@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
         printf("Error: Could not close temp file\n");
     }
     W_List *parsed_code = parse(lexed_code);
-    // print_parsed_code(parsed_code); //debug
+    print_parsed_code(parsed_code); //debug
 
     parser_destroy(parsed_code);
-    system("pause"); //debug
+    // system("pause"); //debug
 
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");
