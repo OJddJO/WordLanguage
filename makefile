@@ -2,12 +2,12 @@ EXE		    = ./bin/word
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
-DBG         =     # debug flags
+DBG         = # debug flags
 
 INCLUDE     = -I ./include
 LIB         = # -L 
-EXTRA        = -Werror
-STATIC      = # -static-libgcc -static-libstdc -static     # for static linking with libgcc and libstdc++ and more
+EXTRA       = -Werror
+STATIC      = # for static linking
 
 all: link
 
