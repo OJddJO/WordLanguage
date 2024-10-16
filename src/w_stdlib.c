@@ -312,7 +312,7 @@ W_Float *w_sqrt(void *a) {
  ***********************************************/
 
 /**
- * \brief Assign a value to a variable (malloc)
+ * \brief Assign a value to a variable (not list, array) (malloc)
  * \param type The type of the variable
  * \param value The value to assign to the variable
  * \return The variable with the assigned value
@@ -323,20 +323,17 @@ void *w_var_assign(W_Type type, void *value) {
         case INT:
             result = int_init();
             int_set(result, *(int *)value);
-            return result;
         case FLOAT:
             result = float_init();
             float_set(result, *(double *)value);
-            return result;
         case STRING:
             result = str_init();
             str_set(result, (char *)value);
-            return result;
         case BOOL:
             result = bool_init();
             bool_set(result, *(int *)value);
-            return result;
     }
+    return result;
 }
 
 /**

@@ -62,7 +62,7 @@ int dict_contains(W_Dict *d, char *key) {
  * \brief Gets the value associated with the given key in the given dictionary.
  * \param d The dictionary to get the value from.
  * \param key The key to get the value for.
- * \return The value associated with the key.
+ * \return The value associated with the key. NULL if the key does not exist.
  */
 void *dict_get(W_Dict *d, char *key) {
     W_List_Element *current_key = d->keys->head;
