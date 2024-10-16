@@ -301,7 +301,7 @@ W_Float *w_sqrt(void *a) {
         return result;
     } else {
         char *type_a_str = w_get_type_str(a);
-        printf("Error: Unsupported type for square root operation. (sqrt(%s))\n", type_a_str);
+        printf("Error: Unsupported type for square root operation. (sqrt %s )\n", type_a_str);
         free(type_a_str);
         exit(1);
     }
@@ -312,28 +312,40 @@ W_Float *w_sqrt(void *a) {
  ***********************************************/
 
 /**
+ * \brief Initialize a variable (malloc)
+ * \param type The type of the variable
+ * \return The initialized variable
+ */
+void *w_var_init(W_Type type) {
+    switch (type) {
+        case INT:
+            return int_init();
+        case FLOAT:
+            return float_init();
+        case STRING:
+            return str_init();
+        case BOOL:
+            return bool_init();
+    }
+}
+
+/**
  * \brief Assign a value to a variable (not list, array) (malloc)
  * \param type The type of the variable
  * \param value The value to assign to the variable
  * \return The variable with the assigned value
  */
-void *w_var_assign(W_Type type, void *value) {
-    void *result;
+void w_var_assign(W_Type type, void *var, void *value) {
     switch (type) {
         case INT:
-            result = int_init();
-            int_set(result, *(int *)value);
+            int_set((W_Int *)var, *(int *)value);
         case FLOAT:
-            result = float_init();
-            float_set(result, *(double *)value);
+            float_set((W_Float *)var, *(double *)value);
         case STRING:
-            result = str_init();
-            str_set(result, (char *)value);
+            str_set((W_Str *)var, (char *)value);
         case BOOL:
-            result = bool_init();
-            bool_set(result, *(int *)value);
+            bool_set((W_Bool *)var, *(int *)value);
     }
-    return result;
 }
 
 /**

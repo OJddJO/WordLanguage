@@ -6,7 +6,7 @@
 #include "w_type.h"
 #include "w_list.h"
 
-typedef struct W_Dict {
+typedef struct _w_dict {
     W_Type type;
     W_List *keys;
     W_List *values;
