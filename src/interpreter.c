@@ -207,16 +207,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
         } else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
-            current_word = current_word->next;
-            word = current_word->value;
-            if (word == NULL || word->value == NULL) {
-                printf("Error: Expected variable name after type keyword, line: %d\n", word->line);
-                exit(1);
-            }
-            if (word->type != IDENTIFIER) {
-                printf("Error: Expected variable name after type keyword, not '%s', line: %d\n", word->value, word->line);
-                exit(1);
-            }
             void *value;
             char *name;
             current_word = current_word->next;
