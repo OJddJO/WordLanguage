@@ -53,5 +53,7 @@ W_List *word_tokenize(FILE *source);
 W_Word_Type word_type(char *value);
 void word_destroy(W_List *words);
 void word_print(W_List *words);
+bool is_keyword(char *word);
+bool is_operator(char *word);
 
 #endif

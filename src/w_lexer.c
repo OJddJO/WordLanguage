@@ -80,11 +80,7 @@ W_Word_Type word_type(char *value) {
     if ((value[0] >= '0' && value[0] <= '9') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return NUMBER;
     }
-    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(value, keywords[i]) == 0) {
-            return KEYWORD;
-        }
-    }
+    if (is_keyword(value)) return KEYWORD;
     int dot = 0;
     for (int i = 0; i < strlen(value); i++) {
         if (value[i] == '.') {
@@ -95,11 +91,7 @@ W_Word_Type word_type(char *value) {
     strncpy(without_dot, value + dot, strlen(value) - dot);
     without_dot[strlen(value) - dot] = '\0';
     // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
-    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
-        if (strcmp(without_dot, operators[i]) == 0) {
-            return OPERATOR;
-        }
-    }
+    if (is_operator(without_dot)) return OPERATOR;
     return IDENTIFIER;
 }
 
@@ -158,4 +150,28 @@ void word_print(W_List *code) { //debug
             current_word = line->head;
         }
     }
+}
+
+/**
+ * \brief Checks if the given word is a keyword.
+ * \param word The word to check.
+ * \return True if the word is a type keyword, false otherwise.
+ */
+bool is_keyword(char *word) {
+    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+        if (strcmp(word, keywords[i]) == 0) return true;
+    }
+    return false;
+}
+
+/**
+ * \brief Checks if the given word is an operator.
+ * \param word The word to check.
+ * \return True if the word is an operator, false otherwise.
+ */
+bool is_operator(char *word) {
+    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+        if (strcmp(word, operators[i]) == 0) return true;
+    }
+    return false;
 }

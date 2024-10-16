@@ -10,37 +10,37 @@
  * \return The type of the variable
  */
 char *w_get_type_str(void *var) {
-    char *type = (char *)malloc(11);
+    char *type = (char *)malloc(9);
     switch (((W_Var *)var)->type) {
         case INT:
-            strcpy(type, "<int>");
+            strcpy(type, "int");
             break;
         case FLOAT:
-            strcpy(type, "<float>");
+            strcpy(type, "float");
             break;
         case STRING:
-            strcpy(type, "<str>");
+            strcpy(type, "str");
             break;
         case BOOL:
-            strcpy(type, "<bool>");
+            strcpy(type, "bool");
             break;
         case LIST:
-            strcpy(type, "<list>");
+            strcpy(type, "list");
             break;
         case ARRAY:
-            strcpy(type, "<array>");
+            strcpy(type, "array");
             break;
         case DICT:
-            strcpy(type, "<dict>");
+            strcpy(type, "dict");
             break;
         case FUNCTION:
-            strcpy(type, "<function>");
+            strcpy(type, "function");
             break;
         case NULL_TYPE:
-            strcpy(type, "<null>");
+            strcpy(type, "null");
             break;
         default:
-            strcpy(type, "<unknown>");
+            strcpy(type, "unknown");
             break;
     }
     return type;
