@@ -76,6 +76,14 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
     free(args->keys);
     free(args->values);
     free(args);
+    if (!dict_contains(variables, "true") || !dict_contains(variables, "false")) {
+        W_Bool *w_true = bool_init();
+        bool_set(w_true, true);
+        dict_set(variables, "true", w_true);
+        W_Bool *w_false = bool_init();
+        bool_set(w_false, false);
+        dict_set(variables, "false", w_false);
+    }
 
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {

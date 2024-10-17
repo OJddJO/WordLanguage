@@ -14,8 +14,6 @@ static char *keywords[] = {
     "array", "list", "size", "get", "index", "set", "append", "remove", "length",
     //IO expressions
     "print", "sep", "end", "input",
-    //Boolean expressions
-    "true", "false",
     //control flow
     //conditional
     "if", "elif", "else", "endif",
