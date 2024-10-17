@@ -8,6 +8,7 @@ W_Float *float_init() {
     W_Float *f = (W_Float *)malloc(sizeof(W_Float));
     f->type = NULL_TYPE;
     f->value = NULL;
+    f->destroy = &float_destroy;
     return f;
 }
 

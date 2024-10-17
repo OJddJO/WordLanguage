@@ -104,13 +104,13 @@ void word_destroy(W_List *code) {
     W_List_Element *current_line = code->head;
     W_List *line = (W_List *)current_line->value;
     for (int i = 0; i < code->size; i++) {
-        list_destroy(line);
+        list_destroy_any(line);
         if (current_line->next != NULL) {
             current_line = current_line->next;
             line = (W_List *)current_line->value;
         }
     }
-    list_destroy(code);
+    list_destroy_any(code);
 }
 
 /**

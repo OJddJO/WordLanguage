@@ -9,6 +9,7 @@ W_Dict *dict_init() {
     d->type = DICT;
     d->keys = list_init();
     d->values = list_init();
+    d->destroy = &dict_destroy;
     return d;
 }
 
@@ -115,7 +116,7 @@ void dict_remove(W_Dict *d, char *key) {
  * \param d The dictionary to destroy.
  */
 void dict_destroy(W_Dict *d) {
-    list_destroy(d->keys);
+    list_destroy_any(d->keys);
     list_destroy(d->values);
     free(d);
 }

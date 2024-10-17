@@ -8,6 +8,7 @@ W_Str *str_init() {
     W_Str *s = (W_Str *)malloc(sizeof(W_Str));
     s->type = NULL_TYPE;
     s->value = NULL;
+    s->destroy = &str_destroy;
     return s;
 }
 

@@ -8,6 +8,7 @@
 typedef struct _w_bool {
     W_Type type;
     bool *value;
+    void (*destroy)(struct _w_bool *);
 } W_Bool;
 
 W_Bool *bool_init();

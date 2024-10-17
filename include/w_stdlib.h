@@ -31,6 +31,7 @@ void *w_power(void *a, void *b);
 W_Float *w_sqrt(void *a);
 
 // Variables
+
 void *w_var_init(W_Type type);
 void w_var_assign(W_Type type, void *var, void *value);
 void *w_var_get(void *var);

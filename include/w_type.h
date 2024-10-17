@@ -16,6 +16,7 @@ typedef enum _w_type {
 typedef struct _w_var {
     W_Type type;
     void *value;
+    void (*destroy)(void *);
 } W_Var;
 
 #endif

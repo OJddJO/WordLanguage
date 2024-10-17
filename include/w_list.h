@@ -20,6 +20,7 @@ typedef struct _w_list {
     W_List_Element *tail;
     int size;
     int middle;
+    void (*destroy)(struct _w_list *);
 } W_List;
 
 W_List *list_init();
@@ -31,6 +32,7 @@ void *list_get(W_List *l, int index);
 int list_index(W_List *l, void *value);
 int list_size(W_List *l);
 void list_concat(W_List *l1, W_List *l2);
+void list_destroy_any(W_List *l);
 void list_destroy(W_List *l);
 
 #endif

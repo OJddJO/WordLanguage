@@ -11,6 +11,7 @@ W_List *list_init() {
     l->tail = NULL;
     l->size = 0;
     l->middle = 0;
+    l->destroy = &list_destroy;
     return l;
 }
 
@@ -192,6 +193,21 @@ void list_concat(W_List *l1, W_List *l2) {
 }
 
 /**
+ * \brief Destroy a list (works with any list)
+ * \param l The list to destroy
+ **/
+void list_destroy_any(W_List *l) {
+    W_List_Element *e = l->head;
+    while (e != NULL) {
+        W_List_Element *next = e->next;
+        if (e->value != NULL) free(e->value);
+        free(e);
+        e = next;
+    }
+    free(l);
+}
+
+/**
  * \brief Destroy a list
  * \param l The list to destroy
  **/
@@ -199,7 +215,7 @@ void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
     while (e != NULL) {
         W_List_Element *next = e->next;
-        if (e->value != NULL) free(e->value);
+        if (e->value != NULL) ((W_Var*) e->value)->destroy(e->value);
         free(e);
         e = next;
     }

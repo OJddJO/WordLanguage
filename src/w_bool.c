@@ -8,6 +8,7 @@ W_Bool *bool_init() {
     W_Bool *b = (W_Bool *)malloc(sizeof(W_Bool));
     b->type = NULL_TYPE;
     b->value = NULL;
+    b->destroy = &bool_destroy;
     return b;
 }
 

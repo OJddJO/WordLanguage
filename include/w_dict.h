@@ -10,6 +10,7 @@ typedef struct _w_dict {
     W_Type type;
     W_List *keys;
     W_List *values;
+    void (*destroy)(struct _w_dict *);
 } W_Dict;
 
 W_Dict *dict_init();

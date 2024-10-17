@@ -7,6 +7,7 @@
 typedef struct _w_int {
     W_Type type;
     int *value;
+    void (*destroy)(struct _w_int *);
 } W_Int;
 
 W_Int *int_init();

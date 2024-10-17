@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
-    execute(parsed_code, dict_init(), NULL_TYPE);
+    W_Type *return_type = NULL_TYPE;
+    execute(parsed_code, dict_init(), return_type);
 
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");
@@ -69,8 +70,27 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
     W_List *args_keys = dict_keys(args);
     W_List_Element *current_key = args_keys->head;
-    for (int i = 0; i < args_keys->size; i++) { //add arguments to variables
-        dict_set(variables, current_key->value, dict_get(args, current_key->value));
+    for (int i = 0; i < args_keys->size; i++) { //copy arguments to variables
+        void *var_copy;
+        char *key = (char *)current_key->value;
+        W_Var *var = (W_Var *)dict_get(args, key);
+        if (var->type == ARRAY) {
+            var_copy = array_init(var->type, ((W_Array *)var->value)->capacity);
+            for (int i = 0; i < ((W_Array *)var->value)->capacity; i++) {
+                void *val = array_get((W_Array *)var->value, i);
+                array_set((W_Array *)var, i, val);
+            }
+        } else if (var->type == LIST) {
+            var_copy = list_init();
+            for (int i = 0; i < ((W_List *)var->value)->size; i++) {
+                void *val = list_get((W_List *)var->value, i);
+                list_append((W_List *)var_copy, val);
+            }
+        } else {
+            var_copy = w_var_init(var->type);
+            w_var_assign(var->type, var_copy, var->value);
+        }
+        dict_set(variables, key, var);
         current_key = current_key->next;
     }
     free(args->keys);
@@ -104,10 +124,14 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
             //set return type
             current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected type keyword after 'def', line: %d\n", word->line);
+                exit(1);
+            }
             word = current_word->value;
             bool is_type = is_type_keyword(word->value);
             if (!is_type) {
-                printf("Error: Expected type keyword after 'def', line: %d\n", word->line);
+                printf("Error: Expected type keyword after 'def', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
             if (strcmp(word->value, "void") == 0) {
@@ -127,6 +151,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
             if (strcmp(word->value, "with") == 0) {
                 while (strcmp(word->value, "do") != 0) {
                     current_word = current_word->next;
+                    if (current_word == NULL) {
+                        printf("Error: Expected keyword 'do' after function arguments, line: %d\n", word->line);
+                        exit(1);
+                    }
                     word = current_word->value;
                     if (strcmp(word->value, "do") == 0) break;
                     if (!is_type_keyword(word->value)) {
@@ -136,7 +164,15 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                         W_Type *arg_type = (W_Type *)malloc(sizeof(W_Type));
                         *arg_type = w_get_type(word->value);
                         current_word = current_word->next;
+                        if (current_word == NULL) {
+                            printf("Error: Expected variable name after type keyword, line: %d\n", word->line);
+                            exit(1);
+                        }
                         word = current_word->value;
+                        if (word->type != IDENTIFIER) {
+                            printf("Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
                         dict_set(args, word->value, arg_type);
                     }
                 }
@@ -152,7 +188,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
             //get function lines
             int fn_line = word->line;
-            W_List *function_lines = list_init();
+            W_List *function_lines = f->parsed_code;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
@@ -210,6 +246,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                 exit(1);
             }
             free(result_type_str);
+            dict_destroy(variables);
             free(stack);
             return result;
 
@@ -312,7 +349,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                 }
                 name = word->value;
 
-                current_word = current_word->next; //get variable value
+                current_word = current_word->next; //assign keyword
                 if (current_word == NULL) {
                     printf("Error: Expected keyword 'assign' after variable name, line: %d\n", word->line);
                     exit(1);
@@ -323,7 +360,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                     exit(1);
                 }
 
-                current_word = current_word->next;
+                current_word = current_word->next; //get variable value
                 if (current_word == NULL) {
                     printf("Error: Expected value after 'assign', line: %d\n", word->line);
                     exit(1);
@@ -333,15 +370,44 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                     printf("Error: Expected value after 'assign', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (type == INT) {
+                void *var_value;
+                if (type == INT) { //get int value
                     if (word->type != NUMBER || is_float(word->value)) {
                         printf("Error: Expected int value after 'assign', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    int *int_val = (int *)malloc(sizeof(int));
-                    *int_val = atoi(word->value);
-                    w_var_assign(INT, value, int_val);
+                    var_value = (int *)malloc(sizeof(int));
+                    *(int *)var_value = atoi(word->value);
                 } 
+                else if (type == FLOAT) { //get float value
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected float value after 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    var_value = (double *)malloc(sizeof(double));
+                    *(double *)var_value = atof(word->value);
+                } 
+                else if (type == STR) {
+                    if (word->type != STR) { //get str value
+                        printf("Error: Expected str value after 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    var_value = (char *)malloc(strlen(word->value) + 1);
+                    strcpy(var_value, word->value);
+                } 
+                else if (type == BOOL) { //get bool value
+                    if (strcmp(word->value, "true") == 0) {
+                        var_value = (bool *)malloc(sizeof(bool));
+                        *(bool *)var_value = true;
+                    } else if (strcmp(word->value, "false") == 0) {
+                        var_value = (bool *)malloc(sizeof(bool));
+                        *(bool *)var_value = false;
+                    } else {
+                        printf("Error: Expected bool value after 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                }
+                w_var_assign(type, value, var_value);
             }
         }
         free(stack);
@@ -398,3 +464,8 @@ bool is_float(char *str) {
     }
     return false;
 }
+
+/**
+ * \brief Destroys the variables.
+ * \param variables The variables to destroy.
+ */

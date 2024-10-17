@@ -12,6 +12,8 @@ W_Func *func_init() {
     f->type = FUNCTION;
     f->return_type = NULL_TYPE;
     f->args = dict_init();
+    f->parsed_code = list_init();
+    f->destroy = &func_destroy;
     return f;
 }
 

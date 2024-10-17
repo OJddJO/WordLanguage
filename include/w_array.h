@@ -13,6 +13,7 @@ typedef struct _w_array {
     W_Type subtype;
     void **data;
     int capacity;
+    void (*destroy)(struct _w_array *);
 } W_Array;
 
 W_Array *array_init(W_Type type, int capacity);

@@ -8,6 +8,7 @@
 typedef struct _w_str {
     W_Type type;
     char *value;
+    void (*destroy)(struct _w_str *);
 } W_Str;
 
 W_Str *str_init();

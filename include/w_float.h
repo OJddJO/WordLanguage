@@ -7,6 +7,7 @@
 typedef struct _w_float {
     W_Type type;
     double *value;
+    void (*destroy)(struct _w_float *);
 } W_Float;
 
 W_Float *float_init();

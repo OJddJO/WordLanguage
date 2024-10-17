@@ -15,7 +15,7 @@ W_List *parse(W_List *tokenized_code) {
         list_append(parsed_code, parsed_line);
         current_line = current_line->next;
     }
-    list_destroy(tokenized_code);
+    list_destroy_any(tokenized_code);
     return parsed_code;
 }
 
@@ -162,10 +162,10 @@ void parser_destroy(W_List *parsed_code) {
         while (parsed_line != NULL) {
             W_List_Element *next_parsed_line = parsed_line->next;
             W_List *parsed_words = (W_List *)parsed_line->value;
-            list_destroy(parsed_words);
+            list_destroy_any(parsed_words);
             parsed_line = next_parsed_line;
         }
         current_line = next_line;
     }
-    list_destroy(parsed_code);
+    list_destroy_any(parsed_code);
 }

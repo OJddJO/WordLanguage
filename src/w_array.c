@@ -35,6 +35,7 @@ W_Array *array_init(W_Type type, int capacity) {
     array->subtype = type;
     array->data = populate_array(type, capacity);
     array->capacity = capacity;
+    array->destroy = &array_destroy;
     return array;
 }
 

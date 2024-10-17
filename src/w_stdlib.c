@@ -332,6 +332,7 @@ void *w_var_init(W_Type type) {
 /**
  * \brief Assign a value to a variable (not list, array) (malloc)
  * \param type The type of the variable
+ * \param var The variable to assign the value to
  * \param value The value to assign to the variable
  * \return The variable with the assigned value
  */

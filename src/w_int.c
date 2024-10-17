@@ -8,6 +8,7 @@ W_Int *int_init() {
     W_Int *i = (W_Int *)malloc(sizeof(W_Int));
     i->type = NULL_TYPE;
     i->value = NULL;
+    i->destroy = &int_destroy;
     return i;
 }
 
