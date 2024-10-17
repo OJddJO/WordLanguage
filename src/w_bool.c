@@ -9,7 +9,32 @@ W_Bool *bool_init() {
     b->type = NULL_TYPE;
     b->value = NULL;
     b->destroy = &bool_destroy;
+    b->print = &bool_print;
+    b->assign = &bool_assign;
+    b->set = &bool_set;
+    b->get = &bool_value;
     return b;
+}
+
+/**
+ * \brief Assigns the value of the given boolean. (malloc)
+ * \param b The boolean to set the value of.
+ * \param value The value to set.
+ */
+void bool_assign(W_Bool *b, char *value) {
+    bool *v;
+    bool var_value;
+    if (strcmp(value, "true") == 0) {
+        var_value = true;
+    } else if (strcmp(value, "false") == 0) {
+        var_value = false;
+    }
+    if (b->type == NULL_TYPE) {
+        v = (bool *)malloc(sizeof(bool));
+        b->type = BOOL;
+    } else v = b->value;
+    *v = var_value;
+    b->value = v;
 }
 
 /**
@@ -34,6 +59,14 @@ void bool_set(W_Bool *b, bool value) {
  */
 bool *bool_value(W_Bool *b) {
     return b->value;
+}
+
+/**
+ * \brief Prints the given boolean.
+ * \param b The boolean to print.
+ */
+void bool_print(W_Bool *b) {
+    printf("%s", *b->value ? "true" : "false");
 }
 
 /**

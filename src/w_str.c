@@ -9,7 +9,33 @@ W_Str *str_init() {
     s->type = NULL_TYPE;
     s->value = NULL;
     s->destroy = &str_destroy;
+    s->print = &str_print;
+    s->assign = &str_assign;
+    s->set = &str_set;
+    s->get = &str_value;
     return s;
+}
+
+/**
+ * \brief Assigns the value of a string. (malloc)
+ * \param s The string.
+ * \param value The new value.
+ */
+void str_assign(W_Str *s, char *value) {
+    //strip quotes
+    int len = strlen(value);
+    char var_value[len - 1];
+    for (int i = 1; i < len - 1; i++) {
+        var_value[i - 1] = value[i];
+    }
+    var_value[len - 1] = '\0';
+    if (s->type != NULL_TYPE) {
+        free(s->value);
+    } else s->type = STRING;
+
+    char *v = (char *)malloc(strlen(var_value) + 1);
+    strcpy(v, var_value);
+    s->value = v;
 }
 
 /**
@@ -70,6 +96,14 @@ char *str_slice(W_Str *s, int start, int end) {
  */
 int str_length(W_Str *s) {
     return strlen(s->value);
+}
+
+/**
+ * \brief Prints a string.
+ * \param s The string.
+ */
+void str_print(W_Str *s) {
+    printf("'%s'", s->value);
 }
 
 /**

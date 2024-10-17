@@ -9,7 +9,27 @@ W_Int *int_init() {
     i->type = NULL_TYPE;
     i->value = NULL;
     i->destroy = &int_destroy;
+    i->print = &int_print;
+    i->assign = &int_assign;
+    i->set = &int_set;
+    i->get = &int_value;
     return i;
+}
+
+/**
+ * \brief Assigns the value of the given integer. (malloc)
+ * \param i The integer to set the value of.
+ * \param value The value to set as a string.
+ */
+void int_assign(W_Int *i, char *value) {
+    int *v;
+    int var_value = atoi(value);
+    if (i->type == NULL_TYPE) {
+        v = (int *)malloc(sizeof(int));
+        i->type = INT;
+    } else v = i->value;
+    *v = var_value;
+    i->value = v;
 }
 
 /**
@@ -34,6 +54,14 @@ void int_set(W_Int *i, int value) {
  */
 int *int_value(W_Int *i) {
     return i->value;
+}
+
+/**
+ * \brief Prints the given integer.
+ * \param i The integer to print.
+ */
+void int_print(W_Int *i) {
+    printf("%d", *i->value);
 }
 
 /**

@@ -88,14 +88,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
             }
         } else {
             var_copy = w_var_init(var->type);
-            w_var_assign(var->type, var_copy, var->value);
+            ((W_Var *)var_copy)->set(var_copy, var->value);
         }
-        dict_set(variables, key, var);
+        dict_set(variables, key, var_copy);
         current_key = current_key->next;
     }
-    free(args->keys);
-    free(args->values);
-    free(args);
+    dict_destroy(args);
     if (!dict_contains(variables, "true") || !dict_contains(variables, "false")) {
         W_Bool *w_true = bool_init();
         bool_set(w_true, true);
@@ -109,6 +107,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
     while (current_line != NULL) {
         W_List *line = (W_List *)current_line->value;
         W_List_Element *parsed_line = line->head;
+        if (parsed_line == NULL) {
+            current_line = current_line->next;
+            continue;
+        }
 
         W_List *stack = list_init(); //the stack of words to evaluate
         eval_parsed_lines(parsed_line, variables, stack);
@@ -118,9 +120,33 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
         if (strcmp(word->value, "def") == 0) { //function definition
             W_Func *f = func_init(); //create function
-            W_Dict *args = dict_init(); //create arguments dictionary
-            f->type = FUNCTION;
-            f->args = args;
+            W_Dict *fn_args = f->args; //create arguments dictionary
+        
+            W_List *args_keys = dict_keys(variables);
+            W_List_Element *current_key = args_keys->head;
+            for (int i = 0; i < args_keys->size; i++) { //copy arguments to variables
+                void *var_copy;
+                char *key = (char *)current_key->value;
+                W_Var *var = (W_Var *)dict_get(variables, key);
+                if (var->type == ARRAY) {
+                    var_copy = array_init(var->type, ((W_Array *)var->value)->capacity);
+                    for (int i = 0; i < ((W_Array *)var->value)->capacity; i++) {
+                        void *val = array_get((W_Array *)var->value, i);
+                        array_set((W_Array *)var, i, val);
+                    }
+                } else if (var->type == LIST) {
+                    var_copy = list_init();
+                    for (int i = 0; i < ((W_List *)var->value)->size; i++) {
+                        void *val = list_get((W_List *)var->value, i);
+                        list_append((W_List *)var_copy, val);
+                    }
+                } else {
+                    var_copy = w_var_init(var->type);
+                    ((W_Var *)var_copy)->set(var_copy, var->value);
+                }
+                dict_set(fn_args, key, var_copy);
+                current_key = current_key->next;
+            }
 
             //set return type
             current_word = current_word->next;
@@ -173,7 +199,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                             printf("Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
                             exit(1);
                         }
-                        dict_set(args, word->value, arg_type);
+                        dict_set(fn_args, word->value, arg_type);
                     }
                 }
             } else if (strcmp(word->value, "do") != 0) {
@@ -370,49 +396,35 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                     printf("Error: Expected value after 'assign', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                void *var_value;
                 if (type == INT) { //get int value
                     if (word->type != NUMBER || is_float(word->value)) {
                         printf("Error: Expected int value after 'assign', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    var_value = (int *)malloc(sizeof(int));
-                    *(int *)var_value = atoi(word->value);
-                } 
-                else if (type == FLOAT) { //get float value
+                } else if (type == FLOAT) { //get float value
                     if (word->type != NUMBER) {
                         printf("Error: Expected float value after 'assign', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    var_value = (double *)malloc(sizeof(double));
-                    *(double *)var_value = atof(word->value);
-                } 
-                else if (type == STR) {
-                    if (word->type != STR) { //get str value
+                } else if (type == STR) { //get str value
+                    if (word->type != STR) {
                         printf("Error: Expected str value after 'assign', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    var_value = (char *)malloc(strlen(word->value) + 1);
-                    strcpy(var_value, word->value);
-                } 
-                else if (type == BOOL) { //get bool value
-                    if (strcmp(word->value, "true") == 0) {
-                        var_value = (bool *)malloc(sizeof(bool));
-                        *(bool *)var_value = true;
-                    } else if (strcmp(word->value, "false") == 0) {
-                        var_value = (bool *)malloc(sizeof(bool));
-                        *(bool *)var_value = false;
-                    } else {
+                } else if (type == BOOL) { //get bool value
+                    if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
                         printf("Error: Expected bool value after 'assign', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
                 }
-                w_var_assign(type, value, var_value);
+                ((W_Var *)value)->assign(value, word->value);
             }
+            dict_set(variables, name, value);
         }
         free(stack);
         current_line = current_line->next;
     }
+    dict_print(variables);
     dict_destroy(variables);
     parser_destroy(parsed_code);
 }
@@ -441,6 +453,10 @@ bool is_type_keyword(char *word) {
  */
 void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack) {
     while (parsed_line != NULL) {
+        if (parsed_line->value == NULL) {
+            parsed_line = parsed_line->next;
+            continue;
+        }
         W_List *parsed_words = (W_List *)parsed_line->value;
         W_List_Element *current_word = parsed_words->head;
         if (parsed_words->size == 1) { //not an operation
@@ -464,8 +480,3 @@ bool is_float(char *str) {
     }
     return false;
 }
-
-/**
- * \brief Destroys the variables.
- * \param variables The variables to destroy.
- */

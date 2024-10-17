@@ -10,6 +10,7 @@ W_Dict *dict_init() {
     d->keys = list_init();
     d->values = list_init();
     d->destroy = &dict_destroy;
+    d->print = &dict_print;
     return d;
 }
 
@@ -26,7 +27,7 @@ void dict_set(W_Dict *d, char *key, void *value) {
         for (int i = 0; i < d->keys->size; i++) {
             if (strcmp((char *)current_key->value, key) == 0) {
                 if (current_value->value != NULL) {
-                    free(current_value->value);
+                    ((W_Var *)current_value->value)->destroy(current_value->value);
                 }
                 current_value->value = value;
                 return;
@@ -109,6 +110,26 @@ void dict_remove(W_Dict *d, char *key) {
             return;
         }
     }
+}
+
+/**
+ * \brief Prints the given dictionary.
+ * \param d The dictionary to print.
+ */
+void dict_print(W_Dict *d) {
+    printf("{");
+    W_List_Element *current_key = d->keys->head;
+    W_List_Element *current_value = d->values->head;
+    for (int i = 0; i < d->keys->size; i++) {
+        printf("'%s': ", (char *)current_key->value);
+        ((W_Var *)current_value->value)->print(current_value->value);
+        if (i < d->keys->size - 1) {
+            printf(", ");
+        }
+        current_key = current_key->next;
+        current_value = current_value->next;
+    }
+    printf("}");
 }
 
 /**

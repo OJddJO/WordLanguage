@@ -36,6 +36,7 @@ W_Array *array_init(W_Type type, int capacity) {
     array->data = populate_array(type, capacity);
     array->capacity = capacity;
     array->destroy = &array_destroy;
+    array->print = &array_print;
     return array;
 }
 
@@ -55,7 +56,7 @@ void *array_get(W_Array *array, int index) {
  * \brief Sets the value at the given index in the array.
  * \param array The array to set the value in.
  * \param index The index of the value to set.
- * \param value The value to set.
+ * \param value The value to set. (W_Var)
  */
 void array_set(W_Array *array, int index, void *value) {
     if (index < 0 || index >= array->capacity) {
@@ -64,6 +65,7 @@ void array_set(W_Array *array, int index, void *value) {
     if (((W_Var *) value)->type != array->type) {
         return;
     }
+    ((W_Var *)array->data[index])->destroy(array->data[index]);
     array->data[index] = value;
 }
 
@@ -83,6 +85,21 @@ int array_index(W_Array *array, void *value) {
  */
 int array_size(W_Array *array) {
     return array->capacity;
+}
+
+/**
+ * \brief Prints the given array.
+ * \param array The array to print.
+ */
+void array_print(W_Array *array) {
+    printf("{");
+    for (int i = 0; i < array->capacity; i++) {
+        ((W_Var *)array->data[i])->print(array->data[i]);
+        if (i < array->capacity - 1) {
+            printf(", ");
+        }
+    }
+    printf("}");
 }
 
 /**

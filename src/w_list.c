@@ -12,6 +12,7 @@ W_List *list_init() {
     l->size = 0;
     l->middle = 0;
     l->destroy = &list_destroy;
+    l->print = &list_print;
     return l;
 }
 
@@ -41,7 +42,7 @@ void list_append(W_List *l, void *value) {
  * \brief Replace the value of an element in the W_List
  * \param l The list to set the value in
  * \param index The index of the element to set
- * \param value The value to set
+ * \param value The value to set (W_Var)
  * \return 0 if successful, -1 if the index is out of bounds
  **/
 int list_replace(W_List *l, int index, void *value) {
@@ -63,6 +64,7 @@ int list_replace(W_List *l, int index, void *value) {
     if (e == NULL) {
         return -1;
     }
+    ((W_Var*) e->value)->destroy(e->value);
     e->value = value;
     return 0;
 }
@@ -193,6 +195,21 @@ void list_concat(W_List *l1, W_List *l2) {
 }
 
 /**
+ * \brief Print a list
+ * \param l The list to print
+ **/
+void list_print(W_List *l) {
+    W_List_Element *e = l->head;
+    printf("[");
+    while (e != NULL) {
+        ((W_Var*) e->value)->print(e->value);
+        e = e->next;
+        if (e != NULL) printf(", ");
+    }
+    printf("]");
+}
+
+/**
  * \brief Destroy a list (works with any list)
  * \param l The list to destroy
  **/
@@ -215,7 +232,7 @@ void list_destroy(W_List *l) {
     W_List_Element *e = l->head;
     while (e != NULL) {
         W_List_Element *next = e->next;
-        if (e->value != NULL) ((W_Var*) e->value)->destroy(e->value);
+        if (e->value != NULL) ((W_Var*)e->value)->destroy(e->value);
         free(e);
         e = next;
     }

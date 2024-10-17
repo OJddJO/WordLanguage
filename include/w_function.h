@@ -14,9 +14,11 @@ typedef struct _w_func {
     W_Dict *args; //arguments: dict: key: arg name, value: arg type
     W_List *parsed_code;
     void (*destroy)(struct _w_func *);
+    void (*print)(struct _w_func *);
 } W_Func;
 
 W_Func *func_init();
+void func_print(W_Func *f);
 void func_destroy(W_Func *f);
 
 #endif

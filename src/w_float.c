@@ -9,7 +9,27 @@ W_Float *float_init() {
     f->type = NULL_TYPE;
     f->value = NULL;
     f->destroy = &float_destroy;
+    f->print = &float_print;
+    f->assign = &float_assign;
+    f->set = &float_set;
+    f->get = &float_value;
     return f;
+}
+
+/**
+ * \brief Assigns the value of the given float. (malloc)
+ * \param f The float to set the value of.
+ * \param value The value to set as a string.
+ */
+void float_assign(W_Float *f, char *value) {
+    double *v;
+    double var_value = atof(value);
+    if (f->type == NULL_TYPE) {
+        v = (double *)malloc(sizeof(double));
+        f->type = FLOAT;
+    } else v = f->value;
+    *v = var_value;
+    f->value = v;
 }
 
 /**
@@ -34,6 +54,14 @@ void float_set(W_Float *f, double value) {
  */
 double *float_value(W_Float *f) {
     return f->value;
+}
+
+/**
+ * \brief Prints the given float.
+ * \param f The float to print.
+ */
+void float_print(W_Float *f) {
+    printf("%f", *f->value);
 }
 
 /**

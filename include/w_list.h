@@ -2,16 +2,14 @@
 #define __LIST_H__
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "w_type.h"
-
-typedef struct _w_list_element W_List_Element;
-typedef struct _w_list W_List;
 
 typedef struct _w_list_element {
     W_Type type;
     void *value;
-    W_List_Element *prev;
-    W_List_Element *next;
+    struct _w_list_element *prev;
+    struct _w_list_element *next;
 } W_List_Element;
 
 typedef struct _w_list {
@@ -21,6 +19,7 @@ typedef struct _w_list {
     int size;
     int middle;
     void (*destroy)(struct _w_list *);
+    void (*print)(struct _w_list *);
 } W_List;
 
 W_List *list_init();
@@ -32,6 +31,7 @@ void *list_get(W_List *l, int index);
 int list_index(W_List *l, void *value);
 int list_size(W_List *l);
 void list_concat(W_List *l1, W_List *l2);
+void list_print(W_List *l);
 void list_destroy_any(W_List *l);
 void list_destroy(W_List *l);
 

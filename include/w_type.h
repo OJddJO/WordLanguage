@@ -17,6 +17,10 @@ typedef struct _w_var {
     W_Type type;
     void *value;
     void (*destroy)(void *);
+    void (*print)(void *);
+    void (*assign)(void *, void *);
+    void (*set)(void *, void *);
+    void *(*get)(void *);
 } W_Var;
 
 #endif

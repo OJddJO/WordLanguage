@@ -1,10 +1,7 @@
 #include "w_function.h"
 
 /**
- * \brief Initializes a new function.
- * \param return_type The return type of the function.
- * \param args The arguments of the function.
- * \param parsed_code The parsed code of the function.
+ * \brief Initializes a new function. (malloc)
  * \return A new function.
  */
 W_Func *func_init() {
@@ -14,7 +11,16 @@ W_Func *func_init() {
     f->args = dict_init();
     f->parsed_code = list_init();
     f->destroy = &func_destroy;
+    f->print = &func_print;
     return f;
+}
+
+/**
+ * \brief Prints the given function.
+ * \param f The function to print.
+ */
+void func_print(W_Func *f) {
+    printf("%p", f);
 }
 
 /**
