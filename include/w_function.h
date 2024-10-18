@@ -18,7 +18,7 @@ typedef struct _w_func {
 } W_Func;
 
 W_Func *func_init();
-void func_print(W_Func *f);
 void func_destroy(W_Func *f);
+void func_print(W_Func *f);
 
 #endif

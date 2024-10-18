@@ -158,6 +158,9 @@ void parser_destroy(W_List *parsed_code) {
     while (current_line != NULL) {
         W_List_Element *next_line = current_line->next;
         W_List *line = (W_List *)current_line->value;
+        if (line == NULL) {
+            break;
+        }
         W_List_Element *parsed_line = line->head;
         while (parsed_line != NULL) {
             W_List_Element *next_parsed_line = parsed_line->next;

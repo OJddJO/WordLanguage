@@ -16,19 +16,20 @@ W_Func *func_init() {
 }
 
 /**
+ * \brief Destroys the given function.
+ * \param f The function to destroy.
+ */
+void func_destroy(W_Func *f) {
+    printf("jdlqksjdqlkdj");
+    dict_destroy(f->args);
+    parser_destroy(f->parsed_code);
+    free(f);
+}
+
+/**
  * \brief Prints the given function.
  * \param f The function to print.
  */
 void func_print(W_Func *f) {
     printf("%p", f);
-}
-
-/**
- * \brief Destroys the given function.
- * \param f The function to destroy.
- */
-void func_destroy(W_Func *f) {
-    dict_destroy(f->args);
-    parser_destroy(f->parsed_code);
-    free(f);
 }

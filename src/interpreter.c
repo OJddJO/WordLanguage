@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
+    // parser_destroy(parsed_code);
     W_Type *return_type = NULL_TYPE;
     execute(parsed_code, dict_init(), return_type);
 

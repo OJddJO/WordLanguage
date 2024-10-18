@@ -121,8 +121,12 @@ void dict_print(W_Dict *d) {
     W_List_Element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
     for (int i = 0; i < d->keys->size; i++) {
+        printf("pre print");
         printf("'%s': ", (char *)current_key->value);
-        ((W_Var *)current_value->value)->print(current_value->value);
+        if (((W_Var *)current_value->value)->type == FUNCTION) {
+            printf("function at %p", current_value->value);
+        }else ((W_Var *)current_value->value)->print(current_value->value);
+        printf("post print");
         if (i < d->keys->size - 1) {
             printf(", ");
         }
