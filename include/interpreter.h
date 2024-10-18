@@ -13,7 +13,7 @@ char *type_keywords[] = {
 
 int main(int argc, char *argv[]);
 void create_temp_file(char *filename);
-void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type);
+void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type);
 
 // Utility
 

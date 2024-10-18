@@ -9,8 +9,8 @@ int main(int argc, char *argv[]) {
     }
 
 
-    if (debug) create_temp_file("test.w"); //debug
-    else create_temp_file(argv[1]);
+    // create_temp_file("test.w"); //debug
+    create_temp_file(argv[1]);
 
     FILE *temp = fopen("exec.tmp", "r");
     if (temp == NULL) {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
-    W_Type *return_type = NULL_TYPE;
+    W_Type return_type = NULL_TYPE;
     execute(parsed_code, dict_init(), return_type);
     // parser_destroy(parsed_code);
 
@@ -55,6 +55,7 @@ void create_temp_file(char *filename) {
     while ((c = fgetc(source)) != EOF) {
         fputc(c, temp);
     }
+    fputc('\n', temp);
     fclose(source);
     fclose(temp);
 }
@@ -65,7 +66,7 @@ void create_temp_file(char *filename) {
  * \param args The arguments to pass to the code.
  * \return The result of the execution
  */
-void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
+void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
     W_Dict *variables = dict_init();
     void *result = NULL;
 
@@ -206,33 +207,39 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
 
         } else if (strcmp(word->value, "return") == 0) { //return statement
             current_word = current_word->next;
-            word = current_word->value;
-            if (*return_type == NULL_TYPE) {
-                printf("Error: Cannot return value from null function, line: %d\n", word->line);
-                exit(1);
-            }
-            if (word == NULL || word->value == NULL) {
+            if (current_word == NULL && return_type != NULL_TYPE) {
                 printf("Error: Expected value after 'return', line: %d\n", word->line);
                 exit(1);
+            } else if (return_type == NULL_TYPE) {
+                if (current_word != NULL) {
+                    printf("Error: Cannot return value from null function, line: %d\n", word->line);
+                    exit(1);
+                } else {
+                    dict_print(variables);
+                    dict_destroy(variables);
+                    free(stack);
+                    return NULL; 
+                }
             }
+            word = current_word->value;
             if (is_keyword(word->value)) {
                 printf("Error: Expected value after 'return', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
             W_Type result_type = w_get_type(word->value);
             char *result_type_str = w_get_type_str(word->value);
-            if (*return_type != result_type) {
-                if (*return_type == INT) {
+            if (return_type != result_type) {
+                if (return_type == INT) {
                     printf("Error: Expected int value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (*return_type == FLOAT) {
+                } else if (return_type == FLOAT) {
                     printf("Error: Expected float value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (*return_type == STRING) {
+                } else if (return_type == STRING) {
                     printf("Error: Expected str value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (*return_type == BOOL) {
+                } else if (return_type == BOOL) {
                     printf("Error: Expected bool value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (*return_type == ARRAY) {
+                } else if (return_type == ARRAY) {
                     printf("Error: Expected array value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (*return_type == LIST) {
+                } else if (return_type == LIST) {
                     printf("Error: Expected list value after 'return', got %s, line: %d\n", result_type_str, word->line);
                 }
                 exit(1);
@@ -392,6 +399,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
     }
     dict_print(variables);
     dict_destroy(variables);
+    return result;
 }
 
 /************************************************

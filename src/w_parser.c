@@ -28,15 +28,15 @@ W_List *parse_line(W_List *line) {
     W_List *parsed_line = list_init();
     W_List_Element *current_word = line->head;
     W_List *parsed_words;
-    for (int i = 0; i < line->size; i++) {
+    while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
-        // printf("current_word: %s, type: %d\n", word->value, word->type);
+        printf("current_word: %s, type: %d\n", word->value, word->type);
         if (word->parsed) {
             current_word = current_word->next;
             continue;
         }
         if (word->type == KEYWORD || word->type == STR || current_word->next == NULL) {
-            // printf("keyword/str: %s\n", word->value); //debug
+            printf("keyword/str: %s\n", word->value); //debug
             parsed_words = list_init();
             word->parsed = true;
             list_append(parsed_words, word);
@@ -119,9 +119,11 @@ void print_parsed_code(W_List *parsed_code) { //debug
     for (int i = 0; i < parsed_code->size; i++) {
         printf("{\n");
         W_List *line = (W_List *)current_line->value;
+        printf("line size: %d\n", line->size);
         W_List_Element *parsed_line = line->head;
         for (int j = 0; j < line->size; j++) {
             W_List *parsed_words = (W_List *)parsed_line->value;
+            printf("    block size: %d\n", parsed_words->size);
             printf("    {\n");
             W_List_Element *current_word = parsed_words->head;
             for (int k = 0; k < parsed_words->size; k++) {
