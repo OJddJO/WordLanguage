@@ -31,5 +31,5 @@ void func_destroy(W_Func *f) {
  * \param f The function to print.
  */
 void func_print(W_Func *f) {
-    printf("%p", f);
+    printf("function at %p", f);
 }
