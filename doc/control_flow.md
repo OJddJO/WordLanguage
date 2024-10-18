@@ -1,4 +1,3 @@
-# Control Flow
 > [!NOTE]
 > Control flow statements are used to control the flow of the program. They are used to make decisions and to repeat code blocks.
 
@@ -8,9 +7,8 @@
 
 | Expression | Description |
 |---|---|
-| `if a equal b do` | If `a` is equal to `b`, do |
-| `if not a gEqual b and c equals a plus b do` | If `a` is not greater than or equal to `b` and `c` is equal to `a+b`, do |
-| `elif a equal b do` | Else if `a` is equal to `b`, do |
+| `if <boolean expression> do` | If the `<boolean expression>` is verified (example: `a less b`), do |
+| `elif <boolean expression> do` | Else if the `<boolean expression>` is verified, do |
 | `else` | Else |
 | `endif` | End if |
 
@@ -23,7 +21,7 @@
 | `for i from 1 to 10 do` | Loop from 1 to 10 |
 | `for i from 1 to 10 step 2 do` | Loop from 1 to 10 with a step of 2 |
 | `for i from 10 to 1 step -1 do` | Loop from 10 to 1 with a step of -1 |
-| `while <boolean expression> do` | While the `boolean expression` is verified (example: `a less b`) , do |
+| `while <boolean expression> do` | While the `<boolean expression>` is verified (example: `a less b`) , do |
 | `break` | Break loop |
 | `endloop` | End loop |
 

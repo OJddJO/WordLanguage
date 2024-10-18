@@ -3,7 +3,7 @@
 > ***Operations*** are the basic building blocks of the language. They are the smallest unit of code that can be executed. They can be combined to form ***expressions*** which can be used to perform more complex operations.
 
 > [!IMPORTANT]
-> ***Operations*** do follow the mathematical order of operations. To enforce a specific order of operations, use `.`. For example, `2 plus 3 time 4` will be evaluated as `5 * 4 = 20` then `2 + 3 = 5`. To evaluate `2 + 3` first, use `2 .plus 3 time 4`.
+> ***Operations*** do follow the mathematical order of operations. To enforce a specific order of operations, use `.`. For example, `2 plus 3 time 4` will be evaluated as `5 * 4 = 20` then `2 + 20 = 22`. To evaluate `2 + 3` first, use `2 .plus 3 time 4`.
 
 | Expression | Description |
 |---|---|

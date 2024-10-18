@@ -9,8 +9,8 @@
 | Expression | Description |
 |---|---|
 | `print "Hello World"` | Print `Hello World` in the terminal |
-| `print int var` | Print the integer value of the variable `var` in the terminal |
-| `print str var sep " " end "\n"` | Print the string value of the variable `var` with a space separator and a newline at the end |
+| `print var` | Print the value of the variable `var` in the terminal |
+| `print var sep " " end "\n"` | Print the value of the variable `var` with a space separator and a newline at the end |
 
 
 ## Input
