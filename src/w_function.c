@@ -20,9 +20,9 @@ W_Func *func_init() {
  * \param f The function to destroy.
  */
 void func_destroy(W_Func *f) {
-    printf("jdlqksjdqlkdj");
-    dict_destroy(f->args);
-    parser_destroy(f->parsed_code);
+    list_destroy_any(f->args->keys);
+    list_destroy_any(f->args->values);
+    free(f->args);
     free(f);
 }
 

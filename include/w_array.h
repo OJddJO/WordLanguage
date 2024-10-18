@@ -24,6 +24,7 @@ void array_set(W_Array *array, int index, void *value);
 int array_index(W_Array *array, void *value);
 int array_size(W_Array *array);
 void array_print(W_Array *array);
+W_Array *array_copy(W_Array *array);
 void array_destroy(W_Array *array);
 
 #endif

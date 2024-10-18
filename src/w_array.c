@@ -103,6 +103,20 @@ void array_print(W_Array *array) {
 }
 
 /**
+ * \brief Copies the given array.
+ * \param array The array to copy.
+ * \return A pointer to the copied array.
+ */
+W_Array *array_copy(W_Array *array) {
+    W_Array *copy = array_init(array->subtype, array->capacity);
+    for (int i = 0; i < array->capacity; i++) {
+        void *val = array_get(array, i);
+        copy->data[i] = ((W_Var *)val)->get(val);
+    }
+    return copy;
+}
+
+/**
  * \brief Destroys the given array.
  * \param array The array to destroy.
  */

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "w_type.h"
+#include "w_array.h"
 
 typedef struct _w_list_element {
     W_Type type;
@@ -32,6 +33,7 @@ int list_index(W_List *l, void *value);
 int list_size(W_List *l);
 void list_concat(W_List *l1, W_List *l2);
 void list_print(W_List *l);
+W_List *list_copy(W_List *l);
 void list_destroy_any(W_List *l);
 void list_destroy(W_List *l);
 

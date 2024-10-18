@@ -10,11 +10,12 @@
 
 typedef struct _w_func {
     W_Type type;
+    void *value; //not used "DUMMY"
+    void (*destroy)(struct _w_func *);
+    void (*print)(struct _w_func *);
     W_Type return_type;
     W_Dict *args; //arguments: dict: key: arg name, value: arg type
     W_List *parsed_code;
-    void (*destroy)(struct _w_func *);
-    void (*print)(struct _w_func *);
 } W_Func;
 
 W_Func *func_init();

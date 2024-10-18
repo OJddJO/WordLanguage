@@ -210,7 +210,45 @@ void list_print(W_List *l) {
 }
 
 /**
- * \brief Destroy a list (works with any list)
+ * \brief Copy a list (malloc)
+ * \param l The list to copy
+ * \return A copy of the list
+ **/
+W_List *list_copy(W_List *l) {
+    W_List *copy = list_init();
+    W_List_Element *e = l->head;
+    for (int i = 0; i < l->size; i++) {
+        void *value;
+        if (((W_Var *)e->value)->type == LIST) {
+            value = list_copy(e->value);
+        } else if (((W_Var *)e->value)->type == ARRAY) {
+            value = array_copy(e->value);
+        } else {
+            switch (((W_Var *)e->value)->type) {
+                case INT:
+                    value = int_init();
+                    printf("%d\n", ((W_Int *)e->value)->value);
+                case FLOAT:
+                    value = float_init();
+                    printf("%f\n", ((W_Float *)e->value)->value);
+                case STRING:
+                    value = str_init();
+                    printf("%s\n", ((W_Str *)e->value)->value);
+                case BOOL:
+                    value = bool_init();
+                    printf("%d\n", ((W_Bool *)e->value)->value);
+            }
+            printf("copying value\n");
+            ((W_Var *)value)->set(value, ((W_Var *)e->value)->value);
+        }
+        list_append(copy, value);
+        e = e->next;
+    }
+    return copy;
+}
+
+/**
+ * \brief Destroy a list (works with any list) (do not used for evaluation of wordlang)
  * \param l The list to destroy
  **/
 void list_destroy_any(W_List *l) {

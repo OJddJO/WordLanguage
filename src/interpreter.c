@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
-    // parser_destroy(parsed_code);
     W_Type *return_type = NULL_TYPE;
     execute(parsed_code, dict_init(), return_type);
+    // parser_destroy(parsed_code);
 
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");
@@ -76,17 +76,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
         char *key = (char *)current_key->value;
         W_Var *var = (W_Var *)dict_get(args, key);
         if (var->type == ARRAY) {
-            var_copy = array_init(var->type, ((W_Array *)var->value)->capacity);
-            for (int i = 0; i < ((W_Array *)var->value)->capacity; i++) {
-                void *val = array_get((W_Array *)var->value, i);
-                array_set((W_Array *)var, i, val);
-            }
+            var_copy = array_copy((W_Array *)var->value);
         } else if (var->type == LIST) {
-            var_copy = list_init();
-            for (int i = 0; i < ((W_List *)var->value)->size; i++) {
-                void *val = list_get((W_List *)var->value, i);
-                list_append((W_List *)var_copy, val);
-            }
+            var_copy = list_copy((W_List *)var->value);
         } else {
             var_copy = w_var_init(var->type);
             ((W_Var *)var_copy)->set(var_copy, var->value);
@@ -122,32 +114,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
         if (strcmp(word->value, "def") == 0) { //function definition
             W_Func *f = func_init(); //create function
             W_Dict *fn_args = f->args; //create arguments dictionary
-        
-            W_List *args_keys = dict_keys(variables);
-            W_List_Element *current_key = args_keys->head;
-            for (int i = 0; i < args_keys->size; i++) { //copy arguments to variables
-                void *var_copy;
-                char *key = (char *)current_key->value;
-                W_Var *var = (W_Var *)dict_get(variables, key);
-                if (var->type == ARRAY) {
-                    var_copy = array_init(var->type, ((W_Array *)var->value)->capacity);
-                    for (int i = 0; i < ((W_Array *)var->value)->capacity; i++) {
-                        void *val = array_get((W_Array *)var->value, i);
-                        array_set((W_Array *)var, i, val);
-                    }
-                } else if (var->type == LIST) {
-                    var_copy = list_init();
-                    for (int i = 0; i < ((W_List *)var->value)->size; i++) {
-                        void *val = list_get((W_List *)var->value, i);
-                        list_append((W_List *)var_copy, val);
-                    }
-                } else {
-                    var_copy = w_var_init(var->type);
-                    ((W_Var *)var_copy)->set(var_copy, var->value);
-                }
-                dict_set(fn_args, key, var_copy);
-                current_key = current_key->next;
-            }
 
             //set return type
             current_word = current_word->next;
@@ -234,7 +200,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
                 printf("Error: Expected keyword 'enddef' at end of the function definition, line: %d\n", fn_line);
                 exit(1);
             }
-            f->parsed_code = function_lines;
 
             //add function to variables
             dict_set(variables, name, f);
@@ -427,7 +392,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type *return_type) {
     }
     dict_print(variables);
     dict_destroy(variables);
-    parser_destroy(parsed_code);
 }
 
 /************************************************
