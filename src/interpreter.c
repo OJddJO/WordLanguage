@@ -9,8 +9,8 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // create_temp_file("test.w"); //debug
-    create_temp_file(argv[1]);
+    if (debug) create_temp_file("test.w"); //debug
+    else create_temp_file(argv[1]);
 
     FILE *temp = fopen("exec.tmp", "r");
     if (temp == NULL) {
@@ -110,6 +110,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         eval_parsed_lines(parsed_line, variables, stack);
 
         W_List_Element *current_word = stack->head;
+        if (current_word == NULL) {
+            current_line = current_line->next;
+            continue;
+        }
         W_Word *word = (W_Word *)current_word->value;
 
         if (strcmp(word->value, "def") == 0) { //function definition
@@ -249,6 +253,42 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             free(stack);
             return result;
 
+        } else if (strcmp(word->value, "call") == 0) { //function call
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected function name after 'call', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != IDENTIFIER) {
+                printf("Error: Expected function name after 'call', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_Func *f = (W_Func *)dict_get(variables, word->value);
+            if (f == NULL) {
+                printf("Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
+                exit(1);
+            } else if (f->type != FUNCTION) {
+                printf("Error: Expected function, got variable '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            char *fn_name = word->value;
+            W_Dict *fn_args = f->args;
+            W_List *fn_args_keys = dict_keys(fn_args);
+            W_List_Element *current_fn_arg = fn_args_keys->head;
+            current_word = current_word->next;
+            for (int i = 0; i < dict_size(fn_args); i++) {
+                if (current_word == NULL) {
+                    printf("Error: Expected argument after function name, line: %d\n", word->line);
+                    exit(1);
+                }
+                word = current_word->value;
+                if (word->type != IDENTIFIER) {
+                    printf("Error: Expected argument after function name, got '%s', line: %d\n", word->value, word->line);
+                    exit(1);
+                }
+                W_Type *arg_type = (W_Type *)dict_get(fn_args, current_fn_arg->value);
+            }
         } else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
             void *value;
