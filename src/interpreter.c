@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
         printf("Error: Could not delete temp file\n");
         return 1;
     }
+    if (debug) printf("Done\n"); //debug
     return 0;
 }
 
@@ -272,23 +273,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected function, got variable '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            char *fn_name = word->value;
-            W_Dict *fn_args = f->args;
-            W_List *fn_args_keys = dict_keys(fn_args);
-            W_List_Element *current_fn_arg = fn_args_keys->head;
-            current_word = current_word->next;
-            for (int i = 0; i < dict_size(fn_args); i++) {
-                if (current_word == NULL) {
-                    printf("Error: Expected argument after function name, line: %d\n", word->line);
-                    exit(1);
-                }
-                word = current_word->value;
-                if (word->type != IDENTIFIER) {
-                    printf("Error: Expected argument after function name, got '%s', line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-                W_Type *arg_type = (W_Type *)dict_get(fn_args, current_fn_arg->value);
-            }
+            
         } else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
             void *value;
