@@ -273,7 +273,72 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected function, got variable '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            
+            char *name = word->value; //name of the function
+            W_Dict *fn_args = f->args; //dictionary of function arguments (name: type)
+            int nb_args = dict_size(fn_args); //number of arguments
+            current_word = current_word->next;
+            if (current_word != NULL) { //if there is something to evaluate after function name
+                word = current_word->value;
+                if (strcmp(word->value, "with") == 0) { //if there are arguments
+                    current_word = current_word->next;
+                    if (current_word == NULL) {
+                        printf("Error: Expected arguments after 'with', line: %d\n", word->line);
+                        exit(1);
+                    }
+                    W_List *args_name = (W_List *)dict_keys(fn_args); //list of function arguments names
+                    W_List_Element *current_arg = args_name->head; //current argument name
+                    while (current_word != NULL) {
+                        word = current_word->value;
+                        if (current_arg == NULL) {
+                            printf("Error: Too many arguments for function '%s', line: %d\n", name, word->line);
+                            exit(1);
+                        }
+                        char *arg_name = (char *)current_arg->value; //name of the current argument
+                        if (word->type == IDENTIFIER) { //if argument is a variable
+                            void *arg = dict_get(variables, word->value);
+                            if (arg == NULL) {
+                                printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                                exit(1);
+                            }
+                            W_Var dummy;
+                            dummy.type = *(W_Type *)dict_get(fn_args, arg_name);
+                            char *arg_type_str = w_get_type_str(dummy.type);
+                            char *input_type_str = w_get_type_str(((W_Var *)arg)->type);
+                            if (((W_Var *)arg)->type != *(W_Type *)dict_get(fn_args, arg_name)) {
+                                printf("Error: Expected %s value for argument '%s', got %s, line: %d\n", arg_type_str, arg_name, input_type_str, word->line);
+                                exit(1);
+                            }
+                            free(arg_type_str);
+                            free(input_type_str);
+                            //TODO: make a copy of the variable and add it to the function arguments
+                        } else { //if argument is a litteral
+                            if (*(W_Type *)dict_get(fn_args, arg_name) == INT) {
+                                if (word->type != NUMBER) {
+                                    printf("Error: Expected int value for argument '%s', got %s, line: %d\n", arg_name, word->value, word->line);
+                                    exit(1);
+                                } else if (word->type == NUMBER && is_float(word->value)) {
+                                    printf("Error: Expected int value for argument '%s', got float, line: %d\n", arg_name, word->line);
+                                    exit(1);
+                                }
+                            } else if (*(W_Type *)dict_get(fn_args, arg_name) == STRING) {
+                                if (word->type != STR) {
+                                    printf("Error: Expected str value for argument '%s', got %s, line: %d\n", arg_name, word->value, word->line);
+                                    exit(1);
+                                }
+                            } 
+                            void *arg = w_var_init(*(W_Type *)dict_get(fn_args, arg_name));
+                            ((W_Var *)arg)->assign(arg, word->value);
+                            dict_set(variables, arg_name, word->value);
+                        }
+                    }
+                }
+                if (strcmp(word->value, "store") == 0) {
+                    //TODO: store function result in variable
+                }
+            } else if (nb_args > 0) {
+                printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
+                exit(1);
+            }
         } else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
             void *value;
