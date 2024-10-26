@@ -11,7 +11,6 @@ char *type_keywords[] = {
     "null", "int", "float", "str", "bool", "array", "list",
 };
 
-int main(int argc, char *argv[]);
 void create_temp_file(char *filename);
 void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type);
 

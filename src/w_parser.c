@@ -30,13 +30,11 @@ W_List *parse_line(W_List *line) {
     W_List *parsed_words;
     while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
-        printf("current_word: %s, type: %d\n", word->value, word->type);
         if (word->parsed) {
             current_word = current_word->next;
             continue;
         }
         if (word->type == KEYWORD || word->type == STR || current_word->next == NULL) {
-            printf("keyword/str: %s\n", word->value); //debug
             parsed_words = list_init();
             word->parsed = true;
             list_append(parsed_words, word);

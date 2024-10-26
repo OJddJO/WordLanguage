@@ -104,6 +104,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         }
         W_Word *word = (W_Word *)current_word->value;
 
+        /*************************************************
+         * Function **************************************
+         *************************************************/
         if (strcmp(word->value, "def") == 0) { //function definition
             W_Func *f = func_init(); //create function
             W_Dict *fn_args = f->args; //create arguments dictionary
@@ -389,8 +392,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
                             exit(1);
                         }
+                        printf("Starting function execution...\n");
                         void *result = execute(f->parsed_code, fn_vars, f->return_type);
                         dict_set(variables, word->value, result);
+                        printf("Function executed !\n");
                     }
                 } else {
                     printf("Starting function execution...\n");
@@ -401,7 +406,84 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
                 exit(1);
             }
-        } else if (is_type_keyword(word->value)) { //create var
+        } 
+        /*************************************************
+         * IO ********************************************
+         *************************************************/
+        else if (strcmp(word->value, "print") == 0) { //print
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected value after 'print', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            char *sep = " ";
+            char *end = "\n";
+            while (current_word != NULL) {
+                if (word->type == KEYWORD) {
+                    if (strcmp(word->value, "sep") == 0) {
+                        current_word = current_word->next;
+                        if (current_word == NULL) {
+                            printf("Error: Expected value after 'sep', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        word = current_word->value;
+                        if (word->type != STR) {
+                            printf("Error: Expected str value after 'sep', got '%s', line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                        sep = word->value;
+                        char str[strlen(sep)-1];
+                        strncpy(str, sep+1, strlen(sep)-2);
+                        str[strlen(sep)-2] = '\0';
+                        sep = str;
+                    } else if (strcmp(word->value, "end") == 0) {
+                        current_word = current_word->next;
+                        if (current_word == NULL) {
+                            printf("Error: Expected value after 'end', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        word = current_word->value;
+                        if (word->type != STR) {
+                            printf("Error: Expected str value after 'end', got '%s', line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                        end = word->value;
+                        char str[strlen(end)-1];
+                        strncpy(str, end+1, strlen(end)-2);
+                        str[strlen(end)-2] = '\0';
+                        end = str;
+                    } else {
+                        printf("Error: Unexpected keyword '%s', line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (word->type == IDENTIFIER) {
+                    W_Var *var = (W_Var *)dict_get(variables, word->value);
+                    if (var == NULL) {
+                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    var->print(var);
+                } else {
+                    if (word->type == STR) {
+                        char str[strlen(word->value)-1];
+                        strncpy(str, word->value+1, strlen(word->value)-2);
+                        str[strlen(word->value)-2] = '\0';
+                        printf("%s", str);
+                    } else printf("%s", word->value);
+                }
+                current_word = current_word->next;
+                if (current_word != NULL) {
+                    word = current_word->value;
+                    printf("%s", sep);
+                }
+            }
+            printf("%s", end);
+        }
+        /*************************************************
+         * Variables *************************************
+         *************************************************/
+        else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
             char *name;
             void *value;

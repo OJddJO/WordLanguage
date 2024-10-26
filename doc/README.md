@@ -15,9 +15,9 @@ print "Hello" str name
 - create a string variable `name` and assign it the input from the user with the prompt `Enter your name: `
 - print Hello and the string value in `name`
 
-> [!NOTE]
-> One line of code can contain multiple statements. You can perform multiple tasks on the same line, even if it is not recommended.
-> For example, the following code is valid:
+> [!IMPORTANT]
+> One line of code can only contain one statement. You can **not** perform multiple tasks on the same line.
+> For example, the following code is not valid:
 > ```
 > str name assign input "Enter your name: " print "Hello" str name
 > ```

@@ -10,7 +10,7 @@
 |---|---|
 | `print "Hello World"` | Print `Hello World` in the terminal |
 | `print var` | Print the value of the variable `var` in the terminal |
-| `print var sep " " end "\n"` | Print the value of the variable `var` with a space separator and a newline at the end |
+| `print sep " " end "\n" "Hello World" var` | Print `Hello World` and the value of the variable `var` with a space separator and a newline at the end |
 
 
 ## Input
@@ -20,7 +20,7 @@
 | Expression | Description |
 |---|---|
 | `int var assign input` | Create a new integer variable `var` and assign it the input from the user |
-| `str var assign input "Enter your name: ` | Create a new string variable `var` and assign it the input from the user with the prompt `Enter your name` |
+| `str var assign input "Enter your name: "` | Create a new string variable `var` and assign it the input from the user with the prompt `Enter your name` |
 | `var assign input "Enter a number: "` | Assign the input from the user to the already existing variable `var` |
 
 ---
