@@ -16,11 +16,12 @@ typedef struct _w_list_element {
 typedef struct _w_list {
     W_Type type;
     W_List_Element *head;
+    void (*destroy)(struct _w_list *);
+    void (*print)(struct _w_list *);
+    struct _w_list *(*copy)(struct _w_list *);
     W_List_Element *tail;
     int size;
     int middle;
-    void (*destroy)(struct _w_list *);
-    void (*print)(struct _w_list *);
 } W_List;
 
 W_List *list_init();

@@ -10,6 +10,7 @@ W_Str *str_init() {
     s->value = NULL;
     s->destroy = &str_destroy;
     s->print = &str_print;
+    s->copy = &str_copy;
     s->assign = &str_assign;
     s->set = &str_set;
     s->get = &str_value;
@@ -44,10 +45,9 @@ void str_assign(W_Str *s, char *value) {
  * \param value The new value.
  */
 void str_set(W_Str *s, char *value) {
-    if (s->type == NULL_TYPE) {
+    if (s->type != NULL_TYPE) {
         free(s->value);
-        s->type = STRING;
-    }
+    } else s->type = STRING;
     char *v = (char *)malloc(strlen(value) + 1);
     strcpy(v, value);
     s->value = v;
@@ -113,4 +113,15 @@ void str_print(W_Str *s) {
 void str_destroy(W_Str *s) {
     free(s->value);
     free(s);
+}
+
+/**
+ * \brief Copies a string. (malloc)
+ * \param s The string.
+ * \return A pointer to the copied string.
+ */
+W_Str *str_copy(W_Str *s) {
+    W_Str *copy = str_init();
+    str_set(copy, s->value);
+    return copy;
 }

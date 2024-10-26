@@ -10,6 +10,7 @@ W_Bool *bool_init() {
     b->value = NULL;
     b->destroy = &bool_destroy;
     b->print = &bool_print;
+    b->copy = &bool_copy;
     b->assign = &bool_assign;
     b->set = &bool_set;
     b->get = &bool_value;
@@ -76,4 +77,15 @@ void bool_print(W_Bool *b) {
 void bool_destroy(W_Bool *b) {
     if (b->value != NULL) free(b->value);
     free(b);
+}
+
+/**
+ * \brief Copies the given boolean. (malloc)
+ * \param b The boolean to copy.
+ * \return A pointer to the newly created boolean.
+ */
+W_Bool *bool_copy(W_Bool *b) {
+    W_Bool *copy = bool_init();
+    bool_set(copy, *b->value);
+    return copy;
 }

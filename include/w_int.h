@@ -11,6 +11,7 @@ typedef struct _w_int {
     int *value;
     void (*destroy)(struct _w_int *);
     void (*print)(struct _w_int *);
+    struct _w_int *(*copy)(struct _w_int *);
     void (*assign)(struct _w_int *, char *);
     void (*set)(struct _w_int *, int);
     int *(*get)(struct _w_int *);
@@ -22,5 +23,6 @@ void int_set(W_Int *i, int value);
 int *int_value(W_Int *i);
 void int_print(W_Int *i);
 void int_destroy(W_Int *i);
+W_Int *int_copy(W_Int *i);
 
 #endif

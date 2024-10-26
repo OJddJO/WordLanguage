@@ -37,6 +37,7 @@ W_Array *array_init(W_Type type, int capacity) {
     array->capacity = capacity;
     array->destroy = &array_destroy;
     array->print = &array_print;
+    array->copy = &array_copy;
     return array;
 }
 
@@ -111,7 +112,7 @@ W_Array *array_copy(W_Array *array) {
     W_Array *copy = array_init(array->subtype, array->capacity);
     for (int i = 0; i < array->capacity; i++) {
         void *val = array_get(array, i);
-        copy->data[i] = ((W_Var *)val)->get(val);
+        array_set(copy, i, ((W_Var *)val)->copy(val));
     }
     return copy;
 }

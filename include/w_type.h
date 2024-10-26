@@ -13,11 +13,12 @@ typedef enum _w_type {
     FUNCTION,
 } W_Type;
 
-typedef struct _w_var {
+typedef struct _w_var { // WARNING: All types must have the same order of struct members
     W_Type type;
     void *value;
     void (*destroy)(void *);
     void (*print)(void *);
+    void *(*copy)(void *);
     void (*assign)(void *, void *);
     void (*set)(void *, void *);
     void *(*get)(void *);

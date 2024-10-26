@@ -10,6 +10,7 @@ W_Float *float_init() {
     f->value = NULL;
     f->destroy = &float_destroy;
     f->print = &float_print;
+    f->copy = &float_copy;
     f->assign = &float_assign;
     f->set = &float_set;
     f->get = &float_value;
@@ -71,4 +72,15 @@ void float_print(W_Float *f) {
 void float_destroy(W_Float *f) {
     if (f->value != NULL) free(f->value);
     free(f);
+}
+
+/**
+ * \brief Copies the given float. (malloc)
+ * \param f The float to copy.
+ * \return A copy of the float.
+ */
+W_Float *float_copy(W_Float *f) {
+    W_Float *copy = float_init();
+    float_set(copy, *f->value);
+    return copy;
 }

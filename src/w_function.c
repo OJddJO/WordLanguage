@@ -12,6 +12,7 @@ W_Func *func_init() {
     f->parsed_code = list_init();
     f->destroy = &func_destroy;
     f->print = &func_print;
+    f->copy = &func_copy;
     return f;
 }
 
@@ -32,4 +33,35 @@ void func_destroy(W_Func *f) {
  */
 void func_print(W_Func *f) {
     printf("function at %p", f);
+}
+
+/**
+ * \brief Copies the given function. (malloc)
+ * \param f The function to copy.
+ * \return A copy of the function.
+ */
+W_Func *func_copy(W_Func *f) {
+    W_Func *copy = func_init();
+    copy->return_type = f->return_type;
+    W_Dict *args_copy = dict_init();
+    W_List_Element *current_key = f->args->keys->head;
+    W_List_Element *current_value = f->args->values->head;
+    for (int i = 0; i < f->args->keys->size; i++) {
+        char *key = (char *)current_key->value;
+        W_Type *value = current_value->value;
+        W_Type *value_copy = (W_Type *)malloc(sizeof(W_Type));
+        *value_copy = *value;
+        dict_set(args_copy, key, value_copy);
+        current_key = current_key->next;
+        current_value = current_value->next;
+    }
+    copy->args = args_copy;
+    W_List *parsed_code_copy = list_init();
+    W_List_Element *current_line = f->parsed_code->head;
+    for (int i = 0; i < f->parsed_code->size; i++) {
+        list_append(parsed_code_copy, current_line->value);
+        current_line = current_line->next;
+    }
+    copy->parsed_code = parsed_code_copy;
+    return copy;
 }

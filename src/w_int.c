@@ -10,6 +10,7 @@ W_Int *int_init() {
     i->value = NULL;
     i->destroy = &int_destroy;
     i->print = &int_print;
+    i->copy = &int_copy;
     i->assign = &int_assign;
     i->set = &int_set;
     i->get = &int_value;
@@ -71,4 +72,15 @@ void int_print(W_Int *i) {
 void int_destroy(W_Int *i) {
     if (i->value != NULL) free(i->value);
     free(i);
+}
+
+/**
+ * \brief Copies the given integer. (malloc)
+ * \param i The integer to copy.
+ * \return A copy of the integer.
+ */
+W_Int *int_copy(W_Int *i) {
+    W_Int *copy = int_init();
+    int_set(copy, *i->value);
+    return copy;
 }

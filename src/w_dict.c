@@ -129,7 +129,7 @@ void dict_print(W_Dict *d) {
         current_key = current_key->next;
         current_value = current_value->next;
     }
-    printf("}\n");
+    printf("}");
 }
 
 /**
@@ -140,4 +140,23 @@ void dict_destroy(W_Dict *d) {
     list_destroy_any(d->keys);
     list_destroy(d->values);
     free(d);
+}
+
+/**
+ * \brief Copies the given dictionary.
+ * \param d The dictionary to copy.
+ * \return A pointer to the copied dictionary.
+ */
+W_Dict *dict_copy(W_Dict *d) {
+    W_Dict *copy = dict_init();
+    W_List_Element *current_key = d->keys->head;
+    W_List_Element *current_value = d->values->head;
+    for (int i = 0; i < d->keys->size; i++) {
+        char *key = (char *)current_key->value;
+        void *value = ((W_Var *)current_value->value)->copy(current_value->value);
+        dict_set(copy, key, value);
+        current_key = current_key->next;
+        current_value = current_value->next;
+    }
+    return copy;
 }

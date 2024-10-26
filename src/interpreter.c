@@ -8,7 +8,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-
     if (debug) create_temp_file("test.w"); //debug
     else create_temp_file(argv[1]);
 
@@ -26,10 +25,23 @@ int main(int argc, char *argv[]) {
 
     W_List *parsed_code = parse(lexed_code);
     if (debug) print_parsed_code(parsed_code); //debug
+
+    //initialize variables
     W_Type return_type = NULL_TYPE;
-    execute(parsed_code, dict_init(), return_type);
+    W_Dict *default_args = dict_init();
+    W_Bool *w_true = bool_init();
+    bool_set(w_true, true);
+    dict_set(default_args, "true", w_true);
+    W_Bool *w_false = bool_init();
+    bool_set(w_false, false);
+    dict_set(default_args, "false", w_false);
+
+    if (debug) printf("Executing...\n");
+    execute(parsed_code, default_args, return_type);
+    if (debug) printf("Executed !\n");
     // parser_destroy(parsed_code);
 
+    if (debug) printf("Cleaning up...\n");
     if (remove("exec.tmp") != 0) {
         printf("Error: Could not delete temp file\n");
         return 1;
@@ -68,35 +80,10 @@ void create_temp_file(char *filename) {
  * \return The result of the execution
  */
 void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
-    W_Dict *variables = dict_init();
+    W_Dict *variables = args;
     void *result = NULL;
-
-    W_List *args_keys = dict_keys(args);
-    W_List_Element *current_key = args_keys->head;
-    for (int i = 0; i < args_keys->size; i++) { //copy arguments to variables
-        void *var_copy;
-        char *key = (char *)current_key->value;
-        W_Var *var = (W_Var *)dict_get(args, key);
-        if (var->type == ARRAY) {
-            var_copy = array_copy((W_Array *)var->value);
-        } else if (var->type == LIST) {
-            var_copy = list_copy((W_List *)var->value);
-        } else {
-            var_copy = w_var_init(var->type);
-            ((W_Var *)var_copy)->set(var_copy, var->value);
-        }
-        dict_set(variables, key, var_copy);
-        current_key = current_key->next;
-    }
-    dict_destroy(args);
-    if (!dict_contains(variables, "true") || !dict_contains(variables, "false")) {
-        W_Bool *w_true = bool_init();
-        bool_set(w_true, true);
-        dict_set(variables, "true", w_true);
-        W_Bool *w_false = bool_init();
-        bool_set(w_false, false);
-        dict_set(variables, "false", w_false);
-    }
+    dict_print(variables); //debug
+    printf("\n"); //debug
 
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {
@@ -265,6 +252,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected function name after 'call', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
+            printf("Called function %s\n", word->value); //debug
             W_Func *f = (W_Func *)dict_get(variables, word->value);
             if (f == NULL) {
                 printf("Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
@@ -275,6 +263,25 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             char *name = word->value; //name of the function
             W_Dict *fn_args = f->args; //dictionary of function arguments (name: type)
+            W_Dict *fn_vars = dict_init(); //variables of the function
+
+            //copy all variables to function variables
+            printf("Copying scope variables to function variables...\n"); //debug
+            printf("Scope variables:\n"); //debug
+            dict_print(variables); //debug
+            W_List *variables_keys = dict_keys(variables);
+            W_List_Element *current_key = variables_keys->head;
+            for (int i = 0; i < variables_keys->size; i++) { //copy arguments to variables
+                char *key = (char *)current_key->value;
+                W_Var *var = (W_Var *)dict_get(variables, key);
+                void *var_copy = var->copy(var);
+                dict_set(fn_vars, key, var_copy);
+                current_key = current_key->next;
+            }
+            printf("\nFunction variables:\n"); //debug
+            dict_print(fn_vars); //debug
+            printf("\n"); //debug
+
             int nb_args = dict_size(fn_args); //number of arguments
             current_word = current_word->next;
             if (current_word != NULL) { //if there is something to evaluate after function name
@@ -289,6 +296,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     W_List_Element *current_arg = args_name->head; //current argument name
                     while (current_word != NULL) {
                         word = current_word->value;
+                        if (word->type == KEYWORD) {
+                            break;
+                        }
                         if (current_arg == NULL) {
                             printf("Error: Too many arguments for function '%s', line: %d\n", name, word->line);
                             exit(1);
@@ -302,15 +312,16 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             }
                             W_Var dummy;
                             dummy.type = *(W_Type *)dict_get(fn_args, arg_name);
-                            char *arg_type_str = w_get_type_str(dummy.type);
-                            char *input_type_str = w_get_type_str(((W_Var *)arg)->type);
+                            char *arg_type_str = w_get_type_str(&dummy);
+                            char *input_type_str = w_get_type_str(arg);
                             if (((W_Var *)arg)->type != *(W_Type *)dict_get(fn_args, arg_name)) {
                                 printf("Error: Expected %s value for argument '%s', got %s, line: %d\n", arg_type_str, arg_name, input_type_str, word->line);
                                 exit(1);
                             }
                             free(arg_type_str);
                             free(input_type_str);
-                            //TODO: make a copy of the variable and add it to the function arguments
+                            W_Var *arg_copy = ((W_Var *)arg)->copy(arg); //copy of the argument
+                            dict_set(fn_vars, arg_name, arg_copy);
                         } else { //if argument is a litteral
                             if (*(W_Type *)dict_get(fn_args, arg_name) == INT) {
                                 if (word->type != NUMBER) {
@@ -328,13 +339,21 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             } 
                             void *arg = w_var_init(*(W_Type *)dict_get(fn_args, arg_name));
                             ((W_Var *)arg)->assign(arg, word->value);
-                            dict_set(variables, arg_name, word->value);
+                            dict_set(fn_vars, arg_name, word->value);
                         }
+                        current_arg = current_arg->next;
+                        current_word = current_word->next;
                     }
                 }
-                if (strcmp(word->value, "store") == 0) {
-                    //TODO: store function result in variable
+                if (current_word != NULL) {
+                    word = current_word->value;
+                    if (strcmp(word->value, "store") == 0) {
+                        //TODO: store function result in variable
+                    }
                 }
+                printf("Starting function execution...\n");
+                execute(f->parsed_code, fn_vars, f->return_type);
+                printf("Function executed !\n");
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
                 exit(1);
@@ -487,7 +506,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         free(stack);
         current_line = current_line->next;
     }
-    dict_print(variables);
+    printf("Exit Variables:\n"); //debug
+    dict_print(variables); //debug
+    printf("\n"); //debug
     dict_destroy(variables);
     return result;
 }

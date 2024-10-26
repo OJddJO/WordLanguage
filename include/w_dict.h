@@ -10,9 +10,10 @@
 typedef struct _w_dict {
     W_Type type;
     W_List *keys;
-    W_List *values;
     void (*destroy)(struct _w_dict *);
     void (*print)(struct _w_dict *);
+    struct _w_dict *(*copy)(struct _w_dict *);
+    W_List *values;
 } W_Dict;
 
 W_Dict *dict_init();
@@ -24,5 +25,6 @@ int dict_size(W_Dict *d);
 void dict_remove(W_Dict *d, char *key);
 void dict_print(W_Dict *d);
 void dict_destroy(W_Dict *d);
+W_Dict *dict_copy(W_Dict *d);
 
 #endif

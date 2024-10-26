@@ -16,6 +16,7 @@ typedef struct _w_array {
     int capacity;
     void (*destroy)(struct _w_array *);
     void (*print)(struct _w_array *);
+    struct _w_array *(*copy)(struct _w_array *);
 } W_Array;
 
 W_Array *array_init(W_Type type, int capacity);
