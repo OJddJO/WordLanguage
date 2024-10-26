@@ -19,6 +19,7 @@
 ## Dictionaries
 > [!IMPORTANT]
 > ***Not usable yet. Dicts are implemented but due to their complexities, they are not available for use yet.***
+
 > [!NOTE]
 > ***Dictionaries*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using dictionaries as they can lead to type errors. The size of ***dictionaries*** is dynamic and can change.
 
