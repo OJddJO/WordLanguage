@@ -207,20 +207,50 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Cannot return value from null function, line: %d\n", word->line);
                     exit(1);
                 } else {
-                    dict_print(variables);
                     dict_destroy(variables);
                     free(stack);
                     return NULL; 
                 }
             }
             word = current_word->value;
-            if (is_keyword(word->value)) {
+            if (word->type == KEYWORD) {
                 printf("Error: Expected value after 'return', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Type result_type = w_get_type(word->value);
-            char *result_type_str = w_get_type_str(word->value);
-            if (return_type != result_type) {
+            W_Var *result;
+            if (word->type == IDENTIFIER) { //if variable
+                result = (W_Var *)dict_get(variables, word->value);
+                if (result == NULL) {
+                    printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                    exit(1);
+                }
+                result = (result)->copy(result);
+            } else { // if value (cannot be array or list)
+                if (return_type == INT) {
+                    if (word->type != NUMBER || is_float(word->value)) {
+                        printf("Error: Expected int value after 'return', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (return_type == FLOAT) {
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected float value after 'return', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (return_type == STRING) {
+                    if (word->type != STR) {
+                        printf("Error: Expected str value after 'return', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (return_type == BOOL) {
+                    if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                        printf("Error: Expected bool value after 'return', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                }
+                result->assign(result, word->value);
+            }
+            char *result_type_str = w_get_type_str(result);
+            if (return_type != result->type) { //if return type is not the same as the result type
                 if (return_type == INT) {
                     printf("Error: Expected int value after 'return', got %s, line: %d\n", result_type_str, word->line);
                 } else if (return_type == FLOAT) {
@@ -229,8 +259,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected str value after 'return', got %s, line: %d\n", result_type_str, word->line);
                 } else if (return_type == BOOL) {
                     printf("Error: Expected bool value after 'return', got %s, line: %d\n", result_type_str, word->line);
-                } else if (return_type == ARRAY) {
-                    printf("Error: Expected array value after 'return', got %s, line: %d\n", result_type_str, word->line);
                 } else if (return_type == LIST) {
                     printf("Error: Expected list value after 'return', got %s, line: %d\n", result_type_str, word->line);
                 }
@@ -240,7 +268,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             dict_destroy(variables);
             free(stack);
             return result;
-
         } else if (strcmp(word->value, "call") == 0) { //function call
             current_word = current_word->next;
             if (current_word == NULL) {
@@ -278,9 +305,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 dict_set(fn_vars, key, var_copy);
                 current_key = current_key->next;
             }
-            printf("\nFunction variables:\n"); //debug
-            dict_print(fn_vars); //debug
-            printf("\n"); //debug
 
             int nb_args = dict_size(fn_args); //number of arguments
             current_word = current_word->next;
@@ -322,7 +346,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             free(input_type_str);
                             W_Var *arg_copy = ((W_Var *)arg)->copy(arg); //copy of the argument
                             dict_set(fn_vars, arg_name, arg_copy);
-                        } else { //if argument is a litteral
+                        } else { //if argument is a litteral (cannot be array or list)
                             if (*(W_Type *)dict_get(fn_args, arg_name) == INT) {
                                 if (word->type != NUMBER) {
                                     printf("Error: Expected int value for argument '%s', got %s, line: %d\n", arg_name, word->value, word->line);
@@ -345,80 +369,44 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         current_word = current_word->next;
                     }
                 }
+                printf("\nFunction variables:\n"); //debug
+                dict_print(fn_vars); //debug
+                printf("\n"); //debug
                 if (current_word != NULL) {
                     word = current_word->value;
                     if (strcmp(word->value, "store") == 0) {
-                        //TODO: store function result in variable
+                        if (f->return_type == NULL_TYPE) {
+                            printf("Error: Cannot store result of null function, line: %d\n", word->line);
+                            exit(1);
+                        }
+                        current_word = current_word->next;
+                        if (current_word == NULL) {
+                            printf("Error: Expected variable name after 'store', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        word = current_word->value;
+                        if (word->type != IDENTIFIER) {
+                            printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                        void *result = execute(f->parsed_code, fn_vars, f->return_type);
+                        dict_set(variables, word->value, result);
                     }
+                } else {
+                    printf("Starting function execution...\n");
+                    execute(f->parsed_code, fn_vars, f->return_type);
+                    printf("Function executed !\n");
                 }
-                printf("Starting function execution...\n");
-                execute(f->parsed_code, fn_vars, f->return_type);
-                printf("Function executed !\n");
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
                 exit(1);
             }
         } else if (is_type_keyword(word->value)) { //create var
             W_Type type = w_get_type(word->value);
-            void *value;
             char *name;
+            void *value;
             current_word = current_word->next;
-            if (type == ARRAY) { //define array
-                if (current_word == NULL) {
-                    printf("Error: Expected array type after type keyword, line: %d\n", word->line);
-                    exit(1);
-                }
-                word = current_word->value;
-                if (!is_type_keyword(word->value)) { //get array type
-                    printf("Error: Expected type keyword after 'array', line: %d\n", word->line);
-                    exit(1);
-                }
-                if (strcmp(word->value, "null") == 0) {
-                    printf("Error: Cannot create array with type 'null', line: %d\n", word->line);
-                    exit(1);
-                }
-                W_Type array_type = w_get_type(word->value);
-
-                current_word = current_word->next; //get array name
-                if (current_word == NULL) {
-                    printf("Error: Expected array name after array type, line: %d\n", word->line);
-                    exit(1);
-                }
-                word = current_word->value;
-                if (word->type != IDENTIFIER) {
-                    printf("Error: Expected array name after array type, got '%s', line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-                if (dict_get(variables, word->value) != NULL) {
-                    printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-                name = word->value;
-
-                current_word = current_word->next; //get array size
-                if (current_word == NULL) {
-                    printf("Error: Expected keyword 'size' after array name, line: %d\n", word->line);
-                    exit(1);
-                }
-                word = current_word->value;
-                if (strcmp(word->value, "size") != 0) {
-                    printf("Error: Expected keyword 'size' after array name, got '%s', line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-                current_word = current_word->next;
-                word = current_word->value;
-                if (is_keyword(word->value)) {
-                    printf("Error: Expected size value after 'size', line: %d\n", word->line);
-                    exit(1);
-                }
-                if (word->type != NUMBER || is_float(word->value)) {
-                    printf("Error: Expected int value after 'size', got %s, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-                int size = atoi(word->value);
-                value = array_init(array_type, size);
-
-            } else if (type == LIST) { //define list
+            if (type == LIST) { //define list
                 if (current_word == NULL) {
                     printf("Error: Expected list name after type keyword, line: %d\n", word->line);
                     exit(1);

@@ -62,7 +62,8 @@ double *float_value(W_Float *f) {
  * \param f The float to print.
  */
 void float_print(W_Float *f) {
-    printf("%f", *f->value);
+    if (f->type != NULL_TYPE) printf("%f", *f->value);
+    else printf("NULL");
 }
 
 /**

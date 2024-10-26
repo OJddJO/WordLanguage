@@ -27,9 +27,6 @@ char *w_get_type_str(void *var) {
         case LIST:
             strcpy(type, "list");
             break;
-        case ARRAY:
-            strcpy(type, "array");
-            break;
         case DICT:
             strcpy(type, "dict");
             break;
@@ -62,8 +59,6 @@ W_Type w_get_type(char *str) {
         return BOOL;
     } else if (strcmp(str, "list") == 0) {
         return LIST;
-    } else if (strcmp(str, "array") == 0) {
-        return ARRAY;
     } else if (strcmp(str, "dict") == 0) {
         return DICT;
     } else if (strcmp(str, "function") == 0) {

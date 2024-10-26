@@ -67,7 +67,8 @@ bool *bool_value(W_Bool *b) {
  * \param b The boolean to print.
  */
 void bool_print(W_Bool *b) {
-    printf("%s", *b->value ? "true" : "false");
+    if (b->type != NULL_TYPE) printf("%s", *b->value ? "true" : "false");
+    else printf("NULL");
 }
 
 /**

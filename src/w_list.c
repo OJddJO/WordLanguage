@@ -192,7 +192,6 @@ void list_concat(W_List *l1, W_List *l2) {
     }
     l1->size += l2->size;
     l1->middle += l2->middle;
-    free(l2);
 }
 
 /**
@@ -203,7 +202,8 @@ void list_print(W_List *l) {
     W_List_Element *e = l->head;
     printf("[");
     while (e != NULL) {
-        ((W_Var*) e->value)->print(e->value);
+        if (e->type != NULL_TYPE) ((W_Var*) e->value)->print(e->value);
+        else printf("NULL");
         e = e->next;
         if (e != NULL) printf(", ");
     }

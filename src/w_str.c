@@ -103,7 +103,8 @@ int str_length(W_Str *s) {
  * \param s The string.
  */
 void str_print(W_Str *s) {
-    printf("'%s'", s->value);
+    if (s->type != NULL_TYPE) printf("'%s'", s->value);
+    else printf("NULL");
 }
 
 /**

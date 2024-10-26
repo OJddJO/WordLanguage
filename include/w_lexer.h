@@ -11,7 +11,7 @@ static char *keywords[] = {
     //variables
     "int", "float", "str", "bool", "assign", "delete",
     //constructed types
-    "array", "list", "size", "get", "index", "set", "append", "remove", "length",
+    "list", "get", "index", "set", "append", "remove", "length",
     //IO expressions
     "print", "sep", "end", "input",
     //control flow

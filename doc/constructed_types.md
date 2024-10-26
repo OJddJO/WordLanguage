@@ -1,27 +1,9 @@
 > [!NOTE]
-> Constructed types are used to store multiple values. They are used to group data together. There are two types of constructed types: ***arrays*** and ***lists***.
+> Constructed types are used to store multiple values. They are used to group data together.
 
-## Arrays (Type safe)
+## Lists
 > [!NOTE]
-> ***Arrays*** are used to store multiple values of the same type. They are type safe, meaning that all the values in the array must be of the same type. 
-> [!IMPORTANT]
-> The size of the array is fixed and cannot be changed. It is also not possible to create an array of arrays.
-
-| Expression | Description |
-|---|---|
-| `array int var size 10` | Create a new integer array variable `var` of size 10 |
-| `var get index a` | Get the value at index `a` from the array variable `var` |
-| `var set index a assign b` | Set the value at index `a` in the array variable `var` to `b` |
-| `var search a` | Search for the value `a` in the array variable `var` and return the index (-1 if not found) |
-| `var append a` | Append `a` to the array variable `var` |
-| `var remove a` | Remove the value at index `a` from the array variable `var` |
-| `var length` | Get the length of the array variable `var` |
-| `delete var` | Delete the array variable `var` |
-
-
-## Lists (Not type safe)
-> [!NOTE]
-> ***Lists*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using lists as they can lead to type errors. ***Arrays*** are safer to use as they are type safe. The size of ***lists*** is dynamic and can change. Unlike ***arrays***, list of lists and list of arrays can be created.
+> ***Lists*** are used to store multiple values of different types. They are not type safe, meaning that they can contain any type of data. You need to be careful when using lists as they can lead to type errors. The size of ***lists*** is dynamic and can change.
 
 | Expression | Description |
 |---|---|

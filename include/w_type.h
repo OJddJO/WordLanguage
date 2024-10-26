@@ -7,7 +7,6 @@ typedef enum _w_type {
     FLOAT, //double is the same as float
     STRING, //char * is the same as string
     BOOL,
-    ARRAY,
     LIST,
     DICT, //dict will not be implemented in the first version due to the memory management
     FUNCTION,

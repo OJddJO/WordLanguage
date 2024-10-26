@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "w_array.h"
 #include "w_bool.h"
 #include "w_dict.h"
 #include "w_float.h"

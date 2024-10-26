@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "w_type.h"
-#include "w_array.h"
 
 typedef struct _w_list_element {
     W_Type type;

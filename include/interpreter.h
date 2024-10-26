@@ -8,7 +8,7 @@
 #include "w_parser.h"
 
 char *type_keywords[] = {
-    "null", "int", "float", "str", "bool", "assign", "delete",
+    "null", "int", "float", "str", "bool", "array", "list",
 };
 
 int main(int argc, char *argv[]);

@@ -62,7 +62,8 @@ int *int_value(W_Int *i) {
  * \param i The integer to print.
  */
 void int_print(W_Int *i) {
-    printf("%d", *i->value);
+    if (i->type != NULL_TYPE) printf("%d", *i->value);
+    else printf("NULL");
 }
 
 /**
