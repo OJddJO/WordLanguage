@@ -21,7 +21,7 @@
 > ***Not usable yet. Dicts are implemented but due to their complexities, they are not available for use yet.***
 
 > [!NOTE]
-> ***Dictionaries*** are used to store key-value pairs. They are usefull when you want to store data and give it a name. The keys are unique and the values can be of any type. The size of ***dictionaries*** is dynamic and can change.
+> ***Dictionaries*** are used to store `key-value` pairs. They are usefull when you want to store multiple data sets and give the data a name. The keys are unique and the values can be of any type. The size of ***dictionaries*** is dynamic and can change.
 
 | Expression | Description |
 |---|---|
