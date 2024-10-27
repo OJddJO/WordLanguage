@@ -12,7 +12,7 @@ W_List *list_init() {
     l->size = 0;
     l->middle = 0;
     l->destroy = &list_destroy;
-    l->print = &list_print;
+    l->stringify = &list_stringify;
     l->copy = &list_copy;
     return l;
 }
@@ -195,19 +195,46 @@ void list_concat(W_List *l1, W_List *l2) {
 }
 
 /**
- * \brief Print a list
- * \param l The list to print
+ * \brief Stringify a list
+ * \param l The list to stringify
+ * \return The string representation of the list
  **/
-void list_print(W_List *l) {
+char *list_stringify(W_List *l) {
+    int size = 0;
     W_List_Element *e = l->head;
-    printf("[");
+
+    // Calculate the required size for the resulting string
     while (e != NULL) {
-        if (e->type != NULL_TYPE) ((W_Var*) e->value)->print(e->value);
-        else printf("NULL");
+        char *str = ((W_Var*) e->value)->stringify(e->value);
+        size += strlen(str) + 1; // +1 for comma or null terminator
+        free(str);
         e = e->next;
-        if (e != NULL) printf(", ");
     }
-    printf("]");
+
+    // Allocate memory for the resulting string
+    char *str = (char *)malloc(size + 3 + 2 * l->size); // +3 for brackets and null terminator, +2*l->size for commas and spaces
+    if (str == NULL) {
+        return NULL; // Handle memory allocation failure
+    }
+
+    str[0] = '[';
+    str[1] = '\0';
+
+    e = l->head;
+
+    // Construct the string by iterating over the list elements
+    for (int i = 0; i < l->size; i++) {
+        char *value = ((W_Var*) e->value)->stringify(e->value);
+        strcat(str, value);
+        free(value);
+        if (i < l->size - 1) {
+            strcat(str, ", ");
+        }
+        e = e->next;
+    }
+
+    strcat(str, "]");
+    return str;
 }
 
 /**

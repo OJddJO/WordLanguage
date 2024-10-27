@@ -9,7 +9,7 @@ W_Str *str_init() {
     s->type = NULL_TYPE;
     s->value = NULL;
     s->destroy = &str_destroy;
-    s->print = &str_print;
+    s->stringify = &str_stringify; //this is so fuc*ing dumb but it is needed
     s->copy = &str_copy;
     s->assign = &str_assign;
     s->set = &str_set;
@@ -99,12 +99,14 @@ int str_length(W_Str *s) {
 }
 
 /**
- * \brief Prints a string.
+ * \brief Stringifies a string. (malloc)
  * \param s The string.
+ * \return The string representation of the string.
  */
-void str_print(W_Str *s) {
-    if (s->type != NULL_TYPE) printf("'%s'", s->value);
-    else printf("NULL");
+char *str_stringify(W_Str *s) {
+    char *str = (char *)malloc(strlen(s->value) + 1);
+    strcpy(str, s->value);
+    return str; //bruh just to return the same string but malloc...
 }
 
 /**

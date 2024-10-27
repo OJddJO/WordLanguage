@@ -1,6 +1,10 @@
 #ifndef __TYPE_H__
 #define __TYPE_H__
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 typedef enum _w_type {
     NULL_TYPE,
     INT,
@@ -16,7 +20,7 @@ typedef struct _w_var { // WARNING: All types must have the same order of struct
     W_Type type;
     void *value;
     void (*destroy)(void *);
-    void (*print)(void *);
+    char *(*stringify)(void *);
     void *(*copy)(void *);
     void (*assign)(void *, void *);
     void (*set)(void *, void *);

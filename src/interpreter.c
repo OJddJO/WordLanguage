@@ -8,18 +8,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (debug) create_temp_file("test.w"); //debug
-    else create_temp_file(argv[1]);
-
-    FILE *temp = fopen("exec.tmp", "r");
-    if (temp == NULL) {
-        printf("Error: Could not create temp file\n");
+    FILE *file;
+    if (debug) file = fopen("test.w", "r"); //debug
+    else file = fopen(argv[1], "r");
+    if (file == NULL) {
+        printf("Error: Could not open file\n");
         return 1;
     }
 
-    W_List *lexed_code = word_tokenize(temp);
-    if (fclose(temp) != 0) {
-        printf("Error: Could not close temp file\n");
+    W_List *lexed_code = word_tokenize(file);
+    if (fclose(file) != 0) {
+        printf("Error: Could not close file\n");
+        return 1;
     }
     if (debug) word_print(lexed_code); //debug
 
@@ -39,34 +39,10 @@ int main(int argc, char *argv[]) {
     if (debug) printf("Executing...\n");
     execute(parsed_code, default_args, return_type, debug);
     if (debug) printf("Executed !\n");
-    parser_destroy(parsed_code);
+    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
 
-    if (debug) printf("Cleaning up...\n");
-    if (remove("exec.tmp") != 0) {
-        printf("Error: Could not delete temp file\n");
-        return 1;
-    }
     if (debug) printf("Done\n"); //debug
     return 0;
-}
-
-/**
- * \brief Creates a temporary file from the given file.
- * \param filename The file to create a temporary file from.
- */
-void create_temp_file(char *filename) {
-    FILE *source = fopen(filename, "r");
-    if (source == NULL) printf("Error: Could not open file: %s\n", filename);
-    FILE *temp = fopen("exec.tmp", "w");
-    if (temp == NULL) printf("Error: Could not open temp file\n");
-    char c ;
-    while ((c = fgetc(source)) != EOF) {
-        fputc(c, temp);
-    }
-    fputc('\n', temp);
-    fputc('\0', temp);
-    fclose(source);
-    fclose(temp);
 }
 
 /**
@@ -82,8 +58,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
     void *result = NULL;
     if (debug) {
         printf("Args:\n"); //debug
-        dict_print(variables); //debug
-        printf("\n"); //debug
+        char *str = dict_stringify(variables);
+        printf("%s\n", str);
+        free(str);
     }
 
     W_List_Element *current_line = parsed_code->head;
@@ -261,8 +238,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
             }
             if (debug) {
                 printf("Returning: ");
-                result->print(result);
-                printf("\n");
+                char *str = result->stringify(result);
+                printf("%s\n", str);
+                free(str);
             }
             free(result_type_str);
             dict_destroy(variables);
@@ -296,7 +274,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
             if (debug) {
                 printf("Copying scope variables to function variables...\n"); //debug
                 printf("Scope variables:\n"); //debug
-                dict_print(variables); //debug
+                char *str = dict_stringify(variables);
             }
             W_List *variables_keys = dict_keys(variables);
             W_List_Element *current_key = variables_keys->head;
@@ -373,8 +351,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                 }
                 if (debug) {
                     printf("\nFunction variables:\n"); //debug
-                    dict_print(fn_vars); //debug
-                    printf("\n"); //debug
+                    char *str = dict_stringify(fn_vars);
+                    printf("%s\n", str);
+                    free(str);
                 }
                 if (current_word != NULL) {
                     word = current_word->value;
@@ -466,7 +445,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                             printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                             exit(1);
                         }
-                        var->print(var);
+                        char *str = var->stringify(var);
+                        printf("%s", str);
+                        free(str);
                     } else if (word->type == STR) {
                         char str[strlen(word->value)-1];
                         strncpy(str, word->value+1, strlen(word->value)-2);
@@ -579,8 +560,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
     }
     if (debug) {
         printf("Exit Variables:\n"); //debug
-        dict_print(variables); //debug
-        printf("\n"); //debug
+        char *str = dict_stringify(variables);
+        printf("%s\n", str);
+        free(str);
     }
     dict_destroy(variables);
     return result;
@@ -607,7 +589,46 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
         if (parsed_words->size == 1) { //not an operation
             list_append(stack, current_word->value); //add to stack
         } else { //if the size of parsed_line is not 1 then evaluate operation
-            //TODO: evaluate operation
+            W_List *result = list_init();
+            W_List_Element *current_word = parsed_words->head;
+            while (current_word != NULL) {
+                W_Word *word = (W_Word *)current_word->value;
+                if (word->type == OPERATOR) {
+                    if (strcmp(word->value, "plus") == 0) {
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'plus', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_plus(w1, w2));
+                    }
+                } else if (word->type == IDENTIFIER) {
+                    W_Var *var = (W_Var *)dict_get(variables, word->value);
+                    if (var == NULL) {
+                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    list_append(result, var);
+                } else if (word->type == NUMBER) {
+                    if (is_float(word->value)) {
+                        W_Float *w = w_var_init(FLOAT);
+                        w->assign(w, word->value);
+                        list_append(result, w);
+                    } else {
+                        W_Int *w = w_var_init(INT);
+                        w->assign(w, word->value);
+                        list_append(result, w);
+                    }                
+                } else {
+                    printf("Error: Unexpected word '%s', line: %d\n", word->value, word->line);
+                    exit(1);
+                }
+                free(word->value);
+                free(word);
+                current_word = current_word->next;
+            }
+            
         }
         parsed_line = parsed_line->next;
     }
