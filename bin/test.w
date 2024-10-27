@@ -3,6 +3,7 @@ def list helloWorld with int a
     list myList
     return myList
 enddef
+
 int myNumber assign 20
 call helloWorld with myNumber store myReturn
 print sep ' | ' myReturn "something" 19 myNumber
@@ -13,3 +14,5 @@ print sep ' | ' myReturn "something" 19 myNumber
 # Milliseconds      : 6
 # Ticks             : 62894
 # TotalMilliseconds : 6.2894
+
+1 plus 2

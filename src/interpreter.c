@@ -1,7 +1,7 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    bool debug = false; //debug
+    bool debug = true; //debug
 
     if (argc < 2 && !debug) {
         printf("Usage: word.exe <path>\n", argv[0]);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     if (debug) printf("Executing...\n");
     execute(parsed_code, default_args, return_type, debug);
     if (debug) printf("Executed !\n");
-    // parser_destroy(parsed_code);
+    parser_destroy(parsed_code);
 
     if (debug) printf("Cleaning up...\n");
     if (remove("exec.tmp") != 0) {
@@ -64,6 +64,7 @@ void create_temp_file(char *filename) {
         fputc(c, temp);
     }
     fputc('\n', temp);
+    fputc('\0', temp);
     fclose(source);
     fclose(temp);
 }

@@ -52,15 +52,8 @@ W_List *word_tokenize(FILE *source) {
             i++;
         }
         // printf("c: %c, i: %d, start:%d, line: %d, eval: %d\n", c, i, start, n_line, eval); //debug
-        if (c == '#') { //comment
-            while (c != '\n' && c != EOF) {
-                c = fgetc(source);
-                i++;
-            }
-        } else {
-            c = fgetc(source);
-            i++;
-        }
+        c = fgetc(source);
+        i++;
     }
     if (eval) {
         fseek(source, start, SEEK_SET);
