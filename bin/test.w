@@ -1,4 +1,4 @@
-def list helloWorld with int a do
+def list helloWorld with int a
     print a
     print 'Hello World!'
     list myList

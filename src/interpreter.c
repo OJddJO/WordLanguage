@@ -1,7 +1,7 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    bool debug = false; //debug
+    bool debug = true; //debug
 
     if (argc < 2 && !debug) {
         printf("Usage: word.exe <path>\n", argv[0]);
@@ -138,41 +138,32 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
             current_word = current_word->next;
             word = current_word->value;
             if (strcmp(word->value, "with") == 0) {
-                while (strcmp(word->value, "do") != 0) {
-                    current_word = current_word->next;
-                    if (current_word == NULL) {
-                        printf("Error: Expected keyword 'do' after function arguments, line: %d\n", word->line);
-                        exit(1);
-                    }
+                current_word = current_word->next;
+                while (current_word != NULL) {
                     word = current_word->value;
-                    if (strcmp(word->value, "do") == 0) break;
                     if (!is_type_keyword(word->value)) {
                         printf("Error: Expected type keyword in function arguments, line: %d\n", word->line);
                         exit(1);
-                    } else {
-                        W_Type *arg_type = (W_Type *)malloc(sizeof(W_Type));
-                        *arg_type = w_get_type(word->value);
-                        current_word = current_word->next;
-                        if (current_word == NULL) {
-                            printf("Error: Expected variable name after type keyword, line: %d\n", word->line);
-                            exit(1);
-                        }
-                        word = current_word->value;
-                        if (word->type != IDENTIFIER) {
-                            printf("Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
-                            exit(1);
-                        }
-                        dict_set(fn_args, word->value, arg_type);
                     }
+                    if (strcmp(word->value, "null") == 0) {
+                        printf("Error: Cannot have null argument, line: %d\n", word->line);
+                        exit(1);
+                    }
+                    W_Type *arg_type = (W_Type *)malloc(sizeof(W_Type));
+                    *arg_type = w_get_type(word->value);
+
+                    current_word = current_word->next;
+                    if (current_word == NULL) {
+                        printf("Error: Expected variable name after type keyword, line: %d\n", word->line);
+                        exit(1);
+                    }
+                    word = current_word->value;
+                    if (word->type != IDENTIFIER) {
+                        printf("Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
+                        exit(1);
+                    } else dict_set(fn_args, word->value, arg_type);
+                    current_word = current_word->next;
                 }
-            } else if (strcmp(word->value, "do") != 0) {
-                printf("Error: Expected keyword 'with' or 'do' after function name, line: %d\n", word->line);
-                exit(1);
-            }
-            current_word = current_word->next;
-            if (current_word != NULL) {
-                printf("Error: Expected end of line after 'do', line: %d\n", word->line);
-                exit(1);
             }
 
             //get function lines
