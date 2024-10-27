@@ -1,7 +1,7 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    bool debug = true; //debug
+    bool debug = false; //debug
 
     if (argc < 2 && !debug) {
         printf("Usage: word.exe <path>\n", argv[0]);

@@ -1,11 +1,15 @@
 def list helloWorld with int a
-    print a
-    print 'Hello World!'
+    print a 'Hello World!'
     list myList
-    myList append a
     return myList
 enddef
 int myNumber assign 20
-1 plus 2 times 3 root 4 minus 2
 call helloWorld with myNumber store myReturn
-print sep ' ' myReturn "something" 19 myNumber
+print sep ' | ' myReturn "something" 19 myNumber
+
+# Benchmark:
+# with Measure-Command { .\word.exe .\test.w }
+
+# Milliseconds      : 6
+# Ticks             : 62894
+# TotalMilliseconds : 6.2894
