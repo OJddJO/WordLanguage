@@ -16,6 +16,6 @@ print("1 // 2 =", a, "1 % 2 =", b)
 # Benchmark:
 # with Measure-Command { python test.py }
 
-# Milliseconds      : 66
-# Ticks             : 660324
-# TotalMilliseconds : 66.0324
+# Milliseconds      : 60
+# Ticks             : 605460
+# TotalMilliseconds : 60.546
