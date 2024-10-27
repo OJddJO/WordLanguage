@@ -15,4 +15,4 @@ print sep " | " myReturn "something" 19 myNumber
 # Ticks             : 62894
 # TotalMilliseconds : 6.2894
 
-1 plus 2
+print "1 + 2 =" 1 plus 2

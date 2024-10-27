@@ -275,6 +275,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                 printf("Copying scope variables to function variables...\n"); //debug
                 printf("Scope variables:\n"); //debug
                 char *str = dict_stringify(variables);
+                printf("%s\n", str);
+                free(str);
             }
             W_List *variables_keys = dict_keys(variables);
             W_List_Element *current_key = variables_keys->head;
@@ -350,7 +352,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                     }
                 }
                 if (debug) {
-                    printf("\nFunction variables:\n"); //debug
+                    printf("Function variables:\n"); //debug
                     char *str = dict_stringify(fn_vars);
                     printf("%s\n", str);
                     free(str);
@@ -589,10 +591,12 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
         if (parsed_words->size == 1) { //not an operation
             list_append(stack, current_word->value); //add to stack
         } else { //if the size of parsed_line is not 1 then evaluate operation
+            int line;
             W_List *result = list_init();
             W_List_Element *current_word = parsed_words->head;
             while (current_word != NULL) {
                 W_Word *word = (W_Word *)current_word->value;
+                line = word->line;
                 if (word->type == OPERATOR) {
                     if (strcmp(word->value, "plus") == 0) {
                         if (result->size < 2) {
@@ -602,6 +606,8 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_plus(w1, w2));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                     }
                 } else if (word->type == IDENTIFIER) {
                     W_Var *var = (W_Var *)dict_get(variables, word->value);
@@ -628,7 +634,13 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                 free(word);
                 current_word = current_word->next;
             }
-            
+            W_Var *result_var = (W_Var *)list_pop(result);
+            char *str = result_var->stringify(result_var);
+            W_Word *result_word = (W_Word *)malloc(sizeof(W_Word));
+            result_word->type = NUMBER;
+            result_word->value = str;
+            result_word->line = line;
+            list_append(stack, result_word);
         }
         parsed_line = parsed_line->next;
     }
