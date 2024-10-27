@@ -12,12 +12,12 @@ char *type_keywords[] = {
 };
 
 void create_temp_file(char *filename);
-void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type);
+void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug);
 
 // Utility
 
-bool is_type_keyword(char *word);
 void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack);
+bool is_type_keyword(char *word);
 bool is_float(char *str);
 
 #endif

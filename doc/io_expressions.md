@@ -10,7 +10,7 @@
 |---|---|
 | `print "Hello World"` | Print `Hello World` in the terminal |
 | `print var` | Print the value of the variable `var` in the terminal |
-| `print sep " " end "\n" "Hello World" var` | Print `Hello World` and the value of the variable `var` with a space separator and a newline at the end |
+| `print sep " " end "." "Hello World" var` | Print `Hello World` and the value of the variable `var` with a space separator and a . at the end |
 
 
 ## Input

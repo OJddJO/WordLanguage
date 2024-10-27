@@ -1,7 +1,7 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    bool debug = true; //debug
+    bool debug = false; //debug
 
     if (argc < 2 && !debug) {
         printf("Usage: word.exe <path>\n", argv[0]);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     dict_set(default_args, "false", w_false);
 
     if (debug) printf("Executing...\n");
-    execute(parsed_code, default_args, return_type);
+    execute(parsed_code, default_args, return_type, debug);
     if (debug) printf("Executed !\n");
     // parser_destroy(parsed_code);
 
@@ -49,11 +49,6 @@ int main(int argc, char *argv[]) {
     if (debug) printf("Done\n"); //debug
     return 0;
 }
-
-// int main(int argc, char *argv[]) {
-//     //testing
-//     return 0;
-// }
 
 /**
  * \brief Creates a temporary file from the given file.
@@ -77,13 +72,18 @@ void create_temp_file(char *filename) {
  * \brief Executes the parsed code.
  * \param parsed_code The parsed code to execute.
  * \param args The arguments to pass to the code.
+ * \param return_type The type of the return value.
+ * \param debug Whether to print debug information.
  * \return The result of the execution
  */
-void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
+void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug) {
     W_Dict *variables = args;
     void *result = NULL;
-    dict_print(variables); //debug
-    printf("\n"); //debug
+    if (debug) {
+        printf("Args:\n"); //debug
+        dict_print(variables); //debug
+        printf("\n"); //debug
+    }
 
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {
@@ -267,6 +267,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 }
                 exit(1);
             }
+            if (debug) {
+                printf("Returning: ");
+                result->print(result);
+                printf("\n");
+            }
             free(result_type_str);
             dict_destroy(variables);
             free(stack);
@@ -282,7 +287,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected function name after 'call', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            printf("Called function %s\n", word->value); //debug
+            if (debug) printf("Called function %s\n", word->value); //debug
             W_Func *f = (W_Func *)dict_get(variables, word->value);
             if (f == NULL) {
                 printf("Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
@@ -296,9 +301,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             W_Dict *fn_vars = dict_init(); //variables of the function
 
             //copy all variables to function variables
-            printf("Copying scope variables to function variables...\n"); //debug
-            printf("Scope variables:\n"); //debug
-            dict_print(variables); //debug
+            if (debug) {
+                printf("Copying scope variables to function variables...\n"); //debug
+                printf("Scope variables:\n"); //debug
+                dict_print(variables); //debug
+            }
             W_List *variables_keys = dict_keys(variables);
             W_List_Element *current_key = variables_keys->head;
             for (int i = 0; i < variables_keys->size; i++) { //copy arguments to variables
@@ -372,9 +379,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         current_word = current_word->next;
                     }
                 }
-                printf("\nFunction variables:\n"); //debug
-                dict_print(fn_vars); //debug
-                printf("\n"); //debug
+                if (debug) {
+                    printf("\nFunction variables:\n"); //debug
+                    dict_print(fn_vars); //debug
+                    printf("\n"); //debug
+                }
                 if (current_word != NULL) {
                     word = current_word->value;
                     if (strcmp(word->value, "store") == 0) {
@@ -392,15 +401,15 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
                             exit(1);
                         }
-                        printf("Starting function execution...\n");
-                        void *result = execute(f->parsed_code, fn_vars, f->return_type);
+                        if (debug) printf("Starting function execution...\n");
+                        void *result = execute(f->parsed_code, fn_vars, f->return_type, debug);
                         dict_set(variables, word->value, result);
-                        printf("Function executed !\n");
+                        if (debug) printf("Function executed !\n");
                     }
                 } else {
-                    printf("Starting function execution...\n");
-                    execute(f->parsed_code, fn_vars, f->return_type);
-                    printf("Function executed !\n");
+                    if (debug) printf("Starting function execution...\n");
+                    execute(f->parsed_code, fn_vars, f->return_type, debug);
+                    if (debug) printf("Function executed !\n");
                 }
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
@@ -416,10 +425,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected value after 'print', line: %d\n", word->line);
                 exit(1);
             }
-            word = current_word->value;
             char *sep = " ";
             char *end = "\n";
             while (current_word != NULL) {
+                word = current_word->value;
                 if (word->type == KEYWORD) {
                     if (strcmp(word->value, "sep") == 0) {
                         current_word = current_word->next;
@@ -436,7 +445,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         char str[strlen(sep)-1];
                         strncpy(str, sep+1, strlen(sep)-2);
                         str[strlen(sep)-2] = '\0';
-                        sep = str;
+                        strcpy(sep, str);
                     } else if (strcmp(word->value, "end") == 0) {
                         current_word = current_word->next;
                         if (current_word == NULL) {
@@ -452,30 +461,30 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         char str[strlen(end)-1];
                         strncpy(str, end+1, strlen(end)-2);
                         str[strlen(end)-2] = '\0';
-                        end = str;
+                        strcpy(end, str);
                     } else {
                         printf("Error: Unexpected keyword '%s', line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                } else if (word->type == IDENTIFIER) {
-                    W_Var *var = (W_Var *)dict_get(variables, word->value);
-                    if (var == NULL) {
-                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
-                        exit(1);
-                    }
-                    var->print(var);
+                    current_word = current_word->next;
                 } else {
-                    if (word->type == STR) {
+                    if (word->type == IDENTIFIER) {
+                        W_Var *var = (W_Var *)dict_get(variables, word->value);
+                        if (var == NULL) {
+                            printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                        var->print(var);
+                    } else if (word->type == STR) {
                         char str[strlen(word->value)-1];
                         strncpy(str, word->value+1, strlen(word->value)-2);
                         str[strlen(word->value)-2] = '\0';
                         printf("%s", str);
                     } else printf("%s", word->value);
-                }
-                current_word = current_word->next;
-                if (current_word != NULL) {
-                    word = current_word->value;
-                    printf("%s", sep);
+                    current_word = current_word->next;
+                    if (current_word != NULL) {
+                        printf("%s", sep);
+                    }
                 }
             }
             printf("%s", end);
@@ -576,9 +585,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         free(stack);
         current_line = current_line->next;
     }
-    printf("Exit Variables:\n"); //debug
-    dict_print(variables); //debug
-    printf("\n"); //debug
+    if (debug) {
+        printf("Exit Variables:\n"); //debug
+        dict_print(variables); //debug
+        printf("\n"); //debug
+    }
     dict_destroy(variables);
     return result;
 }
@@ -586,18 +597,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
 /************************************************
  * Utility **************************************
  ************************************************/
-
-/**
- * \brief Checks if the given word is a type keyword.
- * \param word The word to check.
- * \return True if the word is a type keyword, false otherwise.
- */
-bool is_type_keyword(char *word) {
-    for (int i = 0; i < sizeof(type_keywords) / sizeof(type_keywords[0]); i++) {
-        if (strcmp(word, type_keywords[i]) == 0) return true;
-    }
-    return false;
-}
 
 /**
  * \brief Evaluates the parsed lines.
@@ -620,6 +619,18 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
         }
         parsed_line = parsed_line->next;
     }
+}
+
+/**
+ * \brief Checks if the given word is a type keyword.
+ * \param word The word to check.
+ * \return True if the word is a type keyword, false otherwise.
+ */
+bool is_type_keyword(char *word) {
+    for (int i = 0; i < sizeof(type_keywords) / sizeof(type_keywords[0]); i++) {
+        if (strcmp(word, type_keywords[i]) == 0) return true;
+    }
+    return false;
 }
 
 /**

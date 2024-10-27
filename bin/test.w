@@ -8,4 +8,4 @@ enddef
 int myNumber assign 20
 1 plus 2 times 3 root 4 minus 2
 call helloWorld with myNumber store myReturn
-print sep '_' myReturn "something" 19
+print sep ' ' myReturn "something" 19 myNumber
