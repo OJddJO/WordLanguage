@@ -1,3 +1,4 @@
+from math import sqrt
 def helloWorld(a: int) -> list:
     print(a, "Hello World")
     myList = []
@@ -7,9 +8,14 @@ myNumber = 20
 myReturn = helloWorld(myNumber)
 print(myReturn, "something", 19, myNumber, sep=" | ")
 
-# Benchmark:
-# with Measure-Command { python test.py }     
+print(((1+2)*2-2+sqrt(2)**2+1.5)/0.5)
+a = 1//2
+b = 1%2
+print("1 // 2 =", a, "1 % 2 =", b)
 
-# Milliseconds      : 37
-# Ticks             : 375826
-# TotalMilliseconds : 37.5826
+# Benchmark:
+# with Measure-Command { python test.py }
+
+# Milliseconds      : 66
+# Ticks             : 660324
+# TotalMilliseconds : 66.0324

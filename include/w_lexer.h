@@ -25,7 +25,7 @@ static char *keywords[] = {
 
 static char *operators[] = {
     //operations
-    "plus", "minus", "time", "div", "mod", "ediv", "power", "sqrt",
+    "plus", "minus", "times", "div", "mod", "ediv", "power", "sqrt",
     //comparison
     "equal", "greater", "less", "gEqual", "lEqual",
     //logical

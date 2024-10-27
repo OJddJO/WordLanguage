@@ -17,6 +17,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
 // Utility
 
 void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack);
+void remove_dot(W_Word *word);
 bool is_type_keyword(char *word);
 bool is_float(char *str);
 

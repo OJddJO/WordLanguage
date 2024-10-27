@@ -1,7 +1,7 @@
 #include "interpreter.h"
 
 int main(int argc, char *argv[]) {
-    bool debug = true; //debug
+    bool debug = false; //debug
 
     if (argc < 2 && !debug) {
         printf("Usage: word.exe <path>\n", argv[0]);
@@ -598,24 +598,86 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                 W_Word *word = (W_Word *)current_word->value;
                 line = word->line;
                 if (word->type == OPERATOR) {
-                    if (strcmp(word->value, "plus") == 0) {
+                    remove_dot(word);
+                    if (strcmp(word->value, "plus") == 0) { //addition
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'plus', line: %d\n", word->line);
                             exit(1);
                         }
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
-                        list_append(result, w_plus(w1, w2));
+                        list_append(result, w_plus(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                    } else if (strcmp(word->value, "minus") == 0) { //subtraction
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'minus', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_minus(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "times") == 0) { //multiplication
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'time', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_time(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "div") == 0) { //division
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'div', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_div(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "mod") == 0) { //modulo
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'mod', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_mod(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "ediv") == 0) { //euclidean division
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'ediv', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_ediv(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "power") == 0) { //power
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'pow', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_power(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
+                    } else if (strcmp(word->value, "sqrt") == 0) { //square root
+                        if (result->size < 1) {
+                            printf("Error: Expected 1 value for operator 'sqrt', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w = (W_Var *)list_pop(result);
+                        list_append(result, w_sqrt(w));
+                        w->destroy(w);
                     }
-                } else if (word->type == IDENTIFIER) {
-                    W_Var *var = (W_Var *)dict_get(variables, word->value);
-                    if (var == NULL) {
-                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
-                        exit(1);
-                    }
-                    list_append(result, var);
                 } else if (word->type == NUMBER) {
                     if (is_float(word->value)) {
                         W_Float *w = w_var_init(FLOAT);
@@ -634,6 +696,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                 free(word);
                 current_word = current_word->next;
             }
+            if (result->size > 1) {
+                printf("Error: Uncorrect number of operands, line: %d\n", line);
+                exit(1);
+            }
             W_Var *result_var = (W_Var *)list_pop(result);
             char *str = result_var->stringify(result_var);
             W_Word *result_word = (W_Word *)malloc(sizeof(W_Word));
@@ -644,6 +710,24 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
         }
         parsed_line = parsed_line->next;
     }
+}
+
+/**
+ * \brief Removes priority dots of operations from the given word.
+ * \param word The word to remove the dot from.
+ */
+void remove_dot(W_Word *word) {
+    int priority = 0;
+    for (int i = 0; i < strlen(word->value); i++) {
+        if (word->value[i] == '.') {
+            priority++;
+        } else break;
+    }
+    char without_dot[strlen(word->value) - priority + 1];
+    strncpy(without_dot, word->value + priority, strlen(word->value) - priority);
+    without_dot[strlen(word->value) - priority] = '\0';
+    word->value = (char *)realloc(word->value, strlen(without_dot) + 1);
+    strcpy(word->value, without_dot);
 }
 
 /**
