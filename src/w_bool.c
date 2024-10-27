@@ -9,7 +9,7 @@ W_Bool *bool_init() {
     b->type = NULL_TYPE;
     b->value = NULL;
     b->destroy = &bool_destroy;
-    b->print = &bool_print;
+    b->stringify = &bool_stringify;
     b->copy = &bool_copy;
     b->assign = &bool_assign;
     b->set = &bool_set;
@@ -63,12 +63,14 @@ bool *bool_value(W_Bool *b) {
 }
 
 /**
- * \brief Prints the given boolean.
- * \param b The boolean to print.
+ * \brief Stringifies the given boolean. (malloc)
+ * \param b The boolean to stringify.
+ * \return The stringified boolean.
  */
-void bool_print(W_Bool *b) {
-    if (b->type != NULL_TYPE) printf("%s", *b->value ? "true" : "false");
-    else printf("NULL");
+char *bool_stringify(W_Bool *b) {
+    char *str = (char *)malloc(6);
+    sprintf(str, "%s", *b->value ? "true" : "false");
+    return str;
 }
 
 /**

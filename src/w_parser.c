@@ -154,19 +154,25 @@ void print_parsed_code(W_List *parsed_code) { //debug
  * \param parsed_code The list of parsed code to destroy.
  */
 void parser_destroy(W_List *parsed_code) {
+    if (parsed_code == NULL) {
+        return; // Handle null input
+    }
+
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {
         W_List_Element *next_line = current_line->next;
         W_List *line = (W_List *)current_line->value;
-        if (line == NULL) {
-            break;
-        }
-        W_List_Element *parsed_line = line->head;
-        while (parsed_line != NULL) {
-            W_List_Element *next_parsed_line = parsed_line->next;
-            W_List *parsed_words = (W_List *)parsed_line->value;
-            list_destroy_any(parsed_words);
-            parsed_line = next_parsed_line;
+        if (line != NULL) {
+            W_List_Element *parsed_line = line->head;
+            while (parsed_line != NULL) {
+                W_List_Element *next_parsed_line = parsed_line->next;
+                W_List *parsed_words = (W_List *)parsed_line->value;
+                if (parsed_words != NULL) {
+                    list_destroy_any(parsed_words);
+                }
+                parsed_line = next_parsed_line;
+            }
+            list_destroy_any(line);
         }
         current_line = next_line;
     }

@@ -6,60 +6,61 @@
  * \return A list of list of words.
  */
 W_List *word_tokenize(FILE *source) {
+    fseek(source, 0, SEEK_END); //get the size of the file
+    int size = ftell(source);
+    fseek(source, 0, SEEK_SET);
+
     W_List *code = list_init();
     int start = 0; //start of the word
-    int i = 0; //cursor of the file
     int n_line = 1;
-    char c = fgetc(source);
     int eval = 0; //if there is a word to eval
-    int eval_litt_str = 0; //if the word to eval is a litteral str
-    int eval_litt_number = 0; // if the word to eval is a litteral int, float
+    int eval_str = 0; //if the word to eval is a litteral str
 
     W_Word *w = (W_Word *)malloc(sizeof(W_Word));
     W_List *line = list_init();
     list_append(code, line);
-    while (c != EOF) {
+    for (int i = 0; i < size; i++) {
+        fseek(source, i, SEEK_SET);
+        char c = fgetc(source);
+        if (c == '#' && !eval_str) {
+            while (c != '\n' && c != EOF) {
+                c = fgetc(source);
+                i++;
+            }
+        }   
         if (c != ' ' && c != '\t' && c != '\n' && !eval) {
             eval = 1;
             start = i;
         }
-        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_litt_str && eval) {
+        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_str && eval) {
             fseek(source, start, SEEK_SET);
             char *value = (char *)malloc(i - start + 1);
             fread(value, 1, i - start, source);
             value[i - start] = '\0';
             w->value = value;
-            // printf("value: %s\n", value); //debug
             w->type = word_type(value);
             w->line = n_line;
             w->parsed = false;
             list_append(line, w);
             w = (W_Word *)malloc(sizeof(W_Word));
-            fseek(source, i+1, SEEK_SET);
             eval = 0;
-        } else if (c == '\"' || c == '\'') {
-            if (eval_litt_str) eval_litt_str = 0;
-            else eval_litt_str = 1;
-        } else if ((c >= '0' && c <= '9') || c == '.') {
-            if (eval_litt_number) eval_litt_number = 0;
-            else eval_litt_number = 1;
         }
-        if (c == '\n' && !eval_litt_str) {
+        if (c == '\"' || c == '\'') {
+            if (eval_str) eval_str = 0;
+            else eval_str = 1;
+        }
+        if (c == '\n' && !eval_str) {
             line = list_init();
             list_append(code, line);
             n_line++;
-            c = fgetc(source);
             i++;
         }
-        // printf("c: %c, i: %d, start:%d, line: %d, eval: %d\n", c, i, start, n_line, eval); //debug
-        c = fgetc(source);
-        i++;
     }
     if (eval) {
         fseek(source, start, SEEK_SET);
-        char *value = (char *)malloc(i - start + 1);
-        fread(value, 1, i - start, source);
-        value[i - start] = '\0';
+        char *value = (char *)malloc(size - start + 1);
+        fread(value, 1, size - start, source);
+        value[size - start] = '\0';
         w->value = value;
         w->type = word_type(value);
         w->line = n_line;

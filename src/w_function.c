@@ -11,7 +11,7 @@ W_Func *func_init() {
     f->args = dict_init();
     f->parsed_code = list_init();
     f->destroy = &func_destroy;
-    f->print = &func_print;
+    f->stringify = &func_stringify;
     f->copy = &func_copy;
     return f;
 }
@@ -28,11 +28,14 @@ void func_destroy(W_Func *f) {
 }
 
 /**
- * \brief Prints the given function.
- * \param f The function to print.
+ * \brief Converts the given function to a string. (malloc)
+ * \param f The function to convert.
+ * \return The string representation of the function.
  */
-void func_print(W_Func *f) {
-    printf("function at %p", f);
+char *func_stringify(W_Func *f) {
+    char *str = (char *)malloc(sizeof(void *)*2 + 13);
+    sprintf(str, "function at %p", f);
+    return str;
 }
 
 /**

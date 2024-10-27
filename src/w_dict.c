@@ -10,7 +10,7 @@ W_Dict *dict_init() {
     d->keys = list_init();
     d->values = list_init();
     d->destroy = &dict_destroy;
-    d->print = &dict_print;
+    d->stringify = &dict_stringify;
     return d;
 }
 
@@ -113,23 +113,53 @@ void dict_remove(W_Dict *d, char *key) {
 }
 
 /**
- * \brief Prints the given dictionary.
- * \param d The dictionary to print.
+ * \brief Stringifies the given dictionary. (malloc)
+ * \param d The dictionary to stringify.
+ * \return The stringified dictionary.
  */
-void dict_print(W_Dict *d) {
-    printf("{");
+char *dict_stringify(W_Dict *d) {
+    int size = 0;
     W_List_Element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
+
+    // Calculate the required size for the resulting string
     for (int i = 0; i < d->keys->size; i++) {
-        printf("'%s': ", (char *)current_key->value);
-        ((W_Var *)current_value->value)->print(current_value->value);
+        size += strlen((char *)current_key->value) + 1;
+        char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
+        size += strlen(tmp) + 1;
+        free(tmp);
+        current_key = current_key->next;
+        current_value = current_value->next;
+    }
+
+    // Allocate memory for the resulting string
+    char *str = (char *)malloc(size + 3 + 6 * d->keys->size);
+    if (str == NULL) {
+        return NULL; // Handle memory allocation failure
+    }
+
+    str[0] = '{';
+    str[1] = '\0';
+
+    current_key = d->keys->head;
+    current_value = d->values->head;
+
+    // Construct the string by iterating over the keys and values
+    for (int i = 0; i < d->keys->size; i++) {
+        strcat(str, "\"");
+        strcat(str, (char *)current_key->value);
+        strcat(str, "\": ");
+        char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
+        strcat(str, tmp);
+        free(tmp);
         if (i < d->keys->size - 1) {
-            printf(", ");
+            strcat(str, ", ");
         }
         current_key = current_key->next;
         current_value = current_value->next;
     }
-    printf("}");
+    strcat(str, "}");
+    return str;
 }
 
 /**

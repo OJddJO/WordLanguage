@@ -9,7 +9,7 @@ W_Int *int_init() {
     i->type = NULL_TYPE;
     i->value = NULL;
     i->destroy = &int_destroy;
-    i->print = &int_print;
+    i->stringify = &int_stringify;
     i->copy = &int_copy;
     i->assign = &int_assign;
     i->set = &int_set;
@@ -58,12 +58,14 @@ int *int_value(W_Int *i) {
 }
 
 /**
- * \brief Prints the given integer.
- * \param i The integer to print.
+ * \brief Stringifies the given integer. (malloc)
+ * \param i The integer to stringify.
  */
-void int_print(W_Int *i) {
-    if (i->type != NULL_TYPE) printf("%d", *i->value);
-    else printf("NULL");
+char *int_stringify(W_Int *i) {
+    int len = snprintf(NULL, 0, "%d", *i->value);
+    char *str = (char *)malloc(len + 1);
+    sprintf(str, "%d", *i->value);
+    return str;
 }
 
 /**
