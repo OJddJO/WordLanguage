@@ -233,7 +233,7 @@ W_Int *w_ediv(W_Var *a, W_Var *b) {
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
-        printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
+        printf("Error: Unsupported types for ediv. (%s // %s)\n", type_a_str, type_b_str);
         free(type_a_str);
         free(type_b_str);
         exit(1);

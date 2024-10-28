@@ -78,7 +78,7 @@ W_Word_Type word_type(char *value) {
     if ((value[0] == '\"' && value[strlen(value) - 1] == '\"') || (value[0] == '\'' && value[strlen(value) - 1] == '\'')) {
         return STR;
     }
-    if ((value[0] >= '0' && value[0] <= '9') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
+    if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return NUMBER;
     }
     if (is_keyword(value)) return KEYWORD;

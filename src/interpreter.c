@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     }
 
     FILE *file;
-    if (DEBUG) file = fopen("test.w", "r"); //DEBUG
+    if (DEBUG) file = fopen("test2.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
     if (file == NULL) {
         printf("Error: Could not open file\n");
@@ -528,32 +528,56 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 word = current_word->value;
-                if (word->type != NUMBER && word->type != STR && strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                if (word->type != IDENTIFIER && word->type != NUMBER && word->type != STR && strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
                     printf("Error: Expected value after 'assign', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (type == INT) { //get int value
-                    if (word->type != NUMBER || is_float(word->value)) {
-                        printf("Error: Expected int value after 'assign', got %s, line: %d\n", word->value, word->line);
+                if (word->type == IDENTIFIER) {
+                    W_Var *var = (W_Var *)dict_get(variables, word->value);
+                    if (var == NULL) {
+                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                } else if (type == FLOAT) { //get float value
-                    if (word->type != NUMBER) {
-                        printf("Error: Expected float value after 'assign', got %s, line: %d\n", word->value, word->line);
+                    if (var->type != type) {
+                        char *var_type_str = w_get_type_str(var);
+                        W_Var dummy;
+                        dummy.type = type;
+                        char *type_str = w_get_type_str(&dummy);
+                        printf("Error: Expected %s value after 'assign', got %s (type: %s), line: %d\n", type_str, word->value, var_type_str, word->line);
+                        free(var_type_str);
+                        free(type_str);
                         exit(1);
                     }
-                } else if (type == STR) { //get str value
-                    if (word->type != STR) {
-                        printf("Error: Expected str value after 'assign', got %s, line: %d\n", word->value, word->line);
-                        exit(1);
-                    }
-                } else if (type == BOOL) { //get bool value
-                    if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
-                        printf("Error: Expected bool value after 'assign', got %s, line: %d\n", word->value, word->line);
-                        exit(1);
-                    }
+                    value = var->copy(var);
                 }
-                ((W_Var *)value)->assign(value, word->value);
+                else {
+                    if (type == INT) { //get int value
+                        if (word->type != NUMBER) {
+                            printf("Error: Expected int value after 'assign', got %s, line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                    } else if (type == FLOAT) { //get float value
+                        if (word->type != NUMBER) {
+                            printf("Error: Expected float value after 'assign', got %s, line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                    } else if (type == STR) { //get str value
+                        if (word->type != STR) {
+                            printf("Error: Expected str value after 'assign', got %s, line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                    } else if (type == BOOL) { //get bool value
+                        if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                            printf("Error: Expected bool value after 'assign', got %s, line: %d\n", word->value, word->line);
+                            exit(1);
+                        }
+                    }
+                    ((W_Var *)value)->assign(value, word->value);
+                }
+            }
+            if (current_word->next != NULL) {
+                printf("Error: Expected end of line after variable definition, line: %d\n", word->line);
+                exit(1);
             }
             dict_set(variables, name, value);
         }
