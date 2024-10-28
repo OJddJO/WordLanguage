@@ -205,7 +205,8 @@ char *list_stringify(W_List *l) {
 
     // Calculate the required size for the resulting string
     while (e != NULL) {
-        char *str = ((W_Var*) e->value)->stringify(e->value);
+        if (((W_Var *)e->value)->type == STRING) size += 2; // for quotes
+        char *str = ((W_Var *)e->value)->stringify(e->value);
         size += strlen(str) + 1; // +1 for comma or null terminator
         free(str);
         e = e->next;
@@ -213,9 +214,6 @@ char *list_stringify(W_List *l) {
 
     // Allocate memory for the resulting string
     char *str = (char *)malloc(size + 3 + 2 * l->size); // +3 for brackets and null terminator, +2*l->size for commas and spaces
-    if (str == NULL) {
-        return NULL; // Handle memory allocation failure
-    }
 
     str[0] = '[';
     str[1] = '\0';
@@ -224,9 +222,11 @@ char *list_stringify(W_List *l) {
 
     // Construct the string by iterating over the list elements
     for (int i = 0; i < l->size; i++) {
-        char *value = ((W_Var*) e->value)->stringify(e->value);
+        if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
+        char *value = ((W_Var *) e->value)->stringify(e->value);
         strcat(str, value);
         free(value);
+        if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
         if (i < l->size - 1) {
             strcat(str, ", ");
         }

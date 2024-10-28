@@ -125,6 +125,7 @@ char *dict_stringify(W_Dict *d) {
     // Calculate the required size for the resulting string
     for (int i = 0; i < d->keys->size; i++) {
         size += strlen((char *)current_key->value) + 1;
+        if (((W_Var *)current_value->value)->type == STRING) size += 2; //for quotes
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         size += strlen(tmp) + 1;
         free(tmp);
@@ -134,9 +135,6 @@ char *dict_stringify(W_Dict *d) {
 
     // Allocate memory for the resulting string
     char *str = (char *)malloc(size + 3 + 6 * d->keys->size);
-    if (str == NULL) {
-        return NULL; // Handle memory allocation failure
-    }
 
     str[0] = '{';
     str[1] = '\0';
@@ -149,9 +147,11 @@ char *dict_stringify(W_Dict *d) {
         strcat(str, "\"");
         strcat(str, (char *)current_key->value);
         strcat(str, "\": ");
+        if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\"");
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         strcat(str, tmp);
         free(tmp);
+        if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\""); 
         if (i < d->keys->size - 1) {
             strcat(str, ", ");
         }

@@ -9,7 +9,7 @@
 
 static char *keywords[] = {
     //variables
-    "int", "float", "str", "bool", "assign", "delete",
+    "int", "float", "str", "bool", "assign", "change", "to", "delete",
     //constructed types
     "list", "get", "index", "set", "append", "remove", "length",
     //IO expressions

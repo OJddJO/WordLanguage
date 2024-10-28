@@ -82,10 +82,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         }
         W_Word *word = (W_Word *)current_word->value;
 
-        /*************************************************
-         * Function **************************************
-         *************************************************/
-        if (strcmp(word->value, "def") == 0) { //function definition
+        /* SECTION - Functions */
+        if (strcmp(word->value, "def") == 0) { //SECTION - func def
             W_Func *f = func_init(); //create function
             W_Dict *fn_args = f->args; //create arguments dictionary
 
@@ -167,9 +165,17 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
 
             //add function to variables
-            dict_set(variables, name, f);
+            W_Func *prev_fn = (W_Func *)dict_get(variables, name);
+            if (prev_fn != NULL){ //NOTE - destroy prev fn, marybe changed if it is possible to create var that contains function
+                if (prev_fn->type != FUNCTION) {
+                    printf("Error: Variable '%s' already exists, line: %d\n", name, word->line);
+                    exit(1);
+                }
+                prev_fn->destroy(prev_fn); //redefine function
+            }
+            dict_set(variables, name, f); //!SECTION - func def
 
-        } else if (strcmp(word->value, "return") == 0) { //return statement
+        } else if (strcmp(word->value, "return") == 0) { //SECTION - return
             current_word = current_word->next;
             if (current_word == NULL && return_type != NULL_TYPE) {
                 printf("Error: Expected value after 'return', line: %d\n", word->line);
@@ -245,8 +251,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             free(result_type_str);
             dict_destroy(variables);
             free(stack);
-            return result;
-        } else if (strcmp(word->value, "call") == 0) { //function call
+            return result; //!SECTION - return
+        } else if (strcmp(word->value, "call") == 0) { //SECTION - call
             current_word = current_word->next;
             if (current_word == NULL) {
                 printf("Error: Expected function name after 'call', line: %d\n", word->line);
@@ -387,12 +393,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
                 exit(1);
-            }
-        } 
-        /*************************************************
-         * IO ********************************************
-         *************************************************/
-        else if (strcmp(word->value, "print") == 0) { //print
+            } //!SECTION - call
+        }
+        //!SECTION - Functions
+
+        /* SECTION - IO */
+        else if (strcmp(word->value, "print") == 0) { //SECTION - print
             current_word = current_word->next;
             if (current_word == NULL) {
                 printf("Error: Expected value after 'print', line: %d\n", word->line);
@@ -462,12 +468,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     }
                 }
             }
-            printf("%s", end);
+            printf("%s", end); //!SECTION - print
         }
-        /*************************************************
-         * Variables *************************************
-         *************************************************/
-        else if (is_type_keyword(word->value)) { //create var
+        //!SECTION - IO
+
+        /* SECTION - Variables */
+        else if (is_type_keyword(word->value)) { //SECTION - var def
             W_Type type = w_get_type(word->value);
             char *name;
             void *value;
@@ -579,8 +585,86 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected end of line after variable definition, line: %d\n", word->line);
                 exit(1);
             }
-            dict_set(variables, name, value);
+            dict_set(variables, name, value); //!SECTION - var def
+        } else if (strcmp(word->value, "change") == 0) { //SECTION - change
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected variable name after 'change', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != IDENTIFIER) {
+                printf("Error: Expected variable name after 'change', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_Var *var = (W_Var *)dict_get(variables, word->value);
+            if (var == NULL) {
+                printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_Type type = var->type;
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected keyword 'to' after variable name, line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (strcmp(word->value, "to") != 0) {
+                printf("Error: Expected keyword 'to' after variable name, got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected value after 'to', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != IDENTIFIER && word->type != NUMBER && word->type != STR && strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                printf("Error: Expected value after 'to', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            if (word->type == IDENTIFIER) {
+                W_Var *src_var = (W_Var *)dict_get(variables, word->value);
+                if (src_var == NULL) {
+                    printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                    exit(1);
+                }
+                if (src_var->type != type) {
+                    char *new_var_type_str = w_get_type_str(src_var);
+                    char *var_type_str = w_get_type_str(var);
+                    printf("Error: Expected %s value after 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, new_var_type_str, word->line);
+                    free(new_var_type_str);
+                    free(var_type_str);
+                    exit(1);
+                } else {
+                    var->assign(var, src_var->stringify(src_var));
+                }
+            } else {
+                if (type == INT) { //get int value
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected int value after 'to', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == FLOAT) { //get float value
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected float value after 'to', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == STR) { //get str value
+                    if (word->type != STR) {
+                        printf("Error: Expected str value after 'to', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == BOOL) { //get bool value
+                    if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                        printf("Error: Expected bool value after 'to', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                }
+                var->assign(var, word->value);
+            }
         }
+        //!SECTION - Variables
         free(stack);
         current_line = current_line->next;
     }
