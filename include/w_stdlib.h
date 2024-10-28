@@ -16,18 +16,32 @@
 // Global
 
 W_Type w_get_type(char *str);
-char *w_get_type_str(void *var);
+char *w_get_type_str(W_Var *var);
 
-// Operations
+// Math Operations
 
-void *w_plus(void *a, void *b);
-void *w_minus(void *a, void *b);
-void *w_time(void *a, void *b);
-W_Float *w_div(void *a, void *b);
-W_Int *w_mod(void *a, void *b);
-W_Int *w_ediv(void *a, void *b);
-void *w_power(void *a, void *b);
-W_Float *w_sqrt(void *a);
+void *w_plus(W_Var *a, W_Var *b);
+void *w_minus(W_Var *a, W_Var *b);
+void *w_time(W_Var *a, W_Var *b);
+W_Float *w_div(W_Var *a, W_Var *b);
+W_Int *w_mod(W_Var *a, W_Var *b);
+W_Int *w_ediv(W_Var *a, W_Var *b);
+void *w_power(W_Var *a, W_Var *b);
+W_Float *w_sqrt(W_Var *a);
+
+// Logical Operations
+
+W_Bool *w_and(W_Var *a, W_Var *b);
+W_Bool *w_or(W_Var *a, W_Var *b);
+W_Bool *w_not(W_Var *a);
+
+// Comparison Operations
+
+W_Bool *w_equal(W_Var *a, W_Var *b);
+W_Bool *w_greater(W_Var *a, W_Var *b);
+W_Bool *w_less(W_Var *a, W_Var *b);
+W_Bool *w_gequal(W_Var *a, W_Var *b);
+W_Bool *w_lequal(W_Var *a, W_Var *b);
 
 // Variables
 

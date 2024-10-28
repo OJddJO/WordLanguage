@@ -1,15 +1,15 @@
 #include "interpreter.h"
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
-    bool debug = false; //debug
 
-    if (argc < 2 && !debug) {
+    if (argc < 2 && !DEBUG) {
         printf("Usage: word.exe <path>\n", argv[0]);
         return 1;
     }
 
     FILE *file;
-    if (debug) file = fopen("test.w", "r"); //debug
+    if (DEBUG) file = fopen("test.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
     if (file == NULL) {
         printf("Error: Could not open file\n");
@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
         printf("Error: Could not close file\n");
         return 1;
     }
-    if (debug) word_print(lexed_code); //debug
+    if (DEBUG) word_print(lexed_code); //DEBUG
 
     W_List *parsed_code = parse(lexed_code);
-    if (debug) print_parsed_code(parsed_code); //debug
+    if (DEBUG) print_parsed_code(parsed_code); //DEBUG
 
     //initialize variables
     W_Type return_type = NULL_TYPE;
@@ -36,12 +36,12 @@ int main(int argc, char *argv[]) {
     bool_set(w_false, false);
     dict_set(default_args, "false", w_false);
 
-    if (debug) printf("Executing...\n");
-    execute(parsed_code, default_args, return_type, debug);
-    if (debug) printf("Executed !\n");
+    if (DEBUG) printf("Executing...\n");
+    execute(parsed_code, default_args, return_type);
+    if (DEBUG) printf("Executed !\n");
     // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
 
-    if (debug) printf("Done\n"); //debug
+    if (DEBUG) printf("Done\n"); //DEBUG
     return 0;
 }
 
@@ -50,14 +50,14 @@ int main(int argc, char *argv[]) {
  * \param parsed_code The parsed code to execute.
  * \param args The arguments to pass to the code.
  * \param return_type The type of the return value.
- * \param debug Whether to print debug information.
+ * \param DEBUG Whether to print DEBUG information.
  * \return The result of the execution
  */
-void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug) {
+void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
     W_Dict *variables = args;
     void *result = NULL;
-    if (debug) {
-        printf("Args:\n"); //debug
+    if (DEBUG) {
+        printf("Args:\n"); //DEBUG
         char *str = dict_stringify(variables);
         printf("%s\n", str);
         free(str);
@@ -236,7 +236,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                 }
                 exit(1);
             }
-            if (debug) {
+            if (DEBUG) {
                 printf("Returning: ");
                 char *str = result->stringify(result);
                 printf("%s\n", str);
@@ -257,7 +257,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                 printf("Error: Expected function name after 'call', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            if (debug) printf("Called function %s\n", word->value); //debug
+            if (DEBUG) printf("Called function %s\n", word->value); //DEBUG
             W_Func *f = (W_Func *)dict_get(variables, word->value);
             if (f == NULL) {
                 printf("Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
@@ -271,9 +271,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
             W_Dict *fn_vars = dict_init(); //variables of the function
 
             //copy all variables to function variables
-            if (debug) {
-                printf("Copying scope variables to function variables...\n"); //debug
-                printf("Scope variables:\n"); //debug
+            if (DEBUG) {
+                printf("Copying scope variables to function variables...\n"); //DEBUG
+                printf("Scope variables:\n"); //DEBUG
                 char *str = dict_stringify(variables);
                 printf("%s\n", str);
                 free(str);
@@ -351,8 +351,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                         current_word = current_word->next;
                     }
                 }
-                if (debug) {
-                    printf("Function variables:\n"); //debug
+                if (DEBUG) {
+                    printf("Function variables:\n"); //DEBUG
                     char *str = dict_stringify(fn_vars);
                     printf("%s\n", str);
                     free(str);
@@ -374,15 +374,15 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
                             printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
                             exit(1);
                         }
-                        if (debug) printf("Starting function execution...\n");
-                        void *result = execute(f->parsed_code, fn_vars, f->return_type, debug);
+                        if (DEBUG) printf("Starting function execution...\n");
+                        void *result = execute(f->parsed_code, fn_vars, f->return_type);
                         dict_set(variables, word->value, result);
-                        if (debug) printf("Function executed !\n");
+                        if (DEBUG) printf("Function executed !\n");
                     }
                 } else {
-                    if (debug) printf("Starting function execution...\n");
-                    execute(f->parsed_code, fn_vars, f->return_type, debug);
-                    if (debug) printf("Function executed !\n");
+                    if (DEBUG) printf("Starting function execution...\n");
+                    execute(f->parsed_code, fn_vars, f->return_type);
+                    if (DEBUG) printf("Function executed !\n");
                 }
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
@@ -560,8 +560,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type, bool debug)
         free(stack);
         current_line = current_line->next;
     }
-    if (debug) {
-        printf("Exit Variables:\n"); //debug
+    if (DEBUG) {
+        printf("Exit Variables:\n"); //DEBUG
         char *str = dict_stringify(variables);
         printf("%s\n", str);
         free(str);
@@ -592,6 +592,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
             list_append(stack, current_word->value); //add to stack
         } else { //if the size of parsed_line is not 1 then evaluate operation
             int line;
+            W_Word_Type return_type = NUMBER;
             W_List *result = list_init();
             W_List_Element *current_word = parsed_words->head;
             while (current_word != NULL) {
@@ -609,6 +610,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_plus(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "minus") == 0) { //subtraction
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'minus', line: %d\n", word->line);
@@ -619,6 +621,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_minus(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "times") == 0) { //multiplication
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'time', line: %d\n", word->line);
@@ -629,6 +632,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_time(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "div") == 0) { //division
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'div', line: %d\n", word->line);
@@ -639,6 +643,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_div(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "mod") == 0) { //modulo
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'mod', line: %d\n", word->line);
@@ -649,6 +654,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_mod(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "ediv") == 0) { //euclidean division
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'ediv', line: %d\n", word->line);
@@ -659,6 +665,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_ediv(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "power") == 0) { //power
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'pow', line: %d\n", word->line);
@@ -669,6 +676,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_power(w2, w1));
                         w1->destroy(w1);
                         w2->destroy(w2);
+                        return_type = NUMBER;
                     } else if (strcmp(word->value, "sqrt") == 0) { //square root
                         if (result->size < 1) {
                             printf("Error: Expected 1 value for operator 'sqrt', line: %d\n", word->line);
@@ -677,8 +685,80 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w = (W_Var *)list_pop(result);
                         list_append(result, w_sqrt(w));
                         w->destroy(w);
+                        return_type = NUMBER;
+                    } else if (strcmp(word->value, "and") == 0) { //and
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'and', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_and(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "or") == 0) { //or
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'or', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_or(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "not") == 0) { //not
+                        if (result->size < 1) {
+                            printf("Error: Expected 1 value for operator 'not', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w = (W_Var *)list_pop(result);
+                        list_append(result, w_not(w));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "equal") == 0) { //equal
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'equal', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_equal(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "greater") == 0) { //greater
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'greater', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_greater(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "less") == 0) { //less
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'less', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_less(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "gequal") == 0) { //greater or equal
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'gequal', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_gequal(w2, w1));
+                        return_type = IDENTIFIER;
+                    } else if (strcmp(word->value, "lequal") == 0) { //less or equal
+                        if (result->size < 2) {
+                            printf("Error: Expected 2 values for operator 'lequal', line: %d\n", word->line);
+                            exit(1);
+                        }
+                        W_Var *w1 = (W_Var *)list_pop(result);
+                        W_Var *w2 = (W_Var *)list_pop(result);
+                        list_append(result, w_lequal(w2, w1));
+                        return_type = IDENTIFIER;
                     }
-                } else if (word->type == NUMBER) {
+                } else if (word->type == NUMBER) { //if number
                     if (is_float(word->value)) {
                         W_Float *w = w_var_init(FLOAT);
                         w->assign(w, word->value);
@@ -687,7 +767,14 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Int *w = w_var_init(INT);
                         w->assign(w, word->value);
                         list_append(result, w);
-                    }                
+                    }
+                } else if (word->type == IDENTIFIER) { //if variable
+                    W_Var *w = (W_Var *)dict_get(variables, word->value);
+                    if (w == NULL) {
+                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    list_append(result, w);
                 } else {
                     printf("Error: Unexpected word '%s', line: %d\n", word->value, word->line);
                     exit(1);
@@ -697,13 +784,13 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                 current_word = current_word->next;
             }
             if (result->size > 1) {
-                printf("Error: Uncorrect number of operands, line: %d\n", line);
+                printf("Error: Incorrect number of operands, line: %d\n", line);
                 exit(1);
             }
             W_Var *result_var = (W_Var *)list_pop(result);
             char *str = result_var->stringify(result_var);
             W_Word *result_word = (W_Word *)malloc(sizeof(W_Word));
-            result_word->type = NUMBER;
+            result_word->type = return_type;
             result_word->value = str;
             result_word->line = line;
             list_append(stack, result_word);

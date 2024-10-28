@@ -5,19 +5,19 @@
 
 typedef struct _w_float {
     W_Type type;
-    double *value;
+    float *value;
     void (*destroy)(struct _w_float *);
     char *(*stringify)(struct _w_float *);
     struct _w_float *(*copy)(struct _w_float *);
     void (*assign)(struct _w_float *, char *);
-    void (*set)(struct _w_float *, double);
-    double *(*get)(struct _w_float *);
+    void (*set)(struct _w_float *, float);
+    float *(*get)(struct _w_float *);
 } W_Float;
 
 W_Float *float_init();
 void float_assign(W_Float *f, char *value);
-void float_set(W_Float *f, double value);
-double *float_value(W_Float *f);
+void float_set(W_Float *f, float value);
+float *float_value(W_Float *f);
 char *float_stringify(W_Float *f);
 void float_destroy(W_Float *f);
 W_Float *float_copy(W_Float *f);

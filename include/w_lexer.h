@@ -27,7 +27,7 @@ static char *operators[] = {
     //operations
     "plus", "minus", "times", "div", "mod", "ediv", "power", "sqrt",
     //comparison
-    "equal", "greater", "less", "gEqual", "lEqual",
+    "equal", "greater", "less", "gequal", "lequal",
     //logical
     "and", "or", "not",
 };

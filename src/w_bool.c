@@ -34,7 +34,7 @@ void bool_assign(W_Bool *b, char *value) {
         v = (bool *)malloc(sizeof(bool));
         b->type = BOOL;
     } else v = b->value;
-    *v = var_value;
+    *v = (bool)var_value;
     b->value = v;
 }
 
@@ -49,7 +49,7 @@ void bool_set(W_Bool *b, bool value) {
         v = (bool *)malloc(sizeof(bool));
         b->type = BOOL;
     } else v = b->value;
-    *v = value;
+    *v = (bool)value;
     b->value = v;
 }
 

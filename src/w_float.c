@@ -23,10 +23,10 @@ W_Float *float_init() {
  * \param value The value to set as a string.
  */
 void float_assign(W_Float *f, char *value) {
-    double *v;
-    double var_value = atof(value);
+    float *v;
+    float var_value = atof(value);
     if (f->type == NULL_TYPE) {
-        v = (double *)malloc(sizeof(double));
+        v = (float *)malloc(sizeof(float));
         f->type = FLOAT;
     } else v = f->value;
     *v = var_value;
@@ -38,10 +38,10 @@ void float_assign(W_Float *f, char *value) {
  * \param f The float to set the value of.
  * \param value The value to set.
  */
-void float_set(W_Float *f, double value) {
-    double *v;
+void float_set(W_Float *f, float value) {
+    float *v;
     if (f->type == NULL_TYPE) {
-        v = (double *)malloc(sizeof(double));
+        v = (float *)malloc(sizeof(float));
         f->type = FLOAT;
     } else v = f->value;
     *v = value;
@@ -53,7 +53,7 @@ void float_set(W_Float *f, double value) {
  * \param f The float to get the value of.
  * \return The value of the float.
  */
-double *float_value(W_Float *f) {
+float *float_value(W_Float *f) {
     return f->value;
 }
 

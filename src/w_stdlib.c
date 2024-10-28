@@ -9,9 +9,9 @@
  * \param var The variable to get the type of
  * \return The type of the variable
  */
-char *w_get_type_str(void *var) {
+char *w_get_type_str(W_Var *var) {
     char *type = (char *)malloc(9);
-    switch (((W_Var *)var)->type) {
+    switch (var->type) {
         case INT:
             strcpy(type, "int");
             break;
@@ -69,7 +69,7 @@ W_Type w_get_type(char *str) {
 }
 
 /***********************************************
- * Operations **********************************
+ * Math Operations *****************************
  ***********************************************/
 
 /**
@@ -78,23 +78,23 @@ W_Type w_get_type(char *str) {
  * \param b The second variable
  * \return The result of the addition
  */
-void *w_plus(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+void *w_plus(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, *int_value(a) + *int_value(b));
+        int_set(result, *int_value((W_Int *)a) + *int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) + (double)*int_value(b));
+        float_set(result, *float_value((W_Float *)a) + *int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
         W_Float *result = float_init();
-        float_set(result, (double)*int_value(a) + *float_value(b));
+        float_set(result, *int_value((W_Int *)a) + *float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) + *float_value(b));
+        float_set(result, *float_value((W_Float *)a) + *float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -111,23 +111,23 @@ void *w_plus(void *a, void *b) {
  * \param b The second variable
  * \return The result of the subtraction
  */
-void *w_minus(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+void *w_minus(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, *int_value(a) - *int_value(b));
+        int_set(result, *int_value((W_Int *)a) - *int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) - (double)*int_value(b));
+        float_set(result, *float_value((W_Float *)a) - *int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
         W_Float *result = float_init();
-        float_set(result, (double)*int_value(a) - *float_value(b));
+        float_set(result, *int_value((W_Int *)a) - *float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) - *float_value(b));
+        float_set(result, *float_value((W_Float *)a) - *float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -144,23 +144,23 @@ void *w_minus(void *a, void *b) {
  * \param b The second variable
  * \return The result of the multiplication
  */
-void *w_time(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+void *w_time(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, *int_value(a) * *int_value(b));
+        int_set(result, *int_value((W_Int *)a) * *int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) * (double)*int_value(b));
+        float_set(result, *float_value((W_Float *)a) * *int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
         W_Float *result = float_init();
-        float_set(result, (double)*int_value(a) * *float_value(b));
+        float_set(result, *int_value((W_Int *)a) * *float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
         W_Float *result = float_init();
-        float_set(result, *float_value(a) * *float_value(b));
+        float_set(result, *float_value((W_Float *)a) * *float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -177,24 +177,17 @@ void *w_time(void *a, void *b) {
  * \param b The second variable
  * \return The result of the division
  */
-W_Float *w_div(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+W_Float *w_div(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
+    W_Float *result = float_init();
     if (type_a == INT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, (double)*int_value(a) / *int_value(b));
-        return result;
+        float_set(result, *int_value((W_Int *)a) / *int_value((W_Int *)b));
     } else if (type_a == FLOAT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value(a) / (double)*int_value(b));
-        return result;
+        float_set(result, *float_value((W_Float *)a) / *int_value((W_Int *)b));
     } else if (type_b == FLOAT && type_a == INT) {
-        W_Float *result = float_init();
-        float_set(result, (double)*int_value(a) / *float_value(b));
-        return result;
+        float_set(result, *int_value((W_Int *)a) / *float_value((W_Float *)b));
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value(a) / *float_value(b));
-        return result;
+        float_set(result, *float_value((W_Float *)a) / *float_value((W_Float *)b));
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
@@ -202,6 +195,7 @@ W_Float *w_div(void *a, void *b) {
         free(type_b_str);
         exit(1);
     }
+    return result;
 }
 
 /**
@@ -210,11 +204,11 @@ W_Float *w_div(void *a, void *b) {
  * \param b The second variable
  * \return The result of the modulo
  */
-W_Int *w_mod(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+W_Int *w_mod(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, *int_value(a) % *int_value(b));
+        int_set(result, *int_value((W_Int *)a) % *int_value((W_Int *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -231,11 +225,11 @@ W_Int *w_mod(void *a, void *b) {
  * \param b The second variable
  * \return The result of the integer division
  */
-W_Int *w_ediv(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+W_Int *w_ediv(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, (*int_value(a) - *int_value(a) % *int_value(b)) / *int_value(b));
+        int_set(result, (*int_value((W_Int *)a) - *int_value((W_Int *)a) % *int_value((W_Int *)b)) / *int_value((W_Int *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -252,23 +246,23 @@ W_Int *w_ediv(void *a, void *b) {
  * \param b The second variable
  * \return The result of the power operation
  */
-void *w_power(void *a, void *b) {
-    W_Type type_a = ((W_Var *)a)->type, type_b = ((W_Var *)b)->type;
+void *w_power(W_Var *a, W_Var *b) {
+    W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
         W_Int *result = int_init();
-        int_set(result, (int)pow(*int_value(a), *int_value(b)));
+        int_set(result, (int)pow(*int_value((W_Int *)a), *int_value((W_Int *)b)));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
         W_Float *result = float_init();
-        float_set(result, pow(*float_value(a), (double)*int_value(b)));
+        float_set(result, pow(*float_value((W_Float *)a), *int_value((W_Int *)b)));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
         W_Float *result = float_init();
-        float_set(result, pow((double)*int_value(a), *float_value(b)));
+        float_set(result, pow(*int_value((W_Int *)a), *float_value((W_Float *)b)));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
         W_Float *result = float_init();
-        float_set(result, pow(*float_value(a), *float_value(b)));
+        float_set(result, pow(*float_value((W_Float *)a), *float_value((W_Float *)b)));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -284,15 +278,11 @@ void *w_power(void *a, void *b) {
  * \param a The variable to square root
  * \return The result of the square root operation
  */
-W_Float *w_sqrt(void *a) {
-    W_Type type_a = ((W_Var *)a)->type;
-    if (type_a == INT) {
+W_Float *w_sqrt(W_Var *a) {
+    W_Type type_a = a->type;
+    if (type_a == INT || type_a == FLOAT) {
         W_Float *result = float_init();
-        float_set(result, sqrt((double)*int_value(a)));
-        return result;
-    } else if (type_a == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, sqrt(*float_value(a)));
+        float_set(result, sqrt(*(float *)a->get(a)));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a);
@@ -300,6 +290,175 @@ W_Float *w_sqrt(void *a) {
         free(type_a_str);
         exit(1);
     }
+}
+
+/***********************************************
+ * Logical Operations **************************
+ ***********************************************/
+
+/**
+ * \brief Logical AND two variables (malloc)
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the AND operation
+ */
+W_Bool *w_and (W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    bool_set(result, *(bool *)a->get(a) && *(bool *)b->get(b));
+    return result;
+}
+
+/**
+ * \brief Logical OR two variables (malloc)
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the OR operation
+ */
+W_Bool *w_or (W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    bool_set(result, *(bool *)a->get(a) || *(bool *)b->get(b));
+    return result;
+}
+
+/**
+ * \brief Logical NOT a variable (malloc)
+ * \param a The variable to NOT
+ * \return The result of the NOT operation
+ */
+W_Bool *w_not (W_Var *a) {
+    W_Bool *result = bool_init();
+    bool_set(result, !*(bool *)a->get(a));
+    return result;
+}
+
+/***********************************************
+ * Comparison Operations ***********************
+ ***********************************************/
+
+/**
+ * \brief Compare two variables for equality
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the comparison
+ */
+W_Bool *w_equal(W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    W_Type type_a = a->type, type_b = b->type;
+    if ((type_a != INT && type_a != FLOAT && type_a != STRING && type_a != BOOL && type_a != LIST) \
+        || (type_b != INT && type_b != FLOAT && type_b != STRING && type_b != BOOL && type_b != LIST)) {
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
+        printf("Error: Unsupported types for equality comparison. (%s == %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+    if (type_a == type_b) {
+        if (type_a == INT) {
+            bool_set(result, *int_value((W_Int *)a) == *int_value((W_Int *)b));
+        } else if (type_a == FLOAT) {
+            bool_set(result, *float_value((W_Float *)a) == *float_value((W_Float *)b));
+        } else if (type_a == STRING) {
+            bool_set(result, strcmp(str_value((W_Str *)a), str_value((W_Str *)b)) == 0);
+        } else if (type_a == BOOL) {
+            bool_set(result, bool_value((W_Bool *)a) == bool_value((W_Bool *)b));
+        } else if (type_a == LIST) {
+            if (list_size((W_List *)a) != list_size((W_List *)b)) {
+                bool_set(result, false);
+            } else {
+                W_List_Element *e1 = ((W_List *)a)->head, *e2 = ((W_List *)b)->head;
+                for (int i = 0; i < list_size((W_List *)a); i++) {
+                    if (!w_equal(e1->value, e2->value)) { //recursion
+                        bool_set(result, false);
+                        break;
+                    }
+                    e1 = e1->next;
+                    e2 = e2->next;
+                }
+                bool_set(result, true);
+            }
+        }
+    } else bool_set(result, false);
+    return result;
+}
+
+/**
+ * \brief Compare two variables for greater than
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the comparison
+ */
+W_Bool *w_greater(W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    W_Type type_a = a->type, type_b = b->type;
+    if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
+        printf("Error: Unsupported types for greater comparison. (%s > %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+    bool_set(result, *(float *)a->get(a) > *(float *)b->get(b));
+    return result;
+}
+
+/**
+ * \brief Compare two variables for less than
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the comparison
+ */
+W_Bool *w_less(W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    W_Type type_a = a->type, type_b = b->type;
+    if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
+        printf("Error: Unsupported types for less comparison. (%s < %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+    bool_set(result, *(float *)a->get(a) < *(float *)b->get(b));
+    return result;
+}
+
+/**
+ * \brief Compare two variables for greater than or equal to
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the comparison
+ */
+W_Bool *w_gequal(W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    W_Type type_a = a->type, type_b = b->type;
+    if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
+        printf("Error: Unsupported types for greater or equal comparison. (%s >= %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+    bool_set(result, *(float *)a->get(a) >= *(float *)b->get(b));
+    return result;
+}
+
+/**
+ * \brief Compare two variables for less than or equal to
+ * \param a The first variable
+ * \param b The second variable
+ * \return The result of the comparison
+ */
+W_Bool *w_lequal(W_Var *a, W_Var *b) {
+    W_Bool *result = bool_init();
+    W_Type type_a = a->type, type_b = b->type;
+    if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
+        char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
+        printf("Error: Unsupported types for less or equal comparison. (%s <= %s)\n", type_a_str, type_b_str);
+        free(type_a_str);
+        free(type_b_str);
+        exit(1);
+    }
+    bool_set(result, *(float *)a->get(a) <= *(float *)b->get(b));
+    return result;
 }
 
 /***********************************************
