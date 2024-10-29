@@ -1,6 +1,6 @@
 def list helloWorld with int a
     print a "Hello World!"
-    list myList
+    list create myList
     return myList
 enddef
 

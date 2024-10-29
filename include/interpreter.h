@@ -8,7 +8,7 @@
 #include "w_parser.h"
 
 char *type_keywords[] = {
-    "null", "int", "float", "str", "bool", "array", "list",
+    "null", "int", "float", "str", "bool", "list",
 };
 
 void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type);

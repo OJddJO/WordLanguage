@@ -24,7 +24,7 @@ typedef struct _w_var { // WARNING: All types must have the same order of struct
     char *(*stringify)(void *); //function to convert the variable to a string
     void *(*copy)(void *); //function to copy the variable
     // following functions are optionnal
-    void (*assign)(void *, void *); //function to assign a value to the variable (word -> variable)
+    void (*assign)(void *, char *); //function to assign a value to the variable (word -> variable)
     void (*set)(void *, void *); //function to set the value of the variable (value -> variable)
     void *(*get)(void *); //function to get the value of the variable (variable -> value)
 } W_Var;
