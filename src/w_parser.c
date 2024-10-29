@@ -115,14 +115,13 @@ W_List *shunting_yard(W_List_Element *current_word) {
 void print_parsed_code(W_List *parsed_code) { //debug
     W_List_Element *current_line = parsed_code->head;
     for (int i = 0; i < parsed_code->size; i++) {
-        printf("{\n");
+        printf("[");
         W_List *line = (W_List *)current_line->value;
         printf("line size: %d\n", line->size);
         W_List_Element *parsed_line = line->head;
         for (int j = 0; j < line->size; j++) {
             W_List *parsed_words = (W_List *)parsed_line->value;
-            printf("    block size: %d\n", parsed_words->size);
-            printf("    {\n");
+            printf("    block size: %d    [\n", parsed_words->size);
             W_List_Element *current_word = parsed_words->head;
             for (int k = 0; k < parsed_words->size; k++) {
                 W_Word *word = (W_Word *)current_word->value;
@@ -138,13 +137,13 @@ void print_parsed_code(W_List *parsed_code) { //debug
                 } else if (word->type == OPERATOR) {
                     printf("OPERATOR");
                 }
-                printf(" | line: %d\n", word->line);
+                printf(" | line: %d,\n", word->line);
                 current_word = current_word->next;
             }
-            printf("    },\n");
+            printf("    ],\n");
             parsed_line = parsed_line->next;
         }
-        printf("},\n");
+        printf("],\n");
         current_line = current_line->next;
     }
 }

@@ -103,12 +103,14 @@ int dict_size(W_Dict *d) {
  * \param key The key to remove.
  */
 void dict_remove(W_Dict *d, char *key) {
+    W_List_Element *current_key = d->keys->head;
     for (int i = 0; i < d->keys->size; i++) {
-        if (strcmp(d->keys->head->value, key) == 0) {
-            list_remove(d->keys, i);
+        if (strcmp(current_key->value, key) == 0) {
+            list_remove_any(d->keys, i);
             list_remove(d->values, i);
             return;
         }
+        current_key = current_key->next;
     }
 }
 

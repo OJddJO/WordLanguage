@@ -23,19 +23,14 @@ W_Str *str_init() {
  * \param value The new value.
  */
 void str_assign(W_Str *s, char *value) {
-    //strip quotes
-    int len = strlen(value);
-    char var_value[len - 1];
-    for (int i = 1; i < len - 1; i++) {
-        var_value[i - 1] = value[i];
-    }
-    var_value[len - 1] = '\0';
-    if (s->type != NULL_TYPE) {
+    if (s->type != NULL_TYPE) { //free the previous value
         free(s->value);
     } else s->type = STRING;
-
-    char *v = (char *)malloc(strlen(var_value) + 1);
-    strcpy(v, var_value);
+    //strip quotes
+    int len = strlen(value)-2;
+    char *v = (char *)malloc(len + 1);
+    strncpy(v, value+1, len);
+    v[len] = '\0';
     s->value = v;
 }
 
@@ -105,8 +100,7 @@ int str_length(W_Str *s) {
  */
 char *str_stringify(W_Str *s) {
     char *str = (char *)malloc(strlen(s->value)+1);
-    str[0] = '\0';
-    strcat(str, s->value);
+    strcpy(str, s->value);
     return str; //bruh just to return the same string but malloc...
 }
 

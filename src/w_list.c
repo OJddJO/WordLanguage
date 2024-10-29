@@ -71,11 +71,13 @@ int list_replace(W_List *l, int index, void *value) {
 }
 
 /**
- * \brief Remove an element from the list
+ * \brief Remove an element from the list (works with any list) (do not use for evaluation of wordlang)
  * \param l The list to remove the element from
  * \param index The index of the element to remove
+ * \note This function is not safe to use with the evaluation of wordlang, as it does not free the memory of the value
+ * \note Please use list_remove instead.
  **/
-void list_remove(W_List *l, int index) {
+void list_remove_any(W_List *l, int index) {
     W_List_Element *e = l->head;
     for (int i = 0; i < index; i++) {
         e = e->next;
@@ -99,6 +101,34 @@ void list_remove(W_List *l, int index) {
 }
 
 /**
+ * \brief Remove an element from the list
+ * \param l The list to remove the element from
+ * \param index The index of the element to remove
+ **/
+void list_remove(W_List *l, int index) {
+    W_List_Element *e = l->head;
+    for (int i = 0; i < index; i++) {
+        e = e->next;
+    }
+    if (e->prev != NULL) {
+        e->prev->next = e->next;
+    } else {
+        l->head = e->next;
+    }
+    if (e->next != NULL) {
+        e->next->prev = e->prev;
+    } else {
+        l->tail = e->prev;
+    }
+    if (l->size % 2 == 0) {
+        l->middle--;
+    }
+    l->size--;
+    ((W_Var*) e->value)->destroy(e->value);
+    free(e);
+}
+
+/**
  * \brief Remove and return the last element in the list (malloc)
  * \param l The list to pop the element from
  * \return The value of the last element in the list, or NULL if the list is empty
@@ -115,10 +145,10 @@ void *list_pop(W_List *l) {
     } else {
         l->head = NULL;
     }
-    l->size--;
     if (l->size % 2 == 0) {
         l->middle--;
     }
+    l->size--;
     free(e);
     return value;
 }
@@ -257,8 +287,10 @@ W_List *list_copy(W_List *l) {
 }
 
 /**
- * \brief Destroy a list (works with any list) (do not used for evaluation of wordlang)
+ * \brief Destroy a list (works with any list) (do not use for evaluation of wordlang)
  * \param l The list to destroy
+ * \note This function is not safe to use with the evaluation of wordlang, as it does not free the memory of the value
+ * \note Please use list_destroy instead.
  **/
 void list_destroy_any(W_List *l) {
     W_List_Element *e = l->head;

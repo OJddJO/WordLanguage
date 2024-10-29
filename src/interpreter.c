@@ -662,7 +662,24 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     }
                 }
                 var->assign(var, word->value);
+            } //!SECTION - change
+        } else if (strcmp(word->value, "delete") == 0) { //SECTION - delete
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected variable name after 'delete', line: %d\n", word->line);
+                exit(1);
             }
+            word = current_word->value;
+            if (word->type != IDENTIFIER) {
+                printf("Error: Expected variable name after 'delete', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_Var *var = (W_Var *)dict_get(variables, word->value);
+            if (var == NULL) {
+                printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            dict_remove(variables, word->value); //!SECTION - delete
         }
         //!SECTION - Variables
         free(stack);
