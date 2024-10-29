@@ -104,10 +104,10 @@ int str_length(W_Str *s) {
  * \return The string representation of the string.
  */
 char *str_stringify(W_Str *s) {
-    char *str = (char *)malloc(strlen(s->value) + 1);
-    strcpy(str, s->value);
-    str[strlen(s->value)] = '\0';
-    return str; //bruh just to return the same string with quotes...
+    char *str = (char *)malloc(strlen(s->value)+1);
+    str[0] = '\0';
+    strcat(str, s->value);
+    return str; //bruh just to return the same string but malloc...
 }
 
 /**
