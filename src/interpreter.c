@@ -149,17 +149,28 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
 
             //get function lines
             int fn_line = word->line;
+            int fn_def_count = 0; //number of 'def' keywords
             W_List *function_lines = f->parsed_code;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
                 parsed_line = line->head;
+                if (parsed_line == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
                 current_word = ((W_List *)parsed_line->value)->head;
-                word = (W_Word *)current_word->value;
-                if (strcmp(word->value, "enddef") == 0) {
-                    end = true;
-                    break;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "def") == 0) {
+                        fn_def_count++;
+                    } else if (strcmp(word->value, "enddef") == 0) {
+                        if (fn_def_count == 0) {
+                            end = true;
+                            break;
+                        } else fn_def_count--;
+                    }
                 }
                 list_append(function_lines, line);
                 current_line = current_line->next;
@@ -171,12 +182,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
 
             //add function to variables
             W_Func *prev_fn = (W_Func *)dict_get(variables, name);
-            if (prev_fn != NULL){ //NOTE - destroy prev fn, marybe changed if it is possible to create var that contains function
-                if (prev_fn->type != FUNCTION) {
-                    printf("Error: Variable '%s' already exists, line: %d\n", name, word->line);
-                    exit(1);
-                }
-                prev_fn->destroy(prev_fn); //redefine function
+            if (prev_fn != NULL){
+                printf("Error: Variable '%s' already exists, line: %d\n", name, word->line);
+                exit(1);
             }
             dict_set(variables, name, f); //!SECTION - def
 
@@ -216,21 +224,25 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         printf("Error: Expected int value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
+                    result = (W_Var *)int_init();
                 } else if (return_type == FLOAT) {
                     if (word->type != NUMBER) {
                         printf("Error: Expected float value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
+                    result = (W_Var *)float_init();
                 } else if (return_type == STRING) {
                     if (word->type != STR) {
                         printf("Error: Expected str value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
+                    result = (W_Var *)str_init();
                 } else if (return_type == BOOL) {
                     if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
                         printf("Error: Expected bool value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
+                    result = (W_Var *)bool_init();
                 }
                 result->assign(result, word->value);
             }
@@ -392,16 +404,19 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         if (DEBUG) printf("Starting function execution...\n");
                         void *result = execute(f->parsed_code, fn_vars, f->return_type);
                         dict_set(variables, word->value, result);
-                        if (DEBUG) printf("Function executed !\n");
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
                     execute(f->parsed_code, fn_vars, f->return_type);
-                    if (DEBUG) printf("Function executed !\n");
                 }
+                if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
                 printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
                 exit(1);
+            } else {
+                if (DEBUG) printf("Starting function execution...\n");
+                execute(f->parsed_code, fn_vars, f->return_type);
+                if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
         //!SECTION - Functions
@@ -619,18 +634,42 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 word = current_word->value;
-                if (word->type != NUMBER) {
+                int index;
+                if (word->type == NUMBER) {
+                    index = atoi(word->value);
+                } else if (word->type == IDENTIFIER) {
+                    W_Var *var = (W_Var *)dict_get(variables, word->value);
+                    if (var == NULL) {
+                        printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                    if (var->type != INT) {
+                        char *var_type_str = w_get_type_str(var);
+                        printf("Error: Expected int value after keyword 'index', got '%s' (type: %s), line: %d\n", word->value, var_type_str, word->line);
+                        free(var_type_str);
+                        exit(1);
+                    }
+                    index = *(int *)var->value;
+                } else {
                     printf("Error: Expected int value after keyword 'index', got %s, line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                int index = atoi(word->value);
                 if (index < 0 || index >= list->size) {
                     printf("Error: Index out of range, line: %d\n", word->line);
                     exit(1);
                 }
                 W_Var *var = (W_Var *)list_get(list, index);
                 W_Var *var_copy = var->copy(var);
-                
+                current_word = current_word->next;
+                if (current_word == NULL) {
+                    printf("Error: Expected keyword 'store' after index, line: %d\n", word->line);
+                    exit(1);
+                }
+                word = current_word->value;
+                if (strcmp(word->value, "store") != 0) {
+                    printf("Error: Expected keyword 'store' after index, got '%s', line: %d\n", word->value, word->line);
+                    exit(1);
+                }  
                 current_word = current_word->next;
                 if (current_word == NULL) {
                     printf("Error: Expected variable name after index, line: %d\n", word->line);

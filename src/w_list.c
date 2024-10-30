@@ -276,12 +276,8 @@ W_List *list_copy(W_List *l) {
     W_List *copy = list_init();
     W_List_Element *e = l->head;
     for (int i = 0; i < l->size; i++) {
-        void *value;
-        if (e->value != NULL) {
-            value = ((W_Var*) e->value)->copy(e->value);
-        } else {
-            value = NULL;
-        }
+        W_Var *value = e->value;
+        list_append(copy, value->copy(value));
     }
     return copy;
 }
