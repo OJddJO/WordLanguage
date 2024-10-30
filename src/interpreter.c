@@ -469,7 +469,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             if (condition->value) {
                 if (DEBUG) printf("Executing if block...\n");
-                execute(if_lines, variables, NULL_TYPE);
+                W_Var *return_value = execute(if_lines, variables, return_type);
+                if (return_value != NULL) {
+                    free(stack);
+                    return return_value;
+                }
                 if (DEBUG) printf("If block executed !\n");
             } else {
                 if (DEBUG) printf("Skipping if block...\n");
