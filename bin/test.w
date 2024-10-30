@@ -16,8 +16,8 @@ print "1 // 2 =" a ", 1 % 2 =" b
 # Benchmark: (On my pc)
 # with Measure-Command { .\word.exe .\test.w }
 
-# avg: 7ms
+# avg: 6ms
 
-# Milliseconds      : 7
-# Ticks             : 71396
-# TotalMilliseconds : 7.1396
+# Milliseconds      : 5
+# Ticks             : 59925
+# TotalMilliseconds : 5.9925
