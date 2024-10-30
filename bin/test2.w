@@ -10,16 +10,19 @@ print matrix
 #test: def func in a func
 
 def null func3
+    print "func 3"
 enddef
 
 def int func1
 
     def int func2
+        print "func 2"
         return 1
     enddef
 
     call func3
     call func2 store a
+    print "func 1"
     return a
 
 enddef

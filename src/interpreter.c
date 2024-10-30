@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG true
+#define DEBUG false
 
 int main(int argc, char *argv[]) {
 
@@ -487,6 +487,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         strncpy(str, word->value+1, strlen(word->value)-2);
                         str[strlen(word->value)-2] = '\0';
                         printf("%s", str);
+                    } else if (word->type == NUMBER) {
+                        printf("%s", word->value);
                     } else {
                         printf("Error: Unexpected value '%s', line: %d\n", word->value, word->line);
                         exit(1);
