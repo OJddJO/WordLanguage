@@ -67,6 +67,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {
         W_List *line = (W_List *)current_line->value;
+        if (line == NULL) {
+            current_line = current_line->next;
+            continue;
+        }
         W_List_Element *parsed_line = line->head;
         if (parsed_line == NULL) {
             current_line = current_line->next;
@@ -188,6 +192,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             dict_set(variables, name, f); //!SECTION - def
+
+        } else if (strcmp(word->value, "enddef") == 0) {
+            statement = "enddef";
 
         } else if (strcmp(word->value, "return") == 0) { //SECTION - return
             statement = "return";
@@ -415,17 +422,17 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         //!SECTION - Functions
 
         /* SECTION - Control Flow */
-        else if (strcmp(word->value, "if") == 0) { //SECTION - if
-            statement = "if";
+        else if (strcmp(word->value, "if") == 0 || strcmp(word->value, "elif") == 0) { //SECTION - if/elif
+            statement = "if/elif block";
 
             current_word = current_word->next;
             if (current_word == NULL) {
-                printf("Error: Expected boolean expression after 'if', line: %d\n", word->line);
+                printf("Error: Expected boolean expression after 'if'/'elif', line: %d\n", word->line);
                 exit(1);
             }
             word = current_word->value;
             if (word->type != IDENTIFIER) { //true and false are also identifiers
-                printf("Error: Expected boolean expression after 'if', got '%s', line: %d\n", word->value, word->line);
+                printf("Error: Expected boolean expression after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
             W_Bool *condition = dict_get(variables, word->value);
@@ -434,7 +441,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (condition->type != BOOL) {
-                printf("Error: Expected bool value after 'if', got '%s', line: %d\n", word->value, word->line);
+                printf("Error: Expected bool value after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
             W_List *if_lines = list_init();
@@ -464,20 +471,62 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 current_line = current_line->next;
             }
             if (!end) {
-                printf("Error: Expected keyword 'endif', 'elif' or 'else' at end of the if block, line: %d\n", word->line);
+                printf("Error: Expected keyword 'endif', 'elif' or 'else' at end of the if/elif block, line: %d\n", word->line);
                 exit(1);
             }
-            if (condition->value) {
-                if (DEBUG) printf("Executing if block...\n");
+            if (*condition->value) {
+                if (DEBUG) printf("Executing if/elif block...\n");
                 W_Var *return_value = execute(if_lines, variables, return_type);
+                if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
                     return return_value;
                 }
-                if (DEBUG) printf("If block executed !\n");
             } else {
-                if (DEBUG) printf("Skipping if block...\n");
-            } //!SECTION - if
+                if (DEBUG) printf("Skipping if/elif block...\n");
+            } //!SECTION - if/elif
+        } else if (strcmp(word->value, "else") == 0) { //SECTION - else
+            statement = "else block";
+
+            W_List *else_lines = list_init();
+            int nb_if = 0;
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                list_append(else_lines, line);
+                parsed_line = line->head;
+                if (parsed_line == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
+                current_word = ((W_List *)parsed_line->value)->head;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "endif") == 0 && nb_if == 0) {
+                        end = true;
+                        break;
+                    } else if (strcmp(word->value, "if") == 0) {
+                        nb_if++;
+                    } else if (strcmp(word->value, "endif") == 0) {
+                        nb_if--;
+                    }
+                }
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected keyword 'endif' at end of the else block, line: %d\n", word->line);
+                exit(1);
+            }
+            if (DEBUG) printf("Executing else block...\n");
+            W_Var *return_value = execute(else_lines, variables, return_type);
+            if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
+            if (return_value != NULL) {
+                free(stack);
+                return return_value;
+            }
+        } else if (strcmp(word->value, "endif") == 0) {
+            statement = "endif";
         }
         //!SECTION - Control Flow
 
@@ -1001,11 +1050,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             dict_remove(variables, word->value); //!SECTION - delete
         }
         //!SECTION - Variables
-        if (strcmp(statement, "print") != 0 && strcmp(statement, "function call") != 0 && strcmp(statement, "function definition") != 0) {
-            current_word = current_word->next;
-            if (current_word != NULL) {
-                printf("Error: Expected end of line after %s, line: %d\n", statement, word->line);
-                exit(1);
+        if (statement != NULL) {
+            if (strcmp(statement, "print") != 0 && strcmp(statement, "function call") != 0 && strcmp(statement, "function definition") != 0) {
+                current_word = current_word->next;
+                if (current_word != NULL) {
+                    printf("Error: Expected end of line after %s, line: %d\n", statement, word->line);
+                    exit(1);
+                }
             }
         }
         free(stack);
