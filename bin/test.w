@@ -13,9 +13,11 @@ int a assign 1 ediv 2
 int b assign 1 mod 2
 print "1 // 2 =" a ", 1 % 2 =" b
 
-# Benchmark:
+# Benchmark: (On my pc)
 # with Measure-Command { .\word.exe .\test.w }
 
-# Milliseconds      : 14
-# Ticks             : 142348
-# TotalMilliseconds : 14.2348
+# avg: 7ms
+
+# Milliseconds      : 7
+# Ticks             : 71396
+# TotalMilliseconds : 7.1396

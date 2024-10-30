@@ -13,9 +13,11 @@ a = 1//2
 b = 1%2
 print("1 // 2 =", a, "1 % 2 =", b)
 
-# Benchmark:
+# Benchmark: (On my pc)
 # with Measure-Command { python test.py }
 
-# Milliseconds      : 60
-# Ticks             : 605460
-# TotalMilliseconds : 60.546
+# avg: 40ms
+
+# Milliseconds      : 40
+# Ticks             : 409318
+# TotalMilliseconds : 40.9318
