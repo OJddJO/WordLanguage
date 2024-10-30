@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     }
 
     FILE *file;
-    if (DEBUG) file = fopen("test.w", "r"); //DEBUG
+    if (DEBUG) file = fopen("test2.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
     if (file == NULL) {
         printf("Error: Could not open file\n");
@@ -438,8 +438,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             W_List *if_lines = list_init();
-            current_line = current_line->next;
             int nb_if = 0;
+            bool end = false;
+            current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
                 list_append(if_lines, line);
@@ -455,20 +456,24 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         nb_if++;
                     } else if (nb_if == 0) {
                         if (strcmp(word->value, "elif") == 0 || strcmp(word->value, "else") == 0 || strcmp(word->value, "endif") == 0) {
+                            end = true;
                             break;
-                        } else nb_if--;
-                    }
+                        }
+                    } else nb_if--;
                 }
                 current_line = current_line->next;
             }
+            if (!end) {
+                printf("Error: Expected keyword 'endif', 'elif' or 'else' at end of the if block, line: %d\n", word->line);
+                exit(1);
+            }
             if (condition->value) {
                 if (DEBUG) printf("Executing if block...\n");
-                execute(if_lines, variables, return_type);
+                execute(if_lines, variables, NULL_TYPE);
                 if (DEBUG) printf("If block executed !\n");
             } else {
                 if (DEBUG) printf("Skipping if block...\n");
-            }
-            //!SECTION - if
+            } //!SECTION - if
         }
         //!SECTION - Control Flow
 

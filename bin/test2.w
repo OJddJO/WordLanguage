@@ -1,2 +1,3 @@
-ask "Input: " store input
-print input
+if true
+    print "true"
+endif
