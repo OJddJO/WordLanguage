@@ -45,7 +45,7 @@ W_List *word_tokenize(FILE *source) {
             w = (W_Word *)malloc(sizeof(W_Word));
             eval = 0;
         }
-        if (c == '\"' || c == '\'') {
+        if (c == '\"') {
             if (eval_str) eval_str = 0;
             else eval_str = 1;
         }
@@ -64,6 +64,7 @@ W_List *word_tokenize(FILE *source) {
         w->value = value;
         w->type = word_type(value);
         w->line = n_line;
+        w->parsed = false;
         list_append(line, w);
     }
     return code;
