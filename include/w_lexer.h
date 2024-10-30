@@ -13,7 +13,7 @@ static char *keywords[] = {
     //constructed types
     "list", "create", "append", "get", "set", "search", "index", "remove", "length",
     //IO expressions
-    "print", "sep", "end", "input",
+    "print", "sep", "end", "ask",
     //control flow
     //conditional
     "if", "elif", "else", "endif",

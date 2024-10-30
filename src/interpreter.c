@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG false
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
 
@@ -500,6 +500,59 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 }
             }
             printf("%s", end); //!SECTION - print
+        } else if (strcmp(word->value, "ask") == 0) { //SECTION - ask
+            statement = "ask";
+
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected variable name after 'ask', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != STR) {
+                printf("Error: Expected str value after 'ask', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+
+            char str[strlen(word->value)-1]; //get the prompt without quotes
+            strncpy(str, word->value+1, strlen(word->value)-2);
+            str[strlen(word->value)-2] = '\0';
+            printf("%s\n", str); //print the prompt
+            char input[103]; // get the input, 100 characters max + 1 for the null character + 2 for the quotes
+            input[0] = '"';
+            fgets(input+1, 100, stdin);
+            input[strlen(input)-1] = '"';
+            input[strlen(input)] = '\0';
+
+            current_word = current_word->next; //get the keyword 'store'
+            if (current_word == NULL) {
+                printf("Error: Expected keyword 'store' after prompt, line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (strcmp(word->value, "store") != 0) {
+                printf("Error: Expected keyword 'store' after prompt, got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+
+            current_word = current_word->next; //get name of the variable
+            if (current_word == NULL) {
+                printf("Error: Expected variable name after 'store', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != IDENTIFIER) {
+                printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            if (dict_get(variables, word->value) != NULL) {
+                printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
+                exit(1);
+            }
+
+            W_Str *var = str_init();
+            str_assign(var, input);
+            dict_set(variables, word->value, var); //!SECTION - ask
         }
         //!SECTION - IO
 

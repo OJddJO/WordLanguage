@@ -1,7 +1,7 @@
 # WordLanguage
 
 > [!IMPORTANT]
-> Word is still in development, soem functionalities are not implemented yet or might be buggy.
+> Word is still in development, some functionalities may not work as expected or may be missing.
 
 WordLanguage is a programming language designed to minimize the use of symbols, making it easy to read and write. Its syntax is simple and closely resembles natural language, aiming to be both easy to learn and powerful enough for complex programming tasks.
 
