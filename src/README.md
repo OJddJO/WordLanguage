@@ -7,7 +7,7 @@ The source code of the project.
 - `src/`: The source code of the project.
 - `src/interpreter.c`: The interpreter of the language. Main file.
 
-# Wlang Interpreter
+# WordLang Interpreter
 
 The interpreter of the language is coded in `c`. It is a simple interpreter that reads the source code from a file, tokenizes it, parses it, and executes it.
 
