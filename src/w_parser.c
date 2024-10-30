@@ -30,7 +30,6 @@ W_List *parse_line(W_List *line) {
     W_List *parsed_words;
     while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
-        printf("%s, %d | ", word->value, word->parsed); //debug
         if (word->parsed) {
             current_word = current_word->next;
             continue;
