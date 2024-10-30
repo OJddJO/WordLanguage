@@ -7,11 +7,11 @@ The source code of the project.
 - `src/`: The source code of the project.
 - `src/interpreter.c`: The interpreter of the language. Main file.
 
-# WordLang Interpreter
+## WordLang Interpreter
 
 The interpreter of the language is coded in `c`. It is a simple interpreter that reads the source code from a file, tokenizes it, parses it, and executes it.
 
-## How it works
+### How it works
 
 The **interpreter** reads the **source code** from a file and gives it to the **lexer**. The lexer **tokenizes** the source code and gives the tokens to the **parser**. Until now, it seems to be a normal language interpreter. \
 **BUT** the parser **does not parse the tokens to an AST**. It creates a list of list of list of tokens *(... yes I know)*. The big list represents the source code, the lists inside represents the lines, and the lists inside the lines represents something to evaluate (if the list contains multiple tokens, it is an operation, if it contains only one token, it is a single token to evaluate). The interpreter then evaluates the list of list of list of tokens and execute the code.
