@@ -18,7 +18,7 @@ static char *keywords[] = {
     //conditional
     "if", "elif", "else", "endif",
     //loop
-    "for", "from", "to", "step", "while", "endloop", "break",
+    "for", "from", "to", "step", "endfor", "infloop", "endinf", "break", "continue",
     //functions
     "def", "null", "with", "return", "enddef", "call", "store",
 };

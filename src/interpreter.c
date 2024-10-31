@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG false
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
 
@@ -62,6 +62,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         char *str = dict_stringify(variables);
         printf("%s\n", str);
         free(str);
+        //print parsed code
+        printf("Parsed code:\n");
+        print_parsed_code(parsed_code);
     }
 
     W_List_Element *current_line = parsed_code->head;
@@ -488,7 +491,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             if (*condition->value) {
                 if (DEBUG) printf("Executing if/elif block...\n");
-                W_Var *return_value = execute(if_lines, variables, return_type);
+                void *return_value = execute(if_lines, variables, return_type);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
@@ -529,7 +532,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (DEBUG) printf("Executing else block...\n");
-            W_Var *return_value = execute(else_lines, variables, return_type);
+            void *return_value = execute(else_lines, variables, return_type);
             if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
             if (return_value != NULL) {
                 free(stack);
@@ -537,6 +540,77 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
         } else if (strcmp(word->value, "endif") == 0) {
             statement = "endif";
+        } else if (strcmp(word->value, "infloop") == 0) { //SECTION - infloop
+            statement = "infloop";
+
+            W_List *infloop_lines = list_init();
+            int infloop_count = 0;
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                list_append(infloop_lines, line);
+                parsed_line = line->head;
+                if (parsed_line == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
+                current_word = ((W_List *)parsed_line->value)->head;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "infloop") == 0) {
+                        infloop_count++;
+                    } else if (infloop_count == 0) {
+                        if (strcmp(word->value, "endinf") == 0) {
+                            end = true;
+                            break;
+                        }
+                    } else infloop_count--;
+                }
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected keyword 'endinf' at end of the infloop, line: %d\n", word->line);
+                exit(1);
+            }
+            if (DEBUG) printf("Executing infloop...\n");
+            while (true) {
+                void *return_value = execute(infloop_lines, variables, return_type);
+                if (return_value != NULL) {
+                    if (*(int *)return_value == 1) {
+                        free(return_value);
+                        break;
+                    } else {
+                        free(stack);
+                        return return_value;
+                    }
+                }
+            }
+            if (DEBUG) printf("infloop executed !\n"); //!SECTION - while
+        } else if (strcmp(word->value, "endinf") == 0) {
+            statement = "endinf";
+        } else if (strcmp(word->value, "break") == 0) { //SECTION - break
+            statement = "break";
+
+            current_word = current_word->next;
+            if (current_word != NULL) {
+                printf("Error: Unexpected value after 'break', line: %d\n", word->line);
+                exit(1);
+            }
+            free(stack);
+            int *result = (int *)malloc(sizeof(int));
+            *result = 1;
+            return result; //!SECTION - break
+        } else if (strcmp(word->value, "continue") == 0) { //SECTION - continue
+            statement = "continue";
+
+            current_word = current_word->next;
+            if (current_word != NULL) {
+                printf("Error: Unexpected value after 'continue', line: %d\n", word->line);
+                exit(1);
+            }
+            free(stack);
+            return NULL; //!SECTION - continue
         }
         //!SECTION - Control Flow
 
@@ -974,6 +1048,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             W_Var *var = (W_Var *)dict_get(variables, word->value);
+            printf("Variable name: %s\n", word->value);
+            printf("Variable value: %s\n", var->stringify(var));
             if (var == NULL) {
                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -1006,10 +1082,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 if (src_var->type != type) {
-                    char *new_var_type_str = w_get_type_str(src_var);
+                    char *src_type_str = w_get_type_str(src_var);
                     char *var_type_str = w_get_type_str(var);
-                    printf("Error: Expected %s value after keyword 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, new_var_type_str, word->line);
-                    free(new_var_type_str);
+                    printf("Error: Expected %s value after keyword 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, src_type_str, word->line);
+                    free(src_type_str);
                     free(var_type_str);
                     exit(1);
                 } else {
