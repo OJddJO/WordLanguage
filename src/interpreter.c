@@ -4,12 +4,12 @@
 int main(int argc, char *argv[]) {
 
     if (argc < 2 && !DEBUG) {
-        printf("Usage: word.exe <path>\n", argv[0]);
+        printf("Usage: word.exe <path>\n");
         return 1;
     }
 
     FILE *file;
-    if (DEBUG) file = fopen("test2.w", "r"); //DEBUG
+    if (DEBUG) file = fopen("test.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
     if (file == NULL) {
         printf("Error: Could not open file\n");
@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     execute(parsed_code, default_args, return_type);
     if (DEBUG) printf("Executed !\n");
     // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
+    dict_destroy(default_args);
 
     if (DEBUG) printf("Done\n"); //DEBUG
     return 0;
@@ -66,6 +67,10 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
     W_List_Element *current_line = parsed_code->head;
     while (current_line != NULL) {
         W_List *line = (W_List *)current_line->value;
+        if (line == NULL) {
+            current_line = current_line->next;
+            continue;
+        }
         W_List_Element *parsed_line = line->head;
         if (parsed_line == NULL) {
             current_line = current_line->next;
@@ -144,6 +149,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         } else dict_set(fn_args, word->value, arg_type);
                         current_word = current_word->next;
                     }
+                } else {
+                    printf("Error: Expected keyword 'with' after function name, got '%s', line: %d\n", word->value, word->line);
+                    exit(1);
                 }
             }
 
@@ -188,6 +196,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             dict_set(variables, name, f); //!SECTION - def
 
+        } else if (strcmp(word->value, "enddef") == 0) {
+            statement = "enddef";
+
         } else if (strcmp(word->value, "return") == 0) { //SECTION - return
             statement = "return";
 
@@ -200,9 +211,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Cannot return value from null function, line: %d\n", word->line);
                     exit(1);
                 } else {
-                    dict_destroy(variables);
                     free(stack);
-                    return NULL; 
+                    return NULL;
                 }
             }
             word = current_word->value;
@@ -218,9 +228,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 result = (result)->copy(result);
-            } else { // if value (cannot be array or list)
+            } else { // if value (cannot be constructed types)
                 if (return_type == INT) {
-                    if (word->type != NUMBER || is_float(word->value)) {
+                    if (word->type != NUMBER) {
                         printf("Error: Expected int value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
@@ -268,7 +278,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 free(str);
             }
             free(result_type_str);
-            dict_destroy(variables);
             free(stack);
             return result; //!SECTION - return
         } else if (strcmp(word->value, "call") == 0) { //SECTION - call
@@ -295,7 +304,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             char *name = word->value; //name of the function
             W_Dict *fn_args = f->args; //dictionary of function arguments (name: type)
-            W_Dict *fn_vars = dict_init(); //variables of the function
 
             //copy all variables to function variables
             if (DEBUG) {
@@ -305,15 +313,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("%s\n", str);
                 free(str);
             }
-            W_List *variables_keys = dict_keys(variables);
-            W_List_Element *current_key = variables_keys->head;
-            for (int i = 0; i < variables_keys->size; i++) { //copy arguments to variables
-                char *key = (char *)current_key->value;
-                W_Var *var = (W_Var *)dict_get(variables, key);
-                void *var_copy = var->copy(var);
-                dict_set(fn_vars, key, var_copy);
-                current_key = current_key->next;
-            }
+            W_Dict *fn_vars = dict_copy(variables); //function variables
 
             int nb_args = dict_size(fn_args); //number of arguments
             current_word = current_word->next;
@@ -336,32 +336,34 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             printf("Error: Too many arguments for function '%s', line: %d\n", name, word->line);
                             exit(1);
                         }
-                        char *arg_name = (char *)current_arg->value; //name of the current argument
+                        char *arg_name = (char *)current_arg->value; //name of the current argument.
                         if (word->type == IDENTIFIER) { //if argument is a variable
-                            void *arg = dict_get(variables, word->value);
+                            W_Var *arg = (W_Var *)dict_get(variables, word->value);
                             if (arg == NULL) {
                                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                                 exit(1);
                             }
-                            W_Var dummy;
-                            dummy.type = *(W_Type *)dict_get(fn_args, arg_name);
-                            char *arg_type_str = w_get_type_str(&dummy);
-                            char *input_type_str = w_get_type_str(arg);
-                            if (((W_Var *)arg)->type != *(W_Type *)dict_get(fn_args, arg_name)) {
+                            if (arg->type != *(W_Type *)dict_get(fn_args, arg_name)) {
+                                W_Var dummy;
+                                dummy.type = *(W_Type *)dict_get(fn_args, arg_name);
+                                char *arg_type_str = w_get_type_str(&dummy);
+                                char *input_type_str = w_get_type_str(arg);
                                 printf("Error: Expected %s value for argument '%s', got %s, line: %d\n", arg_type_str, arg_name, input_type_str, word->line);
+                                free(arg_type_str);
+                                free(input_type_str);
                                 exit(1);
                             }
-                            free(arg_type_str);
-                            free(input_type_str);
                             W_Var *arg_copy = ((W_Var *)arg)->copy(arg); //copy of the argument
                             dict_set(fn_vars, arg_name, arg_copy);
-                        } else { //if argument is a litteral (cannot be array or list)
+                        } else { //if argument is a litteral (cannot be constructed types)
                             if (*(W_Type *)dict_get(fn_args, arg_name) == INT) {
                                 if (word->type != NUMBER) {
                                     printf("Error: Expected int value for argument '%s', got %s, line: %d\n", arg_name, word->value, word->line);
                                     exit(1);
-                                } else if (word->type == NUMBER && is_float(word->value)) {
-                                    printf("Error: Expected int value for argument '%s', got float, line: %d\n", arg_name, word->line);
+                                }
+                            } else if (*(W_Type *)dict_get(fn_args, arg_name) == FLOAT) {
+                                if (word->type != NUMBER) {
+                                    printf("Error: Expected float value for argument '%s', got %s, line: %d\n", arg_name, word->value, word->line);
                                     exit(1);
                                 }
                             } else if (*(W_Type *)dict_get(fn_args, arg_name) == STRING) {
@@ -372,11 +374,18 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             } 
                             void *arg = w_var_init(*(W_Type *)dict_get(fn_args, arg_name));
                             ((W_Var *)arg)->assign(arg, word->value);
-                            dict_set(fn_vars, arg_name, word->value);
+                            dict_set(fn_vars, arg_name, arg);
                         }
                         current_arg = current_arg->next;
                         current_word = current_word->next;
                     }
+                    if (current_arg != NULL) {
+                        printf("Error: Not enough arguments for function '%s', line: %d\n", name, word->line);
+                        exit(1);
+                    }
+                } else if (nb_args > 0) {
+                    printf("Error: Expected keyword 'with' and %d argument(s) to call function '%s', line: %d\n", nb_args, name, word->line);
+                    exit(1);
                 }
                 if (DEBUG) {
                     printf("Function variables:\n"); //DEBUG
@@ -404,22 +413,132 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         if (DEBUG) printf("Starting function execution...\n");
                         void *result = execute(f->parsed_code, fn_vars, f->return_type);
                         dict_set(variables, word->value, result);
+                        dict_destroy(fn_vars);
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
                     execute(f->parsed_code, fn_vars, f->return_type);
+                    dict_destroy(fn_vars);
                 }
                 if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
-                printf("Error: Expected keyword 'with' and arguments after function name, line: %d\n", word->line);
+                printf("Error: Expected keyword 'with' and %d argument(s) to call function '%s', line: %d\n", nb_args, name, word->line);
                 exit(1);
             } else {
                 if (DEBUG) printf("Starting function execution...\n");
                 execute(f->parsed_code, fn_vars, f->return_type);
+                dict_destroy(fn_vars);
                 if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
         //!SECTION - Functions
+
+        /* SECTION - Control Flow */
+        else if (strcmp(word->value, "if") == 0 || strcmp(word->value, "elif") == 0) { //SECTION - if/elif
+            statement = "if/elif block";
+
+            current_word = current_word->next;
+            if (current_word == NULL) {
+                printf("Error: Expected boolean expression after 'if'/'elif', line: %d\n", word->line);
+                exit(1);
+            }
+            word = current_word->value;
+            if (word->type != IDENTIFIER) { //true and false are also identifiers
+                printf("Error: Expected boolean expression after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_Bool *condition = dict_get(variables, word->value);
+            if (condition == NULL) {
+                printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            if (condition->type != BOOL) {
+                printf("Error: Expected bool value after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
+                exit(1);
+            }
+            W_List *if_lines = list_init();
+            int if_count = 0;
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                list_append(if_lines, line);
+                parsed_line = line->head;
+                if (parsed_line == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
+                current_word = ((W_List *)parsed_line->value)->head;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "if") == 0) {
+                        if_count++;
+                    } else if (if_count == 0) {
+                        if (strcmp(word->value, "elif") == 0 || strcmp(word->value, "else") == 0 || strcmp(word->value, "endif") == 0) {
+                            end = true;
+                            break;
+                        }
+                    } else if_count--;
+                }
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected keyword 'endif', 'elif' or 'else' at end of the if/elif block, line: %d\n", word->line);
+                exit(1);
+            }
+            if (*condition->value) {
+                if (DEBUG) printf("Executing if/elif block...\n");
+                W_Var *return_value = execute(if_lines, variables, return_type);
+                if (DEBUG) printf("If/elif block executed !\n");
+                if (return_value != NULL) {
+                    free(stack);
+                    return return_value;
+                }
+            } else if (DEBUG) printf("Skipping if/elif block...\n"); //!SECTION - if/elif
+        } else if (strcmp(word->value, "else") == 0) { //SECTION - else
+            statement = "else block";
+
+            W_List *else_lines = list_init();
+            int if_count = 0;
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                list_append(else_lines, line);
+                parsed_line = line->head;
+                if (parsed_line == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
+                current_word = ((W_List *)parsed_line->value)->head;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "endif") == 0 && if_count == 0) {
+                        end = true;
+                        break;
+                    } else if (strcmp(word->value, "if") == 0) {
+                        if_count++;
+                    } else if (strcmp(word->value, "endif") == 0) {
+                        if_count--;
+                    }
+                }
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected keyword 'endif' at end of the else block, line: %d\n", word->line);
+                exit(1);
+            }
+            if (DEBUG) printf("Executing else block...\n");
+            W_Var *return_value = execute(else_lines, variables, return_type);
+            if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
+            if (return_value != NULL) {
+                free(stack);
+                return return_value;
+            }
+        } else if (strcmp(word->value, "endif") == 0) {
+            statement = "endif";
+        }
+        //!SECTION - Control Flow
 
         /* SECTION - IO */
         else if (strcmp(word->value, "print") == 0) { //SECTION - print
@@ -941,11 +1060,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             dict_remove(variables, word->value); //!SECTION - delete
         }
         //!SECTION - Variables
-        if (strcmp(statement, "print") != 0 && strcmp(statement, "function call") != 0 && strcmp(statement, "function definition") != 0) {
-            current_word = current_word->next;
-            if (current_word != NULL) {
-                printf("Error: Expected end of line after %s, line: %d\n", statement, word->line);
-                exit(1);
+        if (statement != NULL) {
+            if (strcmp(statement, "print") != 0 && strcmp(statement, "function call") != 0 && strcmp(statement, "function definition") != 0) {
+                current_word = current_word->next;
+                if (current_word != NULL) {
+                    printf("Error: Expected end of line after %s, line: %d\n", statement, word->line);
+                    exit(1);
+                }
             }
         }
         free(stack);
@@ -957,7 +1078,6 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         printf("%s\n", str);
         free(str);
     }
-    dict_destroy(variables);
     return result;
 }
 
