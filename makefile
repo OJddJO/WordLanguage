@@ -1,11 +1,11 @@
-EXE		    = ./bin/word
+EXE		    = ./bin/word.exe
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
 DBG         = # debug flags
 
 INCLUDE     = -I ./include
-LIB         = # -L 
+LIB         = # -L
 EXTRA       = -Werror
 STATIC      = # for static linking
 
