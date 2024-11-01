@@ -1,7 +1,7 @@
 def isEven(a: int) -> bool:
     return a % 2 == 0
 
-number = 5
+number = 4
 result = isEven(number)
 
 print(result)
