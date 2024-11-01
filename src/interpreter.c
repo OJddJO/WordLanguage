@@ -609,9 +609,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             while (true) {
                 void *return_value = execute(infloop_lines, variables, return_type);
                 if (return_value != NULL) {
-                    if (*(int *)return_value == 1) {
+                    if (*(int *)return_value == 1) { // break code is 1
                         free(return_value);
                         break;
+                    } else if (*(int *)return_value == 2) { // continue code is 2
+                        free(return_value);
+                        continue;
                     } else {
                         free(stack);
                         return return_value;
@@ -631,7 +634,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             free(stack);
             int *result = (int *)malloc(sizeof(int));
-            *result = 1;
+            *result = 1; // break code for infloop
             return result; //!SECTION - break
         } else if (strcmp(word->value, "continue") == 0) { //SECTION - continue
             statement = "continue";
@@ -642,7 +645,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             free(stack);
-            return NULL; //!SECTION - continue
+            int *result = (int *)malloc(sizeof(int));
+            *result = 2; // continue code for infloop
+            return result; //!SECTION - continue
         }
         //!SECTION - Control Flow
 

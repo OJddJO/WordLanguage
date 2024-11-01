@@ -12,3 +12,7 @@ if result
 else
     print number "is odd"
 endif
+
+# Output:
+# True
+# 4 is even

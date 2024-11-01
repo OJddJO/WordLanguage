@@ -10,3 +10,7 @@ if result:
     print(number, "is even")
 else:
     print(number, "is odd")
+
+# Output:
+# True
+# 4 is even
