@@ -16,7 +16,7 @@ def execute_word_output():
     print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":
-    nb_iterations = 10
+    nb_iterations = 1000
     file_list = ["if", "while"]
     for file in file_list:
         print(f"Running benchmark for '{file}' scripts")
