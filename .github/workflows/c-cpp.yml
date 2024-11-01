@@ -24,7 +24,7 @@ jobs:
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!' 
-          make remake
+          make all
       - name: Test with benchmark
         working-directory: ./benchmark
         run: |
