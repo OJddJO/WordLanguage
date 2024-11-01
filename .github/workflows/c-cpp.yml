@@ -26,6 +26,7 @@ jobs:
           echo 'Running in MSYS2!' 
           make all
       - name: Test with benchmark
+        shell: powershell
         working-directory: ./benchmark
         run: |
           python benchmark.py >> "$GITHUB_OUTPUT"
