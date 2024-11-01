@@ -27,4 +27,4 @@ jobs:
         shell: powershell
         working-directory: ./benchmark
         run: |
-          python benchmark.py
+          python benchmark.py 100
