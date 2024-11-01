@@ -1,7 +1,7 @@
 #include "w_lexer.h"
 
 /**
- * \brief Tokenizes the given file into a list of words. (malloc)
+ * \brief Tokenizes the given file into a list of lists of words. (malloc)
  * \param source The file to tokenize.
  * \return A list of list of words.
  */

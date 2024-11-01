@@ -62,6 +62,9 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         char *str = dict_stringify(variables);
         printf("%s\n", str);
         free(str);
+        // print parsed code
+        printf("Parsed code:\n");
+        print_parsed_code(parsed_code);
     }
 
     W_List_Element *current_line = parsed_code->head;
@@ -71,14 +74,25 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             continue;
         }
-        W_List_Element *parsed_line = line->head;
-        if (parsed_line == NULL) {
+        W_List_Element *current_block = line->head;
+        if (current_block == NULL) {
             current_line = current_line->next;
             continue;
         }
 
         W_List *stack = list_init(); //the stack of words to evaluate
-        eval_parsed_lines(parsed_line, variables, stack);
+        eval_parsed_lines(current_block, variables, stack);
+        //print stack
+        // if (DEBUG) {
+        //     printf("Stack:\n");
+        //     W_List_Element *current_word = stack->head;
+        //     while (current_word != NULL) {
+        //         W_Word *word = (W_Word *)current_word->value;
+        //         printf("%s ", word->value);
+        //         current_word = current_word->next;
+        //     }
+        //     printf("\n");
+        // }
 
         W_List_Element *current_word = stack->head;
         if (current_word == NULL) {
@@ -163,12 +177,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "def") == 0) {
@@ -462,13 +476,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                list_append(if_lines, line);
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "if") == 0) {
@@ -480,6 +493,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         }
                     } else if_count--;
                 }
+                list_append(if_lines, line);
                 current_line = current_line->next;
             }
             if (!end) {
@@ -487,8 +501,29 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (*condition->value) {
+                int if_count = 0;
+                while (current_line != NULL) { //skip lines until endif then execute the if block
+                    line = (W_List *)current_line->value;
+                    current_block = line->head;
+                    if (current_block == NULL) {
+                        current_line = current_line->next;
+                        continue;
+                    }
+                    current_word = ((W_List *)current_block->value)->head;
+                    if (current_word != NULL) {
+                        word = (W_Word *)current_word->value;
+                        if (strcmp(word->value, "if") == 0) {
+                            if_count++;
+                        } else if (strcmp(word->value, "endif") == 0) {
+                            if (if_count == 0) {
+                                break;
+                            } else if_count--;
+                        }
+                    }
+                    current_line = current_line->next;
+                }
                 if (DEBUG) printf("Executing if/elif block...\n");
-                W_Var *return_value = execute(if_lines, variables, return_type);
+                void *return_value = execute(if_lines, variables, return_type);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
@@ -504,13 +539,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                list_append(else_lines, line);
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "endif") == 0 && if_count == 0) {
@@ -522,6 +556,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         if_count--;
                     }
                 }
+                list_append(else_lines, line);
                 current_line = current_line->next;
             }
             if (!end) {
@@ -529,7 +564,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (DEBUG) printf("Executing else block...\n");
-            W_Var *return_value = execute(else_lines, variables, return_type);
+            void *return_value = execute(else_lines, variables, return_type);
             if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
             if (return_value != NULL) {
                 free(stack);
@@ -537,6 +572,82 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
         } else if (strcmp(word->value, "endif") == 0) {
             statement = "endif";
+        } else if (strcmp(word->value, "infloop") == 0) { //SECTION - infloop
+            statement = "infloop";
+
+            W_List *infloop_lines = list_init();
+            int infloop_count = 0;
+            bool end = false;
+            current_line = current_line->next;
+            while (current_line != NULL) {
+                line = (W_List *)current_line->value;
+                current_block = line->head;
+                if (current_block == NULL) {
+                    current_line = current_line->next;
+                    continue;
+                }
+                current_word = ((W_List *)current_block->value)->head;
+                if (current_word != NULL) {
+                    word = (W_Word *)current_word->value;
+                    if (strcmp(word->value, "infloop") == 0) {
+                        infloop_count++;
+                    } else if (infloop_count == 0) {
+                        if (strcmp(word->value, "endinf") == 0) {
+                            end = true;
+                            break;
+                        }
+                    } else infloop_count--;
+                }
+                list_append(infloop_lines, line);
+                current_line = current_line->next;
+            }
+            if (!end) {
+                printf("Error: Expected keyword 'endinf' at end of the infloop, line: %d\n", word->line);
+                exit(1);
+            }
+            if (DEBUG) printf("Executing infloop...\n");
+            while (true) {
+                void *return_value = execute(infloop_lines, variables, return_type);
+                if (return_value != NULL) {
+                    if (*(int *)return_value == 1) { // break code is 1
+                        free(return_value);
+                        break;
+                    } else if (*(int *)return_value == 2) { // continue code is 2
+                        free(return_value);
+                        continue;
+                    } else {
+                        free(stack);
+                        return return_value;
+                    }
+                }
+            }
+            if (DEBUG) printf("infloop executed !\n"); //!SECTION - infloop
+        } else if (strcmp(word->value, "endinf") == 0) {
+            statement = "endinf";
+        } else if (strcmp(word->value, "break") == 0) { //SECTION - break
+            statement = "break";
+
+            current_word = current_word->next;
+            if (current_word != NULL) {
+                printf("Error: Unexpected value after 'break', line: %d\n", word->line);
+                exit(1);
+            }
+            free(stack);
+            int *result = (int *)malloc(sizeof(int));
+            *result = 1; // break code for infloop
+            return result; //!SECTION - break
+        } else if (strcmp(word->value, "continue") == 0) { //SECTION - continue
+            statement = "continue";
+
+            current_word = current_word->next;
+            if (current_word != NULL) {
+                printf("Error: Unexpected value after 'continue', line: %d\n", word->line);
+                exit(1);
+            }
+            free(stack);
+            int *result = (int *)malloc(sizeof(int));
+            *result = 2; // continue code for infloop
+            return result; //!SECTION - continue
         }
         //!SECTION - Control Flow
 
@@ -936,29 +1047,30 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 value = var->copy(var);
+            } else {
+                if (type == INT) { //get int value
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected int value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == FLOAT) { //get float value
+                    if (word->type != NUMBER) {
+                        printf("Error: Expected float value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == STR) { //get str value
+                    if (word->type != STR) {
+                        printf("Error: Expected str value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                } else if (type == BOOL) { //get bool value
+                    if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
+                        printf("Error: Expected bool value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
+                        exit(1);
+                    }
+                }
+                ((W_Var *)value)->assign(value, word->value);
             }
-            if (type == INT) { //get int value
-                if (word->type != NUMBER) {
-                    printf("Error: Expected int value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-            } else if (type == FLOAT) { //get float value
-                if (word->type != NUMBER) {
-                    printf("Error: Expected float value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-            } else if (type == STR) { //get str value
-                if (word->type != STR) {
-                    printf("Error: Expected str value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-            } else if (type == BOOL) { //get bool value
-                if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
-                    printf("Error: Expected bool value after keyword 'assign', got %s, line: %d\n", word->value, word->line);
-                    exit(1);
-                }
-            }
-            ((W_Var *)value)->assign(value, word->value);
             dict_set(variables, name, value); //!SECTION - assign
         } else if (strcmp(word->value, "change") == 0) { //SECTION - change
             statement = "variable change";
@@ -1006,14 +1118,16 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 if (src_var->type != type) {
-                    char *new_var_type_str = w_get_type_str(src_var);
+                    char *src_type_str = w_get_type_str(src_var);
                     char *var_type_str = w_get_type_str(var);
-                    printf("Error: Expected %s value after keyword 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, new_var_type_str, word->line);
-                    free(new_var_type_str);
+                    printf("Error: Expected %s value after keyword 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, src_type_str, word->line);
+                    free(src_type_str);
                     free(var_type_str);
                     exit(1);
                 } else {
-                    var->assign(var, src_var->stringify(src_var));
+                    char *value = src_var->stringify(src_var);
+                    var->assign(var, value);
+                    free(value);
                 }
             } else {
                 if (type == INT) { //get int value
@@ -1087,21 +1201,21 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
 
 /**
  * \brief Evaluates the parsed lines.
- * \param parsed_line The parsed line to evaluate.
+ * \param current_block The parsed line to evaluate.
  * \param variables The variables to use in the evaluation.
- * \param stack The stack to store the parsed lines.
+ * \param stack The stack to store the parsed lines after eval.
  */
-void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack) {
-    while (parsed_line != NULL) {
-        if (parsed_line->value == NULL) {
-            parsed_line = parsed_line->next;
+void eval_parsed_lines(W_List_Element *current_block, W_Dict *variables, W_List *stack) {
+    while (current_block != NULL) {
+        if (current_block->value == NULL) {
+            current_block = current_block->next;
             continue;
         }
-        W_List *parsed_words = (W_List *)parsed_line->value;
+        W_List *parsed_words = (W_List *)current_block->value;
         W_List_Element *current_word = parsed_words->head;
         if (parsed_words->size == 1) { //not an operation
             list_append(stack, current_word->value); //add to stack
-        } else { //if the size of parsed_line is not 1 then evaluate operation
+        } else { //if the size of current_block is not 1 then evaluate operation
             int line;
             W_Word_Type return_type = NUMBER;
             W_List *result = list_init();
@@ -1110,8 +1224,8 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                 W_Word *word = (W_Word *)current_word->value;
                 line = word->line;
                 if (word->type == OPERATOR) {
-                    remove_dot(word);
-                    if (strcmp(word->value, "plus") == 0) { //addition
+                    char *without_dot = remove_dot(word);
+                    if (strcmp(without_dot, "plus") == 0) { //addition
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'plus', line: %d\n", word->line);
                             exit(1);
@@ -1122,7 +1236,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "minus") == 0) { //subtraction
+                    } else if (strcmp(without_dot, "minus") == 0) { //subtraction
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'minus', line: %d\n", word->line);
                             exit(1);
@@ -1133,7 +1247,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "times") == 0) { //multiplication
+                    } else if (strcmp(without_dot, "times") == 0) { //multiplication
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'time', line: %d\n", word->line);
                             exit(1);
@@ -1144,7 +1258,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "div") == 0) { //division
+                    } else if (strcmp(without_dot, "div") == 0) { //division
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'div', line: %d\n", word->line);
                             exit(1);
@@ -1155,7 +1269,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "mod") == 0) { //modulo
+                    } else if (strcmp(without_dot, "mod") == 0) { //modulo
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'mod', line: %d\n", word->line);
                             exit(1);
@@ -1166,7 +1280,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "ediv") == 0) { //euclidean division
+                    } else if (strcmp(without_dot, "ediv") == 0) { //euclidean division
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'ediv', line: %d\n", word->line);
                             exit(1);
@@ -1177,7 +1291,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "power") == 0) { //power
+                    } else if (strcmp(without_dot, "power") == 0) { //power
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'pow', line: %d\n", word->line);
                             exit(1);
@@ -1188,7 +1302,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         w1->destroy(w1);
                         w2->destroy(w2);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "sqrt") == 0) { //square root
+                    } else if (strcmp(without_dot, "sqrt") == 0) { //square root
                         if (result->size < 1) {
                             printf("Error: Expected 1 value for operator 'sqrt', line: %d\n", word->line);
                             exit(1);
@@ -1197,7 +1311,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         list_append(result, w_sqrt(w));
                         w->destroy(w);
                         return_type = NUMBER;
-                    } else if (strcmp(word->value, "and") == 0) { //and
+                    } else if (strcmp(without_dot, "and") == 0) { //and
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'and', line: %d\n", word->line);
                             exit(1);
@@ -1205,8 +1319,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_and(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "or") == 0) { //or
+                    } else if (strcmp(without_dot, "or") == 0) { //or
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'or', line: %d\n", word->line);
                             exit(1);
@@ -1214,16 +1330,19 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_or(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "not") == 0) { //not
+                    } else if (strcmp(without_dot, "not") == 0) { //not
                         if (result->size < 1) {
                             printf("Error: Expected 1 value for operator 'not', line: %d\n", word->line);
                             exit(1);
                         }
                         W_Var *w = (W_Var *)list_pop(result);
                         list_append(result, w_not(w));
+                        w->destroy(w);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "equal") == 0) { //equal
+                    } else if (strcmp(without_dot, "equal") == 0) { //equal
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'equal', line: %d\n", word->line);
                             exit(1);
@@ -1231,8 +1350,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_equal(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "greater") == 0) { //greater
+                    } else if (strcmp(without_dot, "greater") == 0) { //greater
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'greater', line: %d\n", word->line);
                             exit(1);
@@ -1240,8 +1361,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_greater(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "less") == 0) { //less
+                    } else if (strcmp(without_dot, "less") == 0) { //less
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'less', line: %d\n", word->line);
                             exit(1);
@@ -1249,8 +1372,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_less(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "gequal") == 0) { //greater or equal
+                    } else if (strcmp(without_dot, "gequal") == 0) { //greater or equal
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'gequal', line: %d\n", word->line);
                             exit(1);
@@ -1258,8 +1383,10 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_gequal(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
-                    } else if (strcmp(word->value, "lequal") == 0) { //less or equal
+                    } else if (strcmp(without_dot, "lequal") == 0) { //less or equal
                         if (result->size < 2) {
                             printf("Error: Expected 2 values for operator 'lequal', line: %d\n", word->line);
                             exit(1);
@@ -1267,8 +1394,11 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         W_Var *w1 = (W_Var *)list_pop(result);
                         W_Var *w2 = (W_Var *)list_pop(result);
                         list_append(result, w_lequal(w2, w1));
+                        w1->destroy(w1);
+                        w2->destroy(w2);
                         return_type = IDENTIFIER;
                     }
+                    free(without_dot);
                 } else if (word->type == NUMBER) { //if number
                     if (is_float(word->value)) {
                         W_Float *w = w_var_init(FLOAT);
@@ -1285,13 +1415,12 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
                         printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
                     }
+                    w = w->copy(w);
                     list_append(result, w);
                 } else {
                     printf("Error: Unexpected word '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                free(word->value);
-                free(word);
                 current_word = current_word->next;
             }
             if (result->size > 1) {
@@ -1306,26 +1435,26 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
             result_word->line = line;
             list_append(stack, result_word);
         }
-        parsed_line = parsed_line->next;
+        current_block = current_block->next;
     }
 }
 
 /**
  * \brief Removes priority dots of operations from the given word.
  * \param word The word to remove the dot from.
+ * \return The word without the dot.
  */
-void remove_dot(W_Word *word) {
+char *remove_dot(W_Word *word) {
     int priority = 0;
     for (int i = 0; i < strlen(word->value); i++) {
         if (word->value[i] == '.') {
             priority++;
         } else break;
     }
-    char without_dot[strlen(word->value) - priority + 1];
+    char *without_dot = (char *)malloc(strlen(word->value) - priority + 1);
     strncpy(without_dot, word->value + priority, strlen(word->value) - priority);
     without_dot[strlen(word->value) - priority] = '\0';
-    word->value = (char *)realloc(word->value, strlen(without_dot) + 1);
-    strcpy(word->value, without_dot);
+    return without_dot;
 }
 
 /**

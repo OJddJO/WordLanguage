@@ -1,14 +1,11 @@
-def bool isEven with int a
-    return a .mod 2 equal 0
-enddef
-
-int number assign 5
-call isEven with number store result
-
-print result
-
-if result
-    print number "is even"
-else
-    print number "is odd"
-end
+int i assign 0
+infloop
+    if i gequal 10
+        break
+    endif
+    change i to i plus 1
+    if i less 5
+        continue
+    endif
+    print i
+endinf

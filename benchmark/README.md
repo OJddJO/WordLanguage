@@ -4,6 +4,12 @@ This directory contains the benchmarking code for the project. The benchmarking 
 
 ## Output
 
-> Python: 349.520957 s for 10000 iterations (avg: 0.034952 s/iter) \
-> Word: 37.664156 s for 10000 iterations (avg: 0.003766 s/iter) \
-> Ratio python/word: 9.28x
+> Running benchmark for 'if' scripts \
+> Python: 35.004455 s for 1000 iterations (avg: 0.035004 s/iter) \
+> Word: 3.819796 s for 1000 iterations (avg: 0.00382 s/iter) \
+> Ratio python/word: 9.16x
+> 
+> Running benchmark for 'while' scripts \
+> Python: 35.518133 s for 1000 iterations (avg: 0.035518 s/iter) \
+> Word: 3.572016 s for 1000 iterations (avg: 0.003572 s/iter) \
+> Ratio python/word: 9.94x

@@ -2,7 +2,7 @@ def bool isEven with int a
     return a .mod 2 equal 0
 enddef
 
-int number assign 5
+int number assign 4
 call isEven with number store result
 
 print result
@@ -12,3 +12,7 @@ if result
 else
     print number "is odd"
 endif
+
+# Output:
+# True
+# 4 is even
