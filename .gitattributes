@@ -1,2 +1,1 @@
-*.w linguist-language=WordLang linguist-detectable
 *.py -linguist-vendored
