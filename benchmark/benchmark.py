@@ -9,11 +9,11 @@ def execute_word():
     subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL)
 
 def execute_py_output():
-    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.STDOUT)
+    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.PIPE)
     print(out.stdout.decode("utf-8"))
 
 def execute_word_output():
-    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.STDOUT)
+    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.PIPE)
     print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":
