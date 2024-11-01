@@ -74,14 +74,14 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             continue;
         }
-        W_List_Element *parsed_line = line->head;
-        if (parsed_line == NULL) {
+        W_List_Element *current_block = line->head;
+        if (current_block == NULL) {
             current_line = current_line->next;
             continue;
         }
 
         W_List *stack = list_init(); //the stack of words to evaluate
-        eval_parsed_lines(parsed_line, variables, stack);
+        eval_parsed_lines(current_block, variables, stack);
 
         W_List_Element *current_word = stack->head;
         if (current_word == NULL) {
@@ -166,12 +166,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "def") == 0) {
@@ -465,13 +465,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                list_append(if_lines, line);
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "if") == 0) {
@@ -483,6 +482,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         }
                     } else if_count--;
                 }
+                list_append(if_lines, line);
                 current_line = current_line->next;
             }
             if (!end) {
@@ -490,6 +490,27 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (*condition->value) {
+                int if_count = 0;
+                while (current_line != NULL) { //skip lines until endif then execute the if block
+                    line = (W_List *)current_line->value;
+                    current_block = line->head;
+                    if (current_block == NULL) {
+                        current_line = current_line->next;
+                        continue;
+                    }
+                    current_word = ((W_List *)current_block->value)->head;
+                    if (current_word != NULL) {
+                        word = (W_Word *)current_word->value;
+                        if (strcmp(word->value, "if") == 0) {
+                            if_count++;
+                        } else if (strcmp(word->value, "endif") == 0) {
+                            if (if_count == 0) {
+                                break;
+                            } else if_count--;
+                        }
+                    }
+                    current_line = current_line->next;
+                }
                 if (DEBUG) printf("Executing if/elif block...\n");
                 void *return_value = execute(if_lines, variables, return_type);
                 if (DEBUG) printf("If/elif block executed !\n");
@@ -507,13 +528,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             current_line = current_line->next;
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
-                list_append(else_lines, line);
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "endif") == 0 && if_count == 0) {
@@ -525,6 +545,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         if_count--;
                     }
                 }
+                list_append(else_lines, line);
                 current_line = current_line->next;
             }
             if (!end) {
@@ -550,12 +571,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             while (current_line != NULL) {
                 line = (W_List *)current_line->value;
                 list_append(infloop_lines, line);
-                parsed_line = line->head;
-                if (parsed_line == NULL) {
+                current_block = line->head;
+                if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)parsed_line->value)->head;
+                current_word = ((W_List *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "infloop") == 0) {
@@ -1163,21 +1184,21 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
 
 /**
  * \brief Evaluates the parsed lines.
- * \param parsed_line The parsed line to evaluate.
+ * \param current_block The parsed line to evaluate.
  * \param variables The variables to use in the evaluation.
  * \param stack The stack to store the parsed lines.
  */
-void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *stack) {
-    while (parsed_line != NULL) {
-        if (parsed_line->value == NULL) {
-            parsed_line = parsed_line->next;
+void eval_parsed_lines(W_List_Element *current_block, W_Dict *variables, W_List *stack) {
+    while (current_block != NULL) {
+        if (current_block->value == NULL) {
+            current_block = current_block->next;
             continue;
         }
-        W_List *parsed_words = (W_List *)parsed_line->value;
+        W_List *parsed_words = (W_List *)current_block->value;
         W_List_Element *current_word = parsed_words->head;
         if (parsed_words->size == 1) { //not an operation
             list_append(stack, current_word->value); //add to stack
-        } else { //if the size of parsed_line is not 1 then evaluate operation
+        } else { //if the size of current_block is not 1 then evaluate operation
             int line;
             W_Word_Type return_type = NUMBER;
             W_List *result = list_init();
@@ -1382,7 +1403,7 @@ void eval_parsed_lines(W_List_Element *parsed_line, W_Dict *variables, W_List *s
             result_word->line = line;
             list_append(stack, result_word);
         }
-        parsed_line = parsed_line->next;
+        current_block = current_block->next;
     }
 }
 

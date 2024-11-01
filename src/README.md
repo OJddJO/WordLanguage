@@ -14,7 +14,75 @@ The interpreter of the language is coded in `c`. It is a simple interpreter that
 ### How it works
 
 The **interpreter** reads the **source code** from a file and gives it to the **lexer**. The lexer **tokenizes** the source code and gives the tokens to the **parser**. Until now, it seems to be a normal language interpreter. \
-**BUT** the parser **does not parse the tokens to an AST**. It creates a list of list of list of tokens *(... yes I know)*. The big list represents the source code, the lists inside represents the lines, and the lists inside the lines represents something to evaluate (if the list contains multiple tokens, it is an operation, if it contains only one token, it is a single token to evaluate). The interpreter then evaluates the list of list of list of tokens and execute the code.
+**BUT** the parser **does not parse the tokens to an AST**. It creates a list of list of list of tokens *(... yes I know)*. The big list represents the **source code**, the lists inside represents the **lines**, and the lists inside the lines represents **blocks to evaluate** (if the list contains multiple tokens, it is an operation, if it contains only one token, it is a single token to evaluate). The interpreter then evaluates the list of list of list of tokens and execute the code.
+
+#### Examples:
+
+WordLang source code:
+```
+print "Hello, World!"
+print "Second line"
+```
+Result:
+```
+Lexer output:
+[
+    [{"print", KEYWORD, 1}, {"Hello, World!", STR, 1}],
+    [{"print", KEYWORD, 2}, {"Second line", STR, 2}]
+]
+
+Parser output:
+[ <--- Source code
+    [ <--- Line 1
+        [ <--- Block 1
+            {"print", KEYWORD, 1}
+        ],
+        [ <--- Block 2
+            {"Hello, World!", STR, 1}
+        ]
+    ],
+    [ <--- Line 2
+        [ <--- Block 1
+            {"print", KEYWORD, 2}
+        ],
+        [ <--- Block 2
+            {"Second line", STR, 2}
+        ]
+    ]
+]
+```
+
+WordLang source code:
+```
+int var assign 5 plus 3
+```
+Result:
+```
+Lexer output:
+[
+    [{"int", KEYWORD, 1}, {"var", VARIABLE, 1}, {"assign", KEYWORD, 1}, {"5", NUMBER, 1}, {"plus", OPERATOR, 1}, {"3", NUMBER, 1}]
+]
+
+Parser output:
+[ <--- Source code
+    [ <--- Line 1
+        [ <--- Block 1
+            {"int", KEYWORD, 1}
+        ],
+        [ <--- Block 2
+            {"var", VARIABLE, 1}
+        ],
+        [ <--- Block 3
+            {"assign", KEYWORD, 1}
+        ],
+        [ <--- Block 4, size of 3 = operation
+            {"5", NUMBER, 1},
+            {"plus", OPERATOR, 1},
+            {"3", NUMBER, 1}
+        ]
+    ]
+]
+```
 
 ## Uhmm... The code is a mess
 
