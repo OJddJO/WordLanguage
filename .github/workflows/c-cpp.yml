@@ -20,9 +20,12 @@ jobs:
           update: true
           install: git mingw-w64-ucrt-x86_64-gcc make
       - name: Create build dir
-        run: |
-          mkdir build
+        run: mkdir build
       - name: CI-Build
         run: |
-          echo 'Running in MSYS2!'
-          make all
+          echo 'Running in MSYS2!' 
+          make remake
+      - name: Test with benchmark
+        working-directory: ./benchmark
+        run: |
+          python benchmark.py >> "$GITHUB_OUTPUT"
