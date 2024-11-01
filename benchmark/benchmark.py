@@ -1,5 +1,6 @@
 import timeit
 import subprocess
+import sys
 
 def execute_python():
     subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.DEVNULL)
@@ -8,15 +9,18 @@ def execute_word():
     subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL)
 
 def execute_py_output():
-    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.PIPE)
+    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.STDOUT)
     print(out.stdout.decode("utf-8"))
 
 def execute_word_output():
-    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.PIPE)
+    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.STDOUT)
     print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":
-    nb_iterations = 1000
+    if len(sys.argv) > 1:
+        nb_iterations = int(sys.argv[1])
+    else:
+        nb_iterations = 1000
     file_list = ["if", "while"]
     for file in file_list:
         print(f"Running benchmark for '{file}' scripts")
