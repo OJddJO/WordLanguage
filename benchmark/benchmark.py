@@ -8,13 +8,15 @@ def execute_word():
     subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL)
 
 def execute_py_output():
-    subprocess.run(["python", f"./scripts/{file}.py"])
+    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.PIPE)
+    print(out.stdout.decode("utf-8"))
 
 def execute_word_output():
-    subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"])
+    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.PIPE)
+    print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":
-    nb_iterations = 1000
+    nb_iterations = 10
     file_list = ["if", "while"]
     for file in file_list:
         print(f"Running benchmark for '{file}' scripts")
