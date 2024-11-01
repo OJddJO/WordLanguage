@@ -1,4 +1,4 @@
-def isEven(a: int) -> bool:
+def isEven(a):
     return a % 2 == 0
 
 number = 4
