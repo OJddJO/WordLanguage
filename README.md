@@ -1,5 +1,7 @@
 # WordLanguage
 
+[![C/C++ CI](https://github.com/OJddJO/WordLanguage/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/OJddJO/WordLanguage/actions/workflows/c-cpp.yml)
+
 > [!IMPORTANT]
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
 
