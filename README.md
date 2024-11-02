@@ -1,6 +1,6 @@
 # WordLanguage
 
-[![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml)
+[![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg?branch=main)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml?branch=main)
 
 > [!IMPORTANT]
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
