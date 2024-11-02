@@ -4,16 +4,16 @@
  * \brief Initializes a new float. (malloc)
  * \return A pointer to the newly created float.
  */
-W_Float *float_init() {
+W_Float *w_float_init() {
     W_Float *f = (W_Float *)malloc(sizeof(W_Float));
     f->type = NULL_TYPE;
     f->value = NULL;
-    f->destroy = &float_destroy;
-    f->stringify = &float_stringify;
-    f->copy = &float_copy;
-    f->assign = &float_assign;
-    f->set = &float_set;
-    f->get = &float_value;
+    f->destroy = &w_float_destroy;
+    f->stringify = &w_float_stringify;
+    f->copy = &w_float_copy;
+    f->assign = &w_float_assign;
+    f->set = &w_float_set;
+    f->get = &w_float_value;
     return f;
 }
 
@@ -22,7 +22,7 @@ W_Float *float_init() {
  * \param f The float to set the value of.
  * \param value The value to set as a string.
  */
-void float_assign(W_Float *f, char *value) {
+void w_float_assign(W_Float *f, char *value) {
     float *v;
     float var_value = atof(value);
     if (f->type == NULL_TYPE) {
@@ -38,7 +38,7 @@ void float_assign(W_Float *f, char *value) {
  * \param f The float to set the value of.
  * \param value The value to set.
  */
-void float_set(W_Float *f, float value) {
+void w_float_set(W_Float *f, float value) {
     float *v;
     if (f->type == NULL_TYPE) {
         v = (float *)malloc(sizeof(float));
@@ -53,7 +53,7 @@ void float_set(W_Float *f, float value) {
  * \param f The float to get the value of.
  * \return The value of the float.
  */
-float *float_value(W_Float *f) {
+float *w_float_value(W_Float *f) {
     return f->value;
 }
 
@@ -62,7 +62,7 @@ float *float_value(W_Float *f) {
  * \param f The float to convert.
  * \return The float as a string.
  */
-char *float_stringify(W_Float *f) {
+char *w_float_stringify(W_Float *f) {
     int len = snprintf(NULL, 0, "%f", *f->value);
     char *str = (char *)malloc(len + 1);
     sprintf(str, "%f", *f->value);
@@ -73,7 +73,7 @@ char *float_stringify(W_Float *f) {
  * \brief Destroys the given float.
  * \param f The float to destroy.
  */
-void float_destroy(W_Float *f) {
+void w_float_destroy(W_Float *f) {
     if (f->value != NULL) free(f->value);
     free(f);
 }
@@ -83,8 +83,8 @@ void float_destroy(W_Float *f) {
  * \param f The float to copy.
  * \return A copy of the float.
  */
-W_Float *float_copy(W_Float *f) {
-    W_Float *copy = float_init();
-    float_set(copy, *f->value);
+W_Float *w_float_copy(W_Float *f) {
+    W_Float *copy = w_float_init();
+    w_float_set(copy, *f->value);
     return copy;
 }

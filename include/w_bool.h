@@ -15,12 +15,12 @@ typedef struct _w_bool {
     bool *(*get)(struct _w_bool *);
 } W_Bool;
 
-W_Bool *bool_init();
-void bool_assign(W_Bool *b, char *value);
-void bool_set(W_Bool *b, bool value);
-bool *bool_value(W_Bool *b);
-char *bool_stringify(W_Bool *b);
-void bool_destroy(W_Bool *b);
-W_Bool *bool_copy(W_Bool *b);
+W_Bool *w_bool_init();
+void w_bool_assign(W_Bool *b, char *value);
+void w_bool_set(W_Bool *b, bool value);
+bool *w_bool_value(W_Bool *b);
+char *w_bool_stringify(W_Bool *b);
+void w_bool_destroy(W_Bool *b);
+W_Bool *w_bool_copy(W_Bool *b);
 
 #endif

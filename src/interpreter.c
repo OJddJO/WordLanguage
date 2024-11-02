@@ -16,31 +16,31 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    W_List *lexed_code = word_tokenize(file);
+    list *lexed_code = word_tokenize(file);
     if (fclose(file) != 0) {
         printf("Error: Could not close file\n");
         return 1;
     }
-    if (DEBUG) word_print(lexed_code); //DEBUG
+    if (DEBUG) lexer_print(lexed_code); //DEBUG
 
-    W_List *parsed_code = parse(lexed_code);
+    list *parsed_code = parse(lexed_code);
     if (DEBUG) print_parsed_code(parsed_code); //DEBUG
 
     //initialize variables
     W_Type return_type = NULL_TYPE;
-    W_Dict *default_args = dict_init();
-    W_Bool *w_true = bool_init();
-    bool_set(w_true, true);
-    dict_set(default_args, "true", w_true);
-    W_Bool *w_false = bool_init();
-    bool_set(w_false, false);
-    dict_set(default_args, "false", w_false);
+    W_Dict *default_args = w_dict_init();
+    W_Bool *w_true = w_bool_init();
+    w_bool_set(w_true, true);
+    w_dict_set(default_args, "true", w_true);
+    W_Bool *w_false = w_bool_init();
+    w_bool_set(w_false, false);
+    w_dict_set(default_args, "false", w_false);
 
     if (DEBUG) printf("Executing...\n");
     execute(parsed_code, default_args, return_type);
     if (DEBUG) printf("Executed !\n");
-    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
-    dict_destroy(default_args);
+    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)3
+    // w_dict_destroy(default_args);
 
     if (DEBUG) printf("Done\n"); //DEBUG
     return 0;
@@ -54,12 +54,12 @@ int main(int argc, char *argv[]) {
  * \param DEBUG Whether to print DEBUG information.
  * \return The result of the execution
  */
-void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
+void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
     W_Dict *variables = args;
     void *result = NULL;
     if (DEBUG) {
         printf("Args:\n"); //DEBUG
-        char *str = dict_stringify(variables);
+        char *str = w_dict_stringify(variables);
         printf("%s\n", str);
         free(str);
         // print parsed code
@@ -67,20 +67,20 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         print_parsed_code(parsed_code);
     }
 
-    W_List_Element *current_line = parsed_code->head;
+    list_element *current_line = parsed_code->head;
     while (current_line != NULL) {
-        W_List *line = (W_List *)current_line->value;
+        list *line = (list *)current_line->value;
         if (line == NULL) {
             current_line = current_line->next;
             continue;
         }
-        W_List_Element *current_block = line->head;
+        list_element *current_block = line->head;
         if (current_block == NULL) {
             current_line = current_line->next;
             continue;
         }
 
-        W_List *stack = list_init(); //the stack of words to evaluate
+        list *stack = list_init(); //the stack of words to evaluate
         eval_parsed_lines(current_block, variables, stack);
         //print stack
         // if (DEBUG) {
@@ -94,7 +94,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         //     printf("\n");
         // }
 
-        W_List_Element *current_word = stack->head;
+        list_element *current_word = stack->head;
         if (current_word == NULL) {
             current_line = current_line->next;
             continue;
@@ -106,8 +106,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         if (strcmp(word->value, "def") == 0) { //SECTION - def
             statement = "function definition";
 
-            W_Func *f = func_init(); //create function
-            W_Dict *fn_args = f->args; //create arguments dictionary
+            W_Func *f = w_func_init(); //create function
+            dict *fn_args = f->args; //create arguments dictionary
 
             //set return type
             current_word = current_word->next;
@@ -172,17 +172,17 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             //get function lines
             int fn_line = word->line;
             int fn_def_count = 0; //number of 'def' keywords
-            W_List *function_lines = f->parsed_code;
+            list *function_lines = f->parsed_code;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
-                line = (W_List *)current_line->value;
+                line = (list *)current_line->value;
                 current_block = line->head;
                 if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)current_block->value)->head;
+                current_word = ((list *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "def") == 0) {
@@ -203,12 +203,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
 
             //add function to variables
-            W_Func *prev_fn = (W_Func *)dict_get(variables, name);
+            W_Func *prev_fn = (W_Func *)w_dict_get(variables, name);
             if (prev_fn != NULL){
                 printf("Error: Variable '%s' already exists, line: %d\n", name, word->line);
                 exit(1);
             }
-            dict_set(variables, name, f); //!SECTION - def
+            w_dict_set(variables, name, f); //!SECTION - def
 
         } else if (strcmp(word->value, "enddef") == 0) {
             statement = "enddef";
@@ -236,7 +236,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             }
             W_Var *result;
             if (word->type == IDENTIFIER) { //if variable
-                result = (W_Var *)dict_get(variables, word->value);
+                result = (W_Var *)w_dict_get(variables, word->value);
                 if (result == NULL) {
                     printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -248,25 +248,25 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         printf("Error: Expected int value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    result = (W_Var *)int_init();
+                    result = (W_Var *)w_int_init();
                 } else if (return_type == FLOAT) {
                     if (word->type != NUMBER) {
                         printf("Error: Expected float value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    result = (W_Var *)float_init();
+                    result = (W_Var *)w_float_init();
                 } else if (return_type == STRING) {
                     if (word->type != STR) {
                         printf("Error: Expected str value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    result = (W_Var *)str_init();
+                    result = (W_Var *)w_str_init();
                 } else if (return_type == BOOL) {
                     if (strcmp(word->value, "true") != 0 && strcmp(word->value, "false") != 0) {
                         printf("Error: Expected bool value after 'return', got %s, line: %d\n", word->value, word->line);
                         exit(1);
                     }
-                    result = (W_Var *)bool_init();
+                    result = (W_Var *)w_bool_init();
                 }
                 result->assign(result, word->value);
             }
@@ -308,7 +308,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (DEBUG) printf("Called function %s\n", word->value); //DEBUG
-            W_Func *f = (W_Func *)dict_get(variables, word->value);
+            W_Func *f = (W_Func *)w_dict_get(variables, word->value);
             if (f == NULL) {
                 printf("Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -317,17 +317,17 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             char *name = word->value; //name of the function
-            W_Dict *fn_args = f->args; //dictionary of function arguments (name: type)
+            dict *fn_args = f->args; //dictionary of function arguments (name: type)
 
             //copy all variables to function variables
             if (DEBUG) {
                 printf("Copying scope variables to function variables...\n"); //DEBUG
                 printf("Scope variables:\n"); //DEBUG
-                char *str = dict_stringify(variables);
+                char *str = w_dict_stringify(variables);
                 printf("%s\n", str);
                 free(str);
             }
-            W_Dict *fn_vars = dict_copy(variables); //function variables
+            W_Dict *fn_vars = w_dict_copy(variables); //function variables
 
             int nb_args = dict_size(fn_args); //number of arguments
             current_word = current_word->next;
@@ -339,8 +339,8 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         printf("Error: Expected arguments after 'with', line: %d\n", word->line);
                         exit(1);
                     }
-                    W_List *args_name = (W_List *)dict_keys(fn_args); //list of function arguments names
-                    W_List_Element *current_arg = args_name->head; //current argument name
+                    list *args_name = (list *)dict_keys(fn_args); //list of function arguments names
+                    list_element *current_arg = args_name->head; //current argument name
                     while (current_word != NULL) {
                         word = current_word->value;
                         if (word->type == KEYWORD) {
@@ -352,7 +352,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         }
                         char *arg_name = (char *)current_arg->value; //name of the current argument.
                         if (word->type == IDENTIFIER) { //if argument is a variable
-                            W_Var *arg = (W_Var *)dict_get(variables, word->value);
+                            W_Var *arg = (W_Var *)w_dict_get(variables, word->value);
                             if (arg == NULL) {
                                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                                 exit(1);
@@ -368,7 +368,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                                 exit(1);
                             }
                             W_Var *arg_copy = ((W_Var *)arg)->copy(arg); //copy of the argument
-                            dict_set(fn_vars, arg_name, arg_copy);
+                            w_dict_set(fn_vars, arg_name, arg_copy);
                         } else { //if argument is a litteral (cannot be constructed types)
                             if (*(W_Type *)dict_get(fn_args, arg_name) == INT) {
                                 if (word->type != NUMBER) {
@@ -388,7 +388,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                             } 
                             void *arg = w_var_init(*(W_Type *)dict_get(fn_args, arg_name));
                             ((W_Var *)arg)->assign(arg, word->value);
-                            dict_set(fn_vars, arg_name, arg);
+                            w_dict_set(fn_vars, arg_name, arg);
                         }
                         current_arg = current_arg->next;
                         current_word = current_word->next;
@@ -403,7 +403,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 }
                 if (DEBUG) {
                     printf("Function variables:\n"); //DEBUG
-                    char *str = dict_stringify(fn_vars);
+                    char *str = w_dict_stringify(fn_vars);
                     printf("%s\n", str);
                     free(str);
                 }
@@ -426,13 +426,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                         }
                         if (DEBUG) printf("Starting function execution...\n");
                         void *result = execute(f->parsed_code, fn_vars, f->return_type);
-                        dict_set(variables, word->value, result);
-                        dict_destroy(fn_vars);
+                        w_dict_set(variables, word->value, result);
+                        w_dict_destroy(fn_vars);
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
                     execute(f->parsed_code, fn_vars, f->return_type);
-                    dict_destroy(fn_vars);
+                    w_dict_destroy(fn_vars);
                 }
                 if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
@@ -441,7 +441,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             } else {
                 if (DEBUG) printf("Starting function execution...\n");
                 execute(f->parsed_code, fn_vars, f->return_type);
-                dict_destroy(fn_vars);
+                w_dict_destroy(fn_vars);
                 if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
@@ -461,7 +461,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected boolean expression after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Bool *condition = dict_get(variables, word->value);
+            W_Bool *condition = w_dict_get(variables, word->value);
             if (condition == NULL) {
                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -470,18 +470,18 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected bool value after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_List *if_lines = list_init();
+            list *if_lines = list_init();
             int if_count = 0;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
-                line = (W_List *)current_line->value;
+                line = (list *)current_line->value;
                 current_block = line->head;
                 if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)current_block->value)->head;
+                current_word = ((list *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "if") == 0) {
@@ -496,6 +496,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 list_append(if_lines, line);
                 current_line = current_line->next;
             }
+            current_line = current_line->prev; //go back to the last line of the if/elif block
             if (!end) {
                 printf("Error: Expected keyword 'endif', 'elif' or 'else' at end of the if/elif block, line: %d\n", word->line);
                 exit(1);
@@ -503,13 +504,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
             if (*condition->value) {
                 int if_count = 0;
                 while (current_line != NULL) { //skip lines until endif then execute the if block
-                    line = (W_List *)current_line->value;
+                    line = (list *)current_line->value;
                     current_block = line->head;
                     if (current_block == NULL) {
                         current_line = current_line->next;
                         continue;
                     }
-                    current_word = ((W_List *)current_block->value)->head;
+                    current_word = ((list *)current_block->value)->head;
                     if (current_word != NULL) {
                         word = (W_Word *)current_word->value;
                         if (strcmp(word->value, "if") == 0) {
@@ -533,18 +534,18 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         } else if (strcmp(word->value, "else") == 0) { //SECTION - else
             statement = "else block";
 
-            W_List *else_lines = list_init();
+            list *else_lines = list_init();
             int if_count = 0;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
-                line = (W_List *)current_line->value;
+                line = (list *)current_line->value;
                 current_block = line->head;
                 if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)current_block->value)->head;
+                current_word = ((list *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "endif") == 0 && if_count == 0) {
@@ -575,18 +576,18 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
         } else if (strcmp(word->value, "infloop") == 0) { //SECTION - infloop
             statement = "infloop";
 
-            W_List *infloop_lines = list_init();
+            list *infloop_lines = list_init();
             int infloop_count = 0;
             bool end = false;
             current_line = current_line->next;
             while (current_line != NULL) {
-                line = (W_List *)current_line->value;
+                line = (list *)current_line->value;
                 current_block = line->head;
                 if (current_block == NULL) {
                     current_line = current_line->next;
                     continue;
                 }
-                current_word = ((W_List *)current_block->value)->head;
+                current_word = ((list *)current_block->value)->head;
                 if (current_word != NULL) {
                     word = (W_Word *)current_word->value;
                     if (strcmp(word->value, "infloop") == 0) {
@@ -704,7 +705,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     current_word = current_word->next;
                 } else {
                     if (word->type == IDENTIFIER) {
-                        W_Var *var = (W_Var *)dict_get(variables, word->value);
+                        W_Var *var = (W_Var *)w_dict_get(variables, word->value);
                         if (var == NULL) {
                             printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                             exit(1);
@@ -775,14 +776,14 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            if (dict_get(variables, word->value) != NULL) {
+            if (w_dict_get(variables, word->value) != NULL) {
                 printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                 exit(1);
             }
 
-            W_Str *var = str_init();
-            str_assign(var, input);
-            dict_set(variables, word->value, var); //!SECTION - ask
+            W_Str *var = w_str_init();
+            w_str_assign(var, input);
+            w_dict_set(variables, word->value, var); //!SECTION - ask
         }
         //!SECTION - IO
 
@@ -807,13 +808,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected variable name after keyword 'create', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (dict_get(variables, word->value) != NULL) {
+                if (w_dict_get(variables, word->value) != NULL) {
                     printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                     exit(1);
                 }
                 char *name = word->value;
-                W_List *list = list_init();
-                dict_set(variables, name, list); //!SECTION - list: create
+                W_List *var_list = w_list_init();
+                w_dict_set(variables, name, var_list); //!SECTION - list: create
             } else if (strcmp(word->value, "append") == 0) { //SECTION - list: append
                 statement = "list append";
 
@@ -827,13 +828,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected list name after keyword 'append', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                W_List *list = (W_List *)dict_get(variables, word->value);
-                if (list == NULL) {
+                W_List *var_list = (W_List *)w_dict_get(variables, word->value);
+                if (var_list == NULL) {
                     printf("Error: List '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (list->type != LIST) {
-                    char *var_type = w_get_type_str((W_Var *)list);
+                if (var_list->type != LIST) {
+                    char *var_type = w_get_type_str((W_Var *)var_list);
                     printf("Error: Expected list name after keyword 'append', got '%s' (type: %s), line: %d\n", word->value, var_type, word->line);
                     free(var_type);
                     exit(1);
@@ -860,7 +861,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 }
                 W_Var *var;
                 if (word->type == IDENTIFIER) {
-                    var = (W_Var *)dict_get(variables, word->value);
+                    var = (W_Var *)w_dict_get(variables, word->value);
                     if (var == NULL) {
                         printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
@@ -868,17 +869,17 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     var = var->copy(var);
                 } else {
                     if (word->type == NUMBER && !is_float(word->value)) {
-                        var = (W_Var *)int_init();
+                        var = (W_Var *)w_int_init();
                     } else if (word->type == NUMBER) {
-                        var = (W_Var *)float_init();
+                        var = (W_Var *)w_float_init();
                     } else if (word->type == STR) {
-                        var = (W_Var *)str_init();
+                        var = (W_Var *)w_str_init();
                     } else if (strcmp(word->value, "true") == 0 || strcmp(word->value, "false") == 0) {
-                        var = (W_Var *)bool_init();
+                        var = (W_Var *)w_bool_init();
                     }
                     var->assign(var, word->value);
                 }
-                list_append(list, var); //!SECTION - list: append
+                w_list_append(var_list, var); //!SECTION - list: append
             } else if (strcmp(word->value, "get") == 0) { //SECTION - list: get
                 statement = "list get";
 
@@ -892,13 +893,13 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected list name after keyword 'get', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                W_List *list = (W_List *)dict_get(variables, word->value);
-                if (list == NULL) {
+                W_List *var_list = (W_List *)w_dict_get(variables, word->value);
+                if (var_list == NULL) {
                     printf("Error: List '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (list->type != LIST) {
-                    char *var_type = w_get_type_str((W_Var *)list);
+                if (var_list->type != LIST) {
+                    char *var_type = w_get_type_str((W_Var *)var_list);
                     printf("Error: Expected list name after keyword 'append', got '%s' (type: %s), line: %d\n", word->value, var_type, word->line);
                     free(var_type);
                     exit(1);
@@ -923,7 +924,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 if (word->type == NUMBER) {
                     index = atoi(word->value);
                 } else if (word->type == IDENTIFIER) {
-                    W_Var *var = (W_Var *)dict_get(variables, word->value);
+                    W_Var *var = (W_Var *)w_dict_get(variables, word->value);
                     if (var == NULL) {
                         printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
@@ -939,11 +940,11 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected int value after keyword 'index', got %s, line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (index < 0 || index >= list->size) {
+                if (index < 0 || index >= var_list->size) {
                     printf("Error: Index out of range, line: %d\n", word->line);
                     exit(1);
                 }
-                W_Var *var = (W_Var *)list_get(list, index);
+                W_Var *var = (W_Var *)w_list_get(var_list, index);
                 W_Var *var_copy = var->copy(var);
                 current_word = current_word->next;
                 if (current_word == NULL) {
@@ -965,12 +966,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                     printf("Error: Expected variable name after index, got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (dict_get(variables, word->value) != NULL) {
+                if (w_dict_get(variables, word->value) != NULL) {
                     printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                     exit(1);
                 }
                 char *name = word->value;
-                dict_set(variables, name, var_copy); //!SECTION - list: get
+                w_dict_set(variables, name, var_copy); //!SECTION - list: get
             }
             else {
                 printf("Error: Unexpected keyword '%s', line: %d\n", word->value, word->line);
@@ -1003,7 +1004,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            if (dict_get(variables, word->value) != NULL) {
+            if (w_dict_get(variables, word->value) != NULL) {
                 printf("Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                 exit(1);
             }
@@ -1031,7 +1032,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (word->type == IDENTIFIER) {
-                W_Var *var = (W_Var *)dict_get(variables, word->value);
+                W_Var *var = (W_Var *)w_dict_get(variables, word->value);
                 if (var == NULL) {
                     printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -1071,7 +1072,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 }
                 ((W_Var *)value)->assign(value, word->value);
             }
-            dict_set(variables, name, value); //!SECTION - assign
+            w_dict_set(variables, name, value); //!SECTION - assign
         } else if (strcmp(word->value, "change") == 0) { //SECTION - change
             statement = "variable change";
 
@@ -1085,7 +1086,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected variable name after keyword 'change', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Var *var = (W_Var *)dict_get(variables, word->value);
+            W_Var *var = (W_Var *)w_dict_get(variables, word->value);
             if (var == NULL) {
                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -1112,7 +1113,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (word->type == IDENTIFIER) {
-                W_Var *src_var = (W_Var *)dict_get(variables, word->value);
+                W_Var *src_var = (W_Var *)w_dict_get(variables, word->value);
                 if (src_var == NULL) {
                     printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -1166,12 +1167,12 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
                 printf("Error: Expected variable name after keyword 'delete', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Var *var = (W_Var *)dict_get(variables, word->value);
+            W_Var *var = (W_Var *)w_dict_get(variables, word->value);
             if (var == NULL) {
                 printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
             }
-            dict_remove(variables, word->value); //!SECTION - delete
+            w_dict_remove(variables, word->value); //!SECTION - delete
         }
         //!SECTION - Variables
         if (statement != NULL) {
@@ -1188,7 +1189,7 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
     }
     if (DEBUG) {
         printf("Exit Variables:\n"); //DEBUG
-        char *str = dict_stringify(variables);
+        char *str = w_dict_stringify(variables);
         printf("%s\n", str);
         free(str);
     }
@@ -1205,21 +1206,21 @@ void *execute(W_List *parsed_code, W_Dict *args, W_Type return_type) {
  * \param variables The variables to use in the evaluation.
  * \param stack The stack to store the parsed lines after eval.
  */
-void eval_parsed_lines(W_List_Element *current_block, W_Dict *variables, W_List *stack) {
+void eval_parsed_lines(list_element *current_block, W_Dict *variables, list *stack) {
     while (current_block != NULL) {
         if (current_block->value == NULL) {
             current_block = current_block->next;
             continue;
         }
-        W_List *parsed_words = (W_List *)current_block->value;
-        W_List_Element *current_word = parsed_words->head;
+        list *parsed_words = (list *)current_block->value;
+        list_element *current_word = parsed_words->head;
         if (parsed_words->size == 1) { //not an operation
             list_append(stack, current_word->value); //add to stack
         } else { //if the size of current_block is not 1 then evaluate operation
             int line;
             W_Word_Type return_type = NUMBER;
-            W_List *result = list_init();
-            W_List_Element *current_word = parsed_words->head;
+            list *result = list_init();
+            list_element *current_word = parsed_words->head;
             while (current_word != NULL) {
                 W_Word *word = (W_Word *)current_word->value;
                 line = word->line;
@@ -1410,7 +1411,7 @@ void eval_parsed_lines(W_List_Element *current_block, W_Dict *variables, W_List 
                         list_append(result, w);
                     }
                 } else if (word->type == IDENTIFIER) { //if variable
-                    W_Var *w = (W_Var *)dict_get(variables, word->value);
+                    W_Var *w = (W_Var *)w_dict_get(variables, word->value);
                     if (w == NULL) {
                         printf("Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);

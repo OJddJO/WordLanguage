@@ -4,16 +4,16 @@
  * \brief Initialize a list (malloc)
  * \return A pointer to the new list
  **/
-W_List *list_init() {
+W_List *w_list_init() {
     W_List *l = (W_List *)malloc(sizeof(W_List));
     l->type = LIST;
     l->head = NULL;
     l->tail = NULL;
     l->size = 0;
     l->middle = 0;
-    l->destroy = &list_destroy;
-    l->stringify = &list_stringify;
-    l->copy = &list_copy;
+    l->destroy = &w_list_destroy;
+    l->stringify = &w_list_stringify;
+    l->copy = &w_list_copy;
     return l;
 }
 
@@ -22,7 +22,7 @@ W_List *list_init() {
  * \param l The list to add the element to
  * \param value The value of the element to add
  **/
-void list_append(W_List *l, void *value) {
+void w_list_append(W_List *l, void *value) {
     W_List_Element *e = (W_List_Element *)malloc(sizeof(W_List_Element));
     e->value = value;
     e->prev = l->tail;
@@ -46,7 +46,7 @@ void list_append(W_List *l, void *value) {
  * \param value The value to set (W_Var)
  * \return 0 if successful, -1 if the index is out of bounds
  **/
-int list_replace(W_List *l, int index, void *value) {
+int w_list_replace(W_List *l, int index, void *value) {
     if (index < 0 || index >= l->size) {
         return -1;
     }
@@ -71,41 +71,11 @@ int list_replace(W_List *l, int index, void *value) {
 }
 
 /**
- * \brief Remove an element from the list (works with any list) (do not use for evaluation of wordlang)
- * \param l The list to remove the element from
- * \param index The index of the element to remove
- * \note This function is not safe to use with the evaluation of wordlang, as it does not free the memory of the value
- * \note Please use list_remove instead.
- **/
-void list_remove_any(W_List *l, int index) {
-    W_List_Element *e = l->head;
-    for (int i = 0; i < index; i++) {
-        e = e->next;
-    }
-    if (e->prev != NULL) {
-        e->prev->next = e->next;
-    } else {
-        l->head = e->next;
-    }
-    if (e->next != NULL) {
-        e->next->prev = e->prev;
-    } else {
-        l->tail = e->prev;
-    }
-    if (l->size % 2 == 0) {
-        l->middle--;
-    }
-    l->size--;
-    if (e->value != NULL) free(e->value);
-    free(e);
-}
-
-/**
  * \brief Remove an element from the list
  * \param l The list to remove the element from
  * \param index The index of the element to remove
  **/
-void list_remove(W_List *l, int index) {
+void w_list_remove(W_List *l, int index) {
     W_List_Element *e = l->head;
     for (int i = 0; i < index; i++) {
         e = e->next;
@@ -133,7 +103,7 @@ void list_remove(W_List *l, int index) {
  * \param l The list to pop the element from
  * \return The value of the last element in the list, or NULL if the list is empty
  **/
-void *list_pop(W_List *l) {
+void *w_list_pop(W_List *l) {
     if (l->size == 0) {
         return NULL;
     }
@@ -159,7 +129,7 @@ void *list_pop(W_List *l) {
  * \param index The index of the element to get
  * \return The value of the element at the given index, or NULL if the index is out of bounds
  **/
-void *list_get(W_List *l, int index) {
+void *w_list_get(W_List *l, int index) {
     if (index < 0 || index >= l->size) {
         return NULL;
     }
@@ -184,7 +154,7 @@ void *list_get(W_List *l, int index) {
  * \param value The value to search for
  * \return The index of the value in the list, or -1 if the value is not found
  **/
-int list_index(W_List *l, void *value) {
+int w_list_index(W_List *l, void *value) {
     W_List_Element *e = l->head;
     int position = 0;
     while (e != NULL) {
@@ -202,7 +172,7 @@ int list_index(W_List *l, void *value) {
  * \param l The list to get the size of
  * \return The size of the list
  **/
-int list_size(W_List *l) {
+int w_list_size(W_List *l) {
     return l->size;
 }
 
@@ -211,7 +181,7 @@ int list_size(W_List *l) {
  * \param l1 The first list
  * \param l2 The second list
  **/
-void list_concat(W_List *l1, W_List *l2) {
+void w_list_concat(W_List *l1, W_List *l2) {
     if (l1->head == NULL) {
         l1->head = l2->head;
         l1->tail = l2->tail;
@@ -229,7 +199,7 @@ void list_concat(W_List *l1, W_List *l2) {
  * \param l The list to stringify
  * \return The string representation of the list
  **/
-char *list_stringify(W_List *l) {
+char *w_list_stringify(W_List *l) {
     int size = 0;
     W_List_Element *e = l->head;
 
@@ -272,38 +242,21 @@ char *list_stringify(W_List *l) {
  * \param l The list to copy
  * \return A copy of the list
  **/
-W_List *list_copy(W_List *l) {
-    W_List *copy = list_init();
+W_List *w_list_copy(W_List *l) {
+    W_List *copy = w_list_init();
     W_List_Element *e = l->head;
     for (int i = 0; i < l->size; i++) {
         W_Var *value = e->value;
-        list_append(copy, value->copy(value));
+        w_list_append(copy, value->copy(value));
     }
     return copy;
-}
-
-/**
- * \brief Destroy a list (works with any list) (do not use for evaluation of wordlang)
- * \param l The list to destroy
- * \note This function is not safe to use with the evaluation of wordlang, as it does not free the memory of the value
- * \note Please use list_destroy instead.
- **/
-void list_destroy_any(W_List *l) {
-    W_List_Element *e = l->head;
-    while (e != NULL) {
-        W_List_Element *next = e->next;
-        if (e->value != NULL) free(e->value);
-        free(e);
-        e = next;
-    }
-    free(l);
 }
 
 /**
  * \brief Destroy a list
  * \param l The list to destroy
  **/
-void list_destroy(W_List *l) {
+void w_list_destroy(W_List *l) {
     W_List_Element *e = l->head;
     while (e != NULL) {
         W_List_Element *next = e->next;

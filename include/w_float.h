@@ -14,12 +14,12 @@ typedef struct _w_float {
     float *(*get)(struct _w_float *);
 } W_Float;
 
-W_Float *float_init();
-void float_assign(W_Float *f, char *value);
-void float_set(W_Float *f, float value);
-float *float_value(W_Float *f);
-char *float_stringify(W_Float *f);
-void float_destroy(W_Float *f);
-W_Float *float_copy(W_Float *f);
+W_Float *w_float_init();
+void w_float_assign(W_Float *f, char *value);
+void w_float_set(W_Float *f, float value);
+float *w_float_value(W_Float *f);
+char *w_float_stringify(W_Float *f);
+void w_float_destroy(W_Float *f);
+W_Float *w_float_copy(W_Float *f);
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __LIST_H__
-#define __LIST_H__
+#ifndef __W_LIST_H__
+#define __W_LIST_H__
 
 #include "w_type.h"
 
@@ -21,19 +21,17 @@ typedef struct _w_list {
     int middle;
 } W_List;
 
-W_List *list_init();
-void list_append(W_List *l, void *value);
-int list_replace(W_List *l, int index, void *value);
-void list_remove_any(W_List *l, int index);
-void list_remove(W_List *l, int index);
-void *list_pop(W_List *l);
-void *list_get(W_List *l, int index);
-int list_index(W_List *l, void *value);
-int list_size(W_List *l);
-void list_concat(W_List *l1, W_List *l2);
-char *list_stringify(W_List *l);
-W_List *list_copy(W_List *l);
-void list_destroy_any(W_List *l);
-void list_destroy(W_List *l);
+W_List *w_list_init();
+void w_list_append(W_List *l, void *value);
+int w_list_replace(W_List *l, int index, void *value);
+void w_list_remove(W_List *l, int index);
+void *w_list_pop(W_List *l);
+void *w_list_get(W_List *l, int index);
+int w_list_index(W_List *l, void *value);
+int w_list_size(W_List *l);
+void w_list_concat(W_List *l1, W_List *l2);
+char *w_list_stringify(W_List *l);
+W_List *w_list_copy(W_List *l);
+void w_list_destroy(W_List *l);
 
 #endif

@@ -4,13 +4,13 @@
  * \brief Initializes a new dictionary. (malloc)
  * \return A new dictionary.
  */
-W_Dict *dict_init() {
+W_Dict *w_dict_init() {
     W_Dict *d = (W_Dict *)malloc(sizeof(W_Dict));
     d->type = DICT;
-    d->keys = list_init();
-    d->values = list_init();
-    d->destroy = &dict_destroy;
-    d->stringify = &dict_stringify;
+    d->keys = list_init(); //list of keys, is a normal list
+    d->values = w_list_init(); //list of values, is a w_list list
+    d->destroy = &w_dict_destroy;
+    d->stringify = &w_dict_stringify;
     return d;
 }
 
@@ -20,9 +20,9 @@ W_Dict *dict_init() {
  * \param key The key to set. Must be a string.
  * \param value The value to set.
  */
-void dict_set(W_Dict *d, char *key, void *value) {
-    if (dict_contains(d, key)) {
-        W_List_Element *current_key = d->keys->head;
+void w_dict_set(W_Dict *d, char *key, void *value) {
+    if (w_dict_contains(d, key)) {
+        list_element *current_key = d->keys->head;
         W_List_Element *current_value = d->values->head;
         for (int i = 0; i < d->keys->size; i++) {
             if (strcmp((char *)current_key->value, key) == 0) {
@@ -39,7 +39,7 @@ void dict_set(W_Dict *d, char *key, void *value) {
         char *key_copy = (char *)malloc(strlen(key) + 1);
         strcpy(key_copy, key);
         list_append(d->keys, key_copy);
-        list_append(d->values, value);
+        w_list_append(d->values, value);
     }
 }
 
@@ -49,8 +49,8 @@ void dict_set(W_Dict *d, char *key, void *value) {
  * \param key The key to check. Must be a string.
  * \return 1 if the dictionary contains the key, 0 otherwise.
  */
-int dict_contains(W_Dict *d, char *key) {
-    W_List_Element *current_key = d->keys->head;
+int w_dict_contains(W_Dict *d, char *key) {
+    list_element *current_key = d->keys->head;
     for (int i = 0; i < d->keys->size; i++) {
         if (strcmp((char *)current_key->value, key) == 0) {
             return 1;
@@ -66,8 +66,8 @@ int dict_contains(W_Dict *d, char *key) {
  * \param key The key to get the value for.
  * \return The value associated with the key. NULL if the key does not exist.
  */
-void *dict_get(W_Dict *d, char *key) {
-    W_List_Element *current_key = d->keys->head;
+void *w_dict_get(W_Dict *d, char *key) {
+    list_element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
     for (int i = 0; i < d->keys->size; i++) {
         if (strcmp((char *)current_key->value, key) == 0) {
@@ -84,7 +84,7 @@ void *dict_get(W_Dict *d, char *key) {
  * \param d The dictionary to get the keys from.
  * \return The keys of the dictionary.
  */
-W_List *dict_keys(W_Dict *d) {
+list *w_dict_keys(W_Dict *d) {
     return d->keys;
 }
 
@@ -93,7 +93,7 @@ W_List *dict_keys(W_Dict *d) {
  * \param d The dictionary to get the size of.
  * \return The size of the dictionary.
  */
-int dict_size(W_Dict *d) {
+int w_dict_size(W_Dict *d) {
     return list_size(d->keys);
 }
 
@@ -102,12 +102,12 @@ int dict_size(W_Dict *d) {
  * \param d The dictionary to remove the key and value from.
  * \param key The key to remove.
  */
-void dict_remove(W_Dict *d, char *key) {
-    W_List_Element *current_key = d->keys->head;
+void w_dict_remove(W_Dict *d, char *key) {
+    list_element *current_key = d->keys->head;
     for (int i = 0; i < d->keys->size; i++) {
         if (strcmp(current_key->value, key) == 0) {
-            list_remove_any(d->keys, i);
-            list_remove(d->values, i);
+            list_remove(d->keys, i);
+            w_list_remove(d->values, i);
             return;
         }
         current_key = current_key->next;
@@ -119,9 +119,9 @@ void dict_remove(W_Dict *d, char *key) {
  * \param d The dictionary to stringify.
  * \return The stringified dictionary.
  */
-char *dict_stringify(W_Dict *d) {
+char *w_dict_stringify(W_Dict *d) {
     int size = 0;
-    W_List_Element *current_key = d->keys->head;
+    list_element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
 
     // Calculate the required size for the resulting string
@@ -168,9 +168,9 @@ char *dict_stringify(W_Dict *d) {
  * \brief Destroys the given dictionary.
  * \param d The dictionary to destroy.
  */
-void dict_destroy(W_Dict *d) {
-    list_destroy_any(d->keys);
-    list_destroy(d->values);
+void w_dict_destroy(W_Dict *d) {
+    list_destroy(d->keys);
+    w_list_destroy(d->values);
     free(d);
 }
 
@@ -179,14 +179,14 @@ void dict_destroy(W_Dict *d) {
  * \param d The dictionary to copy.
  * \return A pointer to the copied dictionary.
  */
-W_Dict *dict_copy(W_Dict *d) {
-    W_Dict *copy = dict_init();
-    W_List_Element *current_key = d->keys->head;
+W_Dict *w_dict_copy(W_Dict *d) {
+    W_Dict *copy = w_dict_init();
+    list_element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
     for (int i = 0; i < d->keys->size; i++) {
         char *key = (char *)current_key->value;
         void *value = ((W_Var *)current_value->value)->copy(current_value->value);
-        dict_set(copy, key, value);
+        w_dict_set(copy, key, value);
         current_key = current_key->next;
         current_value = current_value->next;
     }
