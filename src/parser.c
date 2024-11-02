@@ -1,4 +1,4 @@
-#include "w_parser.h"
+#include "parser.h"
 
 /**
  * \brief Parses the given list of words into a parsing tree. (malloc)
@@ -6,16 +6,16 @@
  * \return A list (code) of list (line) of list (operation) of words, representing the parsed code.
  *  [ [ [ word ] ], [ [ word, word, word, ... ] ], ... ]
  */
-W_List *parse(W_List *tokenized_code) {
-    W_List *parsed_code = list_init();
-    W_List_Element *current_line = tokenized_code->head;
+list *parse(list *tokenized_code) {
+    list *parsed_code = list_init();
+    list_element *current_line = tokenized_code->head;
     for (int i = 0; i < tokenized_code->size; i++) {
-        W_List *line = (W_List *)current_line->value;
-        W_List *current_block = parse_line(line);
+        list *line = (list *)current_line->value;
+        list *current_block = parse_line(line);
         list_append(parsed_code, current_block);
         current_line = current_line->next;
     }
-    list_destroy_any(tokenized_code);
+    list_destroy(tokenized_code);
     return parsed_code;
 }
 
@@ -24,10 +24,10 @@ W_List *parse(W_List *tokenized_code) {
  * \param line The list of words to parse.
  * \return A list of lists of words, representing the parsed line.
  */
-W_List *parse_line(W_List *line) {
-    W_List *current_block = list_init();
-    W_List_Element *current_word = line->head;
-    W_List *parsed_words;
+list *parse_line(list *line) {
+    list *current_block = list_init();
+    list_element *current_word = line->head;
+    list *parsed_words;
     while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
         if (word->parsed) {
@@ -82,9 +82,9 @@ int get_priority(char *operator) {
  * \param current_word The current operation to parse.
  * \return A list representing the operation.
  */
-W_List *shunting_yard(W_List_Element *current_word) {
-    W_List *post_order = list_init();
-    W_List *operators = list_init();
+list *shunting_yard(list_element *current_word) {
+    list *post_order = list_init();
+    list *operators = list_init();
     while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
         if (word->type == NUMBER || word->type == IDENTIFIER) {
@@ -112,17 +112,17 @@ W_List *shunting_yard(W_List_Element *current_word) {
  * \brief Prints the given list of parsed code.
  * \param parsed_code The list of parsed code to print.
  */
-void print_parsed_code(W_List *parsed_code) { //debug
-    W_List_Element *current_line = parsed_code->head;
+void print_parsed_code(list *parsed_code) { //debug
+    list_element *current_line = parsed_code->head;
     for (int i = 0; i < parsed_code->size; i++) {
         printf("[");
-        W_List *line = (W_List *)current_line->value;
+        list *line = (list *)current_line->value;
         printf("line size: %d\n", line->size);
-        W_List_Element *current_block = line->head;
+        list_element *current_block = line->head;
         for (int j = 0; j < line->size; j++) {
-            W_List *parsed_words = (W_List *)current_block->value;
+            list *parsed_words = (list *)current_block->value;
             printf("    block size: %d    [\n", parsed_words->size);
-            W_List_Element *current_word = parsed_words->head;
+            list_element *current_word = parsed_words->head;
             for (int k = 0; k < parsed_words->size; k++) {
                 W_Word *word = (W_Word *)current_word->value;
                 printf("        word: %s | type: ", word->value);
@@ -152,28 +152,28 @@ void print_parsed_code(W_List *parsed_code) { //debug
  * \brief Destroys the given list of parsed code.
  * \param parsed_code The list of parsed code to destroy.
  */
-void parser_destroy(W_List *parsed_code) {
+void parser_destroy(list *parsed_code) {
     if (parsed_code == NULL) {
         return; // Handle null input
     }
 
-    W_List_Element *current_line = parsed_code->head;
+    list_element *current_line = parsed_code->head;
     while (current_line != NULL) {
-        W_List_Element *next_line = current_line->next;
-        W_List *line = (W_List *)current_line->value;
+        list_element *next_line = current_line->next;
+        list *line = (list *)current_line->value;
         if (line != NULL) {
-            W_List_Element *current_block = line->head;
+            list_element *current_block = line->head;
             while (current_block != NULL) {
-                W_List_Element *next_block = current_block->next;
-                W_List *parsed_words = (W_List *)current_block->value;
+                list_element *next_block = current_block->next;
+                list *parsed_words = (list *)current_block->value;
                 if (parsed_words != NULL) {
-                    list_destroy_any(parsed_words);
+                    list_destroy(parsed_words);
                 }
                 current_block = next_block;
             }
-            list_destroy_any(line);
+            list_destroy(line);
         }
         current_line = next_line;
     }
-    list_destroy_any(parsed_code);
+    list_destroy(parsed_code);
 }

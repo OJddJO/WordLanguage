@@ -2,9 +2,9 @@
 #define __W_FUNCTION_H__
 
 #include "w_type.h"
-#include "w_list.h"
-#include "w_dict.h"
-#include "w_parser.h"
+#include "list.h"
+#include "dict.h"
+#include "parser.h"
 
 typedef struct _w_func {
     W_Type type;
@@ -13,13 +13,13 @@ typedef struct _w_func {
     char *(*stringify)(struct _w_func *);
     struct _w_func *(*copy)(struct _w_func *);
     W_Type return_type;
-    W_Dict *args; //arguments: dict: key: arg name, value: arg type
-    W_List *parsed_code;
+    dict *args; //arguments: dict: key: arg name, value: arg type
+    list *parsed_code;
 } W_Func;
 
-W_Func *func_init();
-void func_destroy(W_Func *f);
-char *func_stringify(W_Func *f);
-W_Func *func_copy(W_Func *f);
+W_Func *w_func_init();
+void w_func_destroy(W_Func *f);
+char *w_func_stringify(W_Func *f);
+W_Func *w_func_copy(W_Func *f);
 
 #endif

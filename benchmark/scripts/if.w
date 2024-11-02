@@ -14,5 +14,5 @@ else
 endif
 
 # Output:
-# True
+# true
 # 4 is even

@@ -4,15 +4,15 @@
  * \brief Initializes a new function. (malloc)
  * \return A new function.
  */
-W_Func *func_init() {
+W_Func *w_func_init() {
     W_Func *f = (W_Func *)malloc(sizeof(W_Func));
     f->type = FUNCTION;
     f->return_type = NULL_TYPE;
     f->args = dict_init();
     f->parsed_code = list_init();
-    f->destroy = &func_destroy;
-    f->stringify = &func_stringify;
-    f->copy = &func_copy;
+    f->destroy = &w_func_destroy;
+    f->stringify = &w_func_stringify;
+    f->copy = &w_func_copy;
     return f;
 }
 
@@ -20,10 +20,8 @@ W_Func *func_init() {
  * \brief Destroys the given function.
  * \param f The function to destroy.
  */
-void func_destroy(W_Func *f) {
-    list_destroy_any(f->args->keys);
-    list_destroy_any(f->args->values);
-    free(f->args);
+void w_func_destroy(W_Func *f) {
+    dict_destroy(f->args);
     free(f);
 }
 
@@ -32,7 +30,7 @@ void func_destroy(W_Func *f) {
  * \param f The function to convert.
  * \return The string representation of the function.
  */
-char *func_stringify(W_Func *f) {
+char *w_func_stringify(W_Func *f) {
     char *str = (char *)malloc(sizeof(void *)*2 + 13);
     sprintf(str, "function at %p", f);
     return str;
@@ -43,12 +41,12 @@ char *func_stringify(W_Func *f) {
  * \param f The function to copy.
  * \return A copy of the function.
  */
-W_Func *func_copy(W_Func *f) {
-    W_Func *copy = func_init();
+W_Func *w_func_copy(W_Func *f) {
+    W_Func *copy = w_func_init();
     copy->return_type = f->return_type;
-    W_Dict *args_copy = dict_init();
-    W_List_Element *current_key = f->args->keys->head;
-    W_List_Element *current_value = f->args->values->head;
+    dict *args_copy = dict_init();
+    list_element *current_key = f->args->keys->head;
+    list_element *current_value = f->args->values->head;
     for (int i = 0; i < f->args->keys->size; i++) {
         char *key = (char *)current_key->value;
         W_Type *value = current_value->value;
@@ -59,8 +57,8 @@ W_Func *func_copy(W_Func *f) {
         current_value = current_value->next;
     }
     copy->args = args_copy;
-    W_List *parsed_code_copy = list_init();
-    W_List_Element *current_line = f->parsed_code->head;
+    list *parsed_code_copy = list_init();
+    list_element *current_line = f->parsed_code->head;
     for (int i = 0; i < f->parsed_code->size; i++) {
         list_append(parsed_code_copy, current_line->value);
         current_line = current_line->next;

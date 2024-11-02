@@ -1,23 +1,48 @@
-#include "w_lexer.h"
+#include "lexer.h"
+
+char *keywords[] = {
+    //variables
+    "int", "float", "str", "bool", "assign", "change", "to", "delete",
+    //constructed types
+    "list", "create", "append", "get", "set", "search", "index", "remove", "length",
+    //IO expressions
+    "print", "sep", "end", "ask",
+    //control flow
+    //conditional
+    "if", "elif", "else", "endif",
+    //loop
+    "for", "from", "to", "step", "endfor", "infloop", "endinf", "break", "continue",
+    //functions
+    "def", "null", "with", "return", "enddef", "call", "store",
+};
+
+char *operators[] = {
+    //operations
+    "plus", "minus", "times", "div", "mod", "ediv", "power", "sqrt",
+    //comparison
+    "equal", "greater", "less", "gequal", "lequal",
+    //logical
+    "and", "or", "not",
+};
 
 /**
  * \brief Tokenizes the given file into a list of lists of words. (malloc)
  * \param source The file to tokenize.
  * \return A list of list of words.
  */
-W_List *word_tokenize(FILE *source) {
+list *word_tokenize(FILE *source) {
     fseek(source, 0, SEEK_END); //get the size of the file
     int size = ftell(source);
     fseek(source, 0, SEEK_SET);
 
-    W_List *code = list_init();
+    list *code = list_init();
     int start = 0; //start of the word
     int n_line = 1;
     int eval = 0; //if there is a word to eval
     int eval_str = 0; //if the word to eval is a litteral str
 
     W_Word *w = (W_Word *)malloc(sizeof(W_Word));
-    W_List *line = list_init();
+    list *line = list_init();
     list_append(code, line);
     for (int i = 0; i < size; i++) {
         fseek(source, i, SEEK_SET);
@@ -27,7 +52,7 @@ W_List *word_tokenize(FILE *source) {
                 c = fgetc(source);
                 i++;
             }
-        }   
+        }
         if (c != ' ' && c != '\t' && c != '\n' && !eval) {
             eval = 1;
             start = i;
@@ -76,7 +101,7 @@ W_List *word_tokenize(FILE *source) {
  * \return The type of the word.
  */
 W_Word_Type word_type(char *value) {
-    if ((value[0] == '\"' && value[strlen(value) - 1] == '\"') || (value[0] == '\'' && value[strlen(value) - 1] == '\'')) {
+    if (value[0] == '\"' && value[strlen(value) - 1] == '\"') {
         return STR;
     }
     if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
@@ -102,17 +127,17 @@ W_Word_Type word_type(char *value) {
  * \param code The list of list of words to destroy.
  * \return void
  */
-void word_destroy(W_List *code) {
-    W_List_Element *current_line = code->head;
-    W_List *line = (W_List *)current_line->value;
+void lexer_destroy(list *code) {
+    list_element *current_line = code->head;
+    list *line = (list *)current_line->value;
     for (int i = 0; i < code->size; i++) {
-        list_destroy_any(line);
+        list_destroy(line);
         if (current_line->next != NULL) {
             current_line = current_line->next;
-            line = (W_List *)current_line->value;
+            line = (list *)current_line->value;
         }
     }
-    list_destroy_any(code);
+    list_destroy(code);
 }
 
 /**
@@ -120,11 +145,11 @@ void word_destroy(W_List *code) {
  * \param code The list of list of words to print.
  * \return void
  */
-void word_print(W_List *code) { //debug
+void lexer_print(list *code) { //debug
     int i = 1; //line number
-    W_List_Element *current_line = code->head;
-    W_List *line = (W_List *)current_line->value;
-    W_List_Element *current_word = line->head;
+    list_element *current_line = code->head;
+    list *line = (list *)current_line->value;
+    list_element *current_word = line->head;
     for (int i = 0; i < code->size; i++) {
         printf("Line %d: ", i + 1);
         printf("Line size: %d\n", line->size);
@@ -148,7 +173,7 @@ void word_print(W_List *code) { //debug
         printf("\n");
         if (current_line->next != NULL) {
             current_line = current_line->next;
-            line = (W_List *)current_line->value;
+            line = (list *)current_line->value;
             current_word = line->head;
         }
     }

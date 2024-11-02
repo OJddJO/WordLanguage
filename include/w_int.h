@@ -14,12 +14,12 @@ typedef struct _w_int {
     int *(*get)(struct _w_int *);
 } W_Int;
 
-W_Int *int_init();
-void int_assign(W_Int *i, char *value);
-void int_set(W_Int *i, int value);
-int *int_value(W_Int *i);
-char *int_stringify(W_Int *i);
-void int_destroy(W_Int *i);
-W_Int *int_copy(W_Int *i);
+W_Int *w_int_init();
+void w_int_assign(W_Int *i, char *value);
+void w_int_set(W_Int *i, int value);
+int *w_int_value(W_Int *i);
+char *w_int_stringify(W_Int *i);
+void w_int_destroy(W_Int *i);
+W_Int *w_int_copy(W_Int *i);
 
 #endif

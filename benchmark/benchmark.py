@@ -21,7 +21,7 @@ if __name__ == "__main__":
         nb_iterations = int(sys.argv[1])
     else:
         nb_iterations = 1000
-    file_list = ["if", "while"]
+    file_list = ["if", "while", "fibonacci"]
     for file in file_list:
         print(f"Running benchmark for '{file}' scripts")
         py_time = timeit.timeit(execute_python, number=nb_iterations)
@@ -29,8 +29,8 @@ if __name__ == "__main__":
         word_time = timeit.timeit(execute_word, number=nb_iterations)
         print(f"Word: {round(word_time, 6)} s for {nb_iterations} iterations (avg: {round(word_time/nb_iterations, 6)} s/iter)")
         print(f"Ratio python/word: {round(py_time/word_time, 2)}x")
-        print("Output for python:")
+        print("Output for Python:")
         execute_py_output()
-        print("Output for word:")
+        print("Output for Word:")
         execute_word_output()
         print()

@@ -81,20 +81,20 @@ W_Type w_get_type(char *str) {
 void *w_plus(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, *int_value((W_Int *)a) + *int_value((W_Int *)b));
+        W_Int *result = w_int_init();
+        w_int_set(result, *w_int_value((W_Int *)a) + *w_int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) + *int_value((W_Int *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) + *w_int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
-        W_Float *result = float_init();
-        float_set(result, *int_value((W_Int *)a) + *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_int_value((W_Int *)a) + *w_float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) + *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) + *w_float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -114,20 +114,20 @@ void *w_plus(W_Var *a, W_Var *b) {
 void *w_minus(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, *int_value((W_Int *)a) - *int_value((W_Int *)b));
+        W_Int *result = w_int_init();
+        w_int_set(result, *w_int_value((W_Int *)a) - *w_int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) - *int_value((W_Int *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) - *w_int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
-        W_Float *result = float_init();
-        float_set(result, *int_value((W_Int *)a) - *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_int_value((W_Int *)a) - *w_float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) - *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) - *w_float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -147,20 +147,20 @@ void *w_minus(W_Var *a, W_Var *b) {
 void *w_time(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, *int_value((W_Int *)a) * *int_value((W_Int *)b));
+        W_Int *result = w_int_init();
+        w_int_set(result, *w_int_value((W_Int *)a) * *w_int_value((W_Int *)b));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) * *int_value((W_Int *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) * *w_int_value((W_Int *)b));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
-        W_Float *result = float_init();
-        float_set(result, *int_value((W_Int *)a) * *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_int_value((W_Int *)a) * *w_float_value((W_Float *)b));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, *float_value((W_Float *)a) * *float_value((W_Float *)b));
+        W_Float *result = w_float_init();
+        w_float_set(result, *w_float_value((W_Float *)a) * *w_float_value((W_Float *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -179,15 +179,15 @@ void *w_time(W_Var *a, W_Var *b) {
  */
 W_Float *w_div(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
-    W_Float *result = float_init();
+    W_Float *result = w_float_init();
     if (type_a == INT && type_b == INT) {
-        float_set(result, *int_value((W_Int *)a) / *int_value((W_Int *)b));
+        w_float_set(result, *w_int_value((W_Int *)a) / *w_int_value((W_Int *)b));
     } else if (type_a == FLOAT && type_b == INT) {
-        float_set(result, *float_value((W_Float *)a) / *int_value((W_Int *)b));
+        w_float_set(result, *w_float_value((W_Float *)a) / *w_int_value((W_Int *)b));
     } else if (type_b == FLOAT && type_a == INT) {
-        float_set(result, *int_value((W_Int *)a) / *float_value((W_Float *)b));
+        w_float_set(result, *w_int_value((W_Int *)a) / *w_float_value((W_Float *)b));
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        float_set(result, *float_value((W_Float *)a) / *float_value((W_Float *)b));
+        w_float_set(result, *w_float_value((W_Float *)a) / *w_float_value((W_Float *)b));
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
@@ -207,8 +207,8 @@ W_Float *w_div(W_Var *a, W_Var *b) {
 W_Int *w_mod(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, *int_value((W_Int *)a) % *int_value((W_Int *)b));
+        W_Int *result = w_int_init();
+        w_int_set(result, *w_int_value((W_Int *)a) % *w_int_value((W_Int *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -228,8 +228,8 @@ W_Int *w_mod(W_Var *a, W_Var *b) {
 W_Int *w_ediv(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, (*int_value((W_Int *)a) - *int_value((W_Int *)a) % *int_value((W_Int *)b)) / *int_value((W_Int *)b));
+        W_Int *result = w_int_init();
+        w_int_set(result, (*w_int_value((W_Int *)a) - *w_int_value((W_Int *)a) % *w_int_value((W_Int *)b)) / *w_int_value((W_Int *)b));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -249,20 +249,20 @@ W_Int *w_ediv(W_Var *a, W_Var *b) {
 void *w_power(W_Var *a, W_Var *b) {
     W_Type type_a = a->type, type_b = b->type;
     if (type_a == INT && type_b == INT) {
-        W_Int *result = int_init();
-        int_set(result, (int)pow(*int_value((W_Int *)a), *int_value((W_Int *)b)));
+        W_Int *result = w_int_init();
+        w_int_set(result, (int)pow(*w_int_value((W_Int *)a), *w_int_value((W_Int *)b)));
         return result;
     } else if (type_a == FLOAT && type_b == INT) {
-        W_Float *result = float_init();
-        float_set(result, pow(*float_value((W_Float *)a), *int_value((W_Int *)b)));
+        W_Float *result = w_float_init();
+        w_float_set(result, pow(*w_float_value((W_Float *)a), *w_int_value((W_Int *)b)));
         return result;
     } else if (type_b == FLOAT && type_a == INT) {
-        W_Float *result = float_init();
-        float_set(result, pow(*int_value((W_Int *)a), *float_value((W_Float *)b)));
+        W_Float *result = w_float_init();
+        w_float_set(result, pow(*w_int_value((W_Int *)a), *w_float_value((W_Float *)b)));
         return result;
     } else if (type_a == FLOAT && type_b == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, pow(*float_value((W_Float *)a), *float_value((W_Float *)b)));
+        W_Float *result = w_float_init();
+        w_float_set(result, pow(*w_float_value((W_Float *)a), *w_float_value((W_Float *)b)));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -281,8 +281,8 @@ void *w_power(W_Var *a, W_Var *b) {
 W_Float *w_sqrt(W_Var *a) {
     W_Type type_a = a->type;
     if (type_a == INT || type_a == FLOAT) {
-        W_Float *result = float_init();
-        float_set(result, sqrt(*(float *)a->get(a)));
+        W_Float *result = w_float_init();
+        w_float_set(result, sqrt(*(float *)a->get(a)));
         return result;
     } else {
         char *type_a_str = w_get_type_str(a);
@@ -303,8 +303,8 @@ W_Float *w_sqrt(W_Var *a) {
  * \return The result of the AND operation
  */
 W_Bool *w_and (W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
-    bool_set(result, *(bool *)a->get(a) && *(bool *)b->get(b));
+    W_Bool *result = w_bool_init();
+    w_bool_set(result, *(bool *)a->get(a) && *(bool *)b->get(b));
     return result;
 }
 
@@ -315,8 +315,8 @@ W_Bool *w_and (W_Var *a, W_Var *b) {
  * \return The result of the OR operation
  */
 W_Bool *w_or (W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
-    bool_set(result, *(bool *)a->get(a) || *(bool *)b->get(b));
+    W_Bool *result = w_bool_init();
+    w_bool_set(result, *(bool *)a->get(a) || *(bool *)b->get(b));
     return result;
 }
 
@@ -326,8 +326,8 @@ W_Bool *w_or (W_Var *a, W_Var *b) {
  * \return The result of the NOT operation
  */
 W_Bool *w_not (W_Var *a) {
-    W_Bool *result = bool_init();
-    bool_set(result, !*(bool *)a->get(a));
+    W_Bool *result = w_bool_init();
+    w_bool_set(result, !*(bool *)a->get(a));
     return result;
 }
 
@@ -342,7 +342,7 @@ W_Bool *w_not (W_Var *a) {
  * \return The result of the comparison
  */
 W_Bool *w_equal(W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
+    W_Bool *result = w_bool_init();
     W_Type type_a = a->type, type_b = b->type;
     if ((type_a != INT && type_a != FLOAT && type_a != STRING && type_a != BOOL && type_a != LIST) \
         || (type_b != INT && type_b != FLOAT && type_b != STRING && type_b != BOOL && type_b != LIST)) {
@@ -354,30 +354,30 @@ W_Bool *w_equal(W_Var *a, W_Var *b) {
     }
     if (type_a == type_b) {
         if (type_a == INT) {
-            bool_set(result, *int_value((W_Int *)a) == *int_value((W_Int *)b));
+            w_bool_set(result, *w_int_value((W_Int *)a) == *w_int_value((W_Int *)b));
         } else if (type_a == FLOAT) {
-            bool_set(result, *float_value((W_Float *)a) == *float_value((W_Float *)b));
+            w_bool_set(result, *w_float_value((W_Float *)a) == *w_float_value((W_Float *)b));
         } else if (type_a == STRING) {
-            bool_set(result, strcmp(str_value((W_Str *)a), str_value((W_Str *)b)) == 0);
+            w_bool_set(result, strcmp(w_str_value((W_Str *)a), w_str_value((W_Str *)b)) == 0);
         } else if (type_a == BOOL) {
-            bool_set(result, bool_value((W_Bool *)a) == bool_value((W_Bool *)b));
+            w_bool_set(result, w_bool_value((W_Bool *)a) == w_bool_value((W_Bool *)b));
         } else if (type_a == LIST) {
-            if (list_size((W_List *)a) != list_size((W_List *)b)) {
-                bool_set(result, false);
+            if (w_list_size((W_List *)a) != w_list_size((W_List *)b)) {
+                w_bool_set(result, false);
             } else {
                 W_List_Element *e1 = ((W_List *)a)->head, *e2 = ((W_List *)b)->head;
-                for (int i = 0; i < list_size((W_List *)a); i++) {
+                for (int i = 0; i < w_list_size((W_List *)a); i++) {
                     if (!w_equal(e1->value, e2->value)) { //recursion
-                        bool_set(result, false);
+                        w_bool_set(result, false);
                         break;
                     }
                     e1 = e1->next;
                     e2 = e2->next;
                 }
-                bool_set(result, true);
+                w_bool_set(result, true);
             }
         }
-    } else bool_set(result, false);
+    } else w_bool_set(result, false);
     return result;
 }
 
@@ -388,7 +388,7 @@ W_Bool *w_equal(W_Var *a, W_Var *b) {
  * \return The result of the comparison
  */
 W_Bool *w_greater(W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
+    W_Bool *result = w_bool_init();
     W_Type type_a = a->type, type_b = b->type;
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -397,7 +397,7 @@ W_Bool *w_greater(W_Var *a, W_Var *b) {
         free(type_b_str);
         exit(1);
     }
-    bool_set(result, *(float *)a->get(a) > *(float *)b->get(b));
+    w_bool_set(result, *(float *)a->get(a) > *(float *)b->get(b));
     return result;
 }
 
@@ -408,7 +408,7 @@ W_Bool *w_greater(W_Var *a, W_Var *b) {
  * \return The result of the comparison
  */
 W_Bool *w_less(W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
+    W_Bool *result = w_bool_init();
     W_Type type_a = a->type, type_b = b->type;
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -417,7 +417,7 @@ W_Bool *w_less(W_Var *a, W_Var *b) {
         free(type_b_str);
         exit(1);
     }
-    bool_set(result, *(float *)a->get(a) < *(float *)b->get(b));
+    w_bool_set(result, *(float *)a->get(a) < *(float *)b->get(b));
     return result;
 }
 
@@ -428,7 +428,7 @@ W_Bool *w_less(W_Var *a, W_Var *b) {
  * \return The result of the comparison
  */
 W_Bool *w_gequal(W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
+    W_Bool *result = w_bool_init();
     W_Type type_a = a->type, type_b = b->type;
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -437,7 +437,7 @@ W_Bool *w_gequal(W_Var *a, W_Var *b) {
         free(type_b_str);
         exit(1);
     }
-    bool_set(result, *(float *)a->get(a) >= *(float *)b->get(b));
+    w_bool_set(result, *(float *)a->get(a) >= *(float *)b->get(b));
     return result;
 }
 
@@ -448,7 +448,7 @@ W_Bool *w_gequal(W_Var *a, W_Var *b) {
  * \return The result of the comparison
  */
 W_Bool *w_lequal(W_Var *a, W_Var *b) {
-    W_Bool *result = bool_init();
+    W_Bool *result = w_bool_init();
     W_Type type_a = a->type, type_b = b->type;
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
@@ -457,7 +457,7 @@ W_Bool *w_lequal(W_Var *a, W_Var *b) {
         free(type_b_str);
         exit(1);
     }
-    bool_set(result, *(float *)a->get(a) <= *(float *)b->get(b));
+    w_bool_set(result, *(float *)a->get(a) <= *(float *)b->get(b));
     return result;
 }
 
@@ -473,13 +473,13 @@ W_Bool *w_lequal(W_Var *a, W_Var *b) {
 void *w_var_init(W_Type type) {
     switch (type) {
         case INT:
-            return int_init();
+            return w_int_init();
         case FLOAT:
-            return float_init();
+            return w_float_init();
         case STRING:
-            return str_init();
+            return w_str_init();
         case BOOL:
-            return bool_init();
+            return w_bool_init();
     }
 }
 

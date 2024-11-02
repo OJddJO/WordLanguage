@@ -1,11 +1,9 @@
-int i assign 0
-infloop
-    if i gequal 10
-        break
-    endif
-    change i to i plus 1
-    if i less 5
-        continue
-    endif
-    print i
-endinf
+int value assign 3
+
+if value equal 0
+    print "Value is 0"
+elif value equal 1
+    print "Value is 1"
+else
+    print "Value is neither 0 nor 1"
+endif

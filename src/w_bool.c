@@ -4,16 +4,16 @@
  * \brief Initializes a new boolean. (malloc)
  * \return A pointer to the newly created boolean.
  */
-W_Bool *bool_init() {
+W_Bool *w_bool_init() {
     W_Bool *b = (W_Bool *)malloc(sizeof(W_Bool));
     b->type = NULL_TYPE;
     b->value = NULL;
-    b->destroy = &bool_destroy;
-    b->stringify = &bool_stringify;
-    b->copy = &bool_copy;
-    b->assign = &bool_assign;
-    b->set = &bool_set;
-    b->get = &bool_value;
+    b->destroy = &w_bool_destroy;
+    b->stringify = &w_bool_stringify;
+    b->copy = &w_bool_copy;
+    b->assign = &w_bool_assign;
+    b->set = &w_bool_set;
+    b->get = &w_bool_value;
     return b;
 }
 
@@ -22,7 +22,7 @@ W_Bool *bool_init() {
  * \param b The boolean to set the value of.
  * \param value The value to set.
  */
-void bool_assign(W_Bool *b, char *value) {
+void w_bool_assign(W_Bool *b, char *value) {
     bool *v;
     bool var_value;
     if (strcmp(value, "true") == 0) {
@@ -43,7 +43,7 @@ void bool_assign(W_Bool *b, char *value) {
  * \param b The boolean to set the value of.
  * \param value The value to set.
  */
-void bool_set(W_Bool *b, bool value) {
+void w_bool_set(W_Bool *b, bool value) {
     bool *v;
     if (b->type == NULL_TYPE) {
         v = (bool *)malloc(sizeof(bool));
@@ -58,7 +58,7 @@ void bool_set(W_Bool *b, bool value) {
  * \param b The boolean to get the value of.
  * \return The value of the boolean.
  */
-bool *bool_value(W_Bool *b) {
+bool *w_bool_value(W_Bool *b) {
     return b->value;
 }
 
@@ -67,7 +67,7 @@ bool *bool_value(W_Bool *b) {
  * \param b The boolean to stringify.
  * \return The stringified boolean.
  */
-char *bool_stringify(W_Bool *b) {
+char *w_bool_stringify(W_Bool *b) {
     char *str = (char *)malloc(6);
     sprintf(str, "%s", *b->value ? "true" : "false");
     return str;
@@ -77,7 +77,7 @@ char *bool_stringify(W_Bool *b) {
  * \brief Destroys the given boolean.
  * \param b The boolean to destroy.
  */
-void bool_destroy(W_Bool *b) {
+void w_bool_destroy(W_Bool *b) {
     if (b->value != NULL) free(b->value);
     free(b);
 }
@@ -87,8 +87,8 @@ void bool_destroy(W_Bool *b) {
  * \param b The boolean to copy.
  * \return A pointer to the newly created boolean.
  */
-W_Bool *bool_copy(W_Bool *b) {
-    W_Bool *copy = bool_init();
-    bool_set(copy, *b->value);
+W_Bool *w_bool_copy(W_Bool *b) {
+    W_Bool *copy = w_bool_init();
+    w_bool_set(copy, *b->value);
     return copy;
 }
