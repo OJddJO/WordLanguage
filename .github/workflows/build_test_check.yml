@@ -6,7 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'include/**'
-      - '.github/workflows/c-cpp.yml'
+      - '.github/workflows/build_test_check.yml'
   pull_request:
     branches: [ "main" ]
     paths:
