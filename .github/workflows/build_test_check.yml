@@ -2,7 +2,6 @@ name: Build/Test Check
 
 on:
   push:
-    branches: [ "main" ]
     paths:
       - 'src/**'
       - 'include/**'
