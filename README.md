@@ -1,6 +1,6 @@
 # WordLanguage
 
-[![C/C++ CI](https://github.com/OJddJO/WordLanguage/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/OJddJO/WordLanguage/actions/workflows/c-cpp.yml)
+[![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml)
 
 > [!IMPORTANT]
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
