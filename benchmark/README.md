@@ -7,19 +7,19 @@ This directory contains the benchmarking code for the project. The benchmarking 
 On my pc:
 ```
 Running benchmark for 'if' scripts
-Python: 3.388713 s for 100 iterations (avg: 0.033887 s/iter)
-Word: 0.361091 s for 100 iterations (avg: 0.003611 s/iter)
-Ratio python/word: 9.38x
+Python: 17.039089 s for 500 iterations (avg: 0.034078 s/iter)
+Word: 1.779429 s for 500 iterations (avg: 0.003559 s/iter)
+Ratio python/word: 9.58x
 
 Running benchmark for 'while' scripts
-Python: 3.418189 s for 100 iterations (avg: 0.034182 s/iter)
-Word: 0.353599 s for 100 iterations (avg: 0.003536 s/iter)
-Ratio python/word: 9.67x
+Python: 18.221854 s for 500 iterations (avg: 0.036444 s/iter)
+Word: 1.875409 s for 500 iterations (avg: 0.003751 s/iter)
+Ratio python/word: 9.72x
 
 Running benchmark for 'fibonacci' scripts
-Python: 3.365003 s for 100 iterations (avg: 0.03365 s/iter)
-Word: 0.465831 s for 100 iterations (avg: 0.004658 s/iter)
-Ratio python/word: 7.22x
+Python: 17.432245 s for 500 iterations (avg: 0.034864 s/iter)
+Word: 2.396842 s for 500 iterations (avg: 0.004794 s/iter)
+Ratio python/word: 7.27x
 ```
 
 On Github Actions:
