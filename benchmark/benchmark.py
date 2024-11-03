@@ -10,7 +10,7 @@ def execute_python():
 def execute_word():
     out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     if out.returncode != 0:
-        raise Exception(f"Error while executing python script [Code: {out.returncode}]\n{out.stderr.decode('utf-8')}")
+        raise Exception(f"Error while executing word script [Code: {out.returncode}]\n{out.stderr.decode('utf-8')}")
 
 def execute_py_output():
     out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.PIPE)
@@ -21,7 +21,7 @@ def execute_py_output():
 def execute_word_output():
     out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.PIPE)
     if out.returncode != 0:
-        raise Exception(f"Error while executing python script [Code: {out.returncode}]\n{out.stderr.decode('utf-8')}")
+        raise Exception(f"Error while executing word script [Code: {out.returncode}]\n{out.stderr.decode('utf-8')}")
     print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":

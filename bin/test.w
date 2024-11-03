@@ -8,5 +8,5 @@ def int fibo with int n
     endif
 enddef
 
-call fibo with 2 store result
+call fibo with 25 store result
 print result

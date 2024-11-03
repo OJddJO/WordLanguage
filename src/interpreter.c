@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG true
+#define DEBUG false
 
 int main(int argc, char *argv[]) {
 
@@ -28,19 +28,18 @@ int main(int argc, char *argv[]) {
 
     //initialize variables
     W_Type return_type = NULL_TYPE;
-    W_Dict *default_args = w_dict_init();
+    W_Dict *main_scope = w_dict_init();
     W_Bool *w_true = w_bool_init();
     w_bool_set(w_true, true);
-    w_dict_set(default_args, "true", w_true);
+    w_dict_set(main_scope, "true", w_true);
     W_Bool *w_false = w_bool_init();
     w_bool_set(w_false, false);
-    w_dict_set(default_args, "false", w_false);
+    w_dict_set(main_scope, "false", w_false);
 
     if (DEBUG) printf("Executing...\n");
-    execute(parsed_code, default_args, return_type, true);
+    execute(parsed_code, main_scope, return_type, true);
     if (DEBUG) printf("Executed !\n");
-    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)3
-    w_dict_destroy(default_args);
+    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
 
     if (DEBUG) printf("Done\n"); //DEBUG
     return 0;
@@ -49,14 +48,13 @@ int main(int argc, char *argv[]) {
 /**
  * \brief Executes the parsed code.
  * \param parsed_code The parsed code to execute.
- * \param args The arguments to pass to the code.
+ * \param global_scope The arguments to pass to the code.
  * \param return_type The type of the return value.
  * \param destroy_vars_on_exit Whether to destroy the variables on exit.
- * \param is_function_call Whether the code is a function call.
  * \return The result of the execution
  */
-void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_vars_on_exit) {
-    W_Dict *variables = args;
+void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool destroy_vars_on_exit) {
+    W_Dict *variables = global_scope;
     void *result = NULL;
     // if (DEBUG) {
     //     printf("Args:\n"); //DEBUG
@@ -539,12 +537,6 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
-                    if (DEBUG && destroy_vars_on_exit) {
-                        printf("Freeing variables... (%p)\n", variables); //DEBUG
-                        printf("%s\n", w_dict_stringify(variables));
-                    }
-                    if (destroy_vars_on_exit) w_dict_destroy(variables);
-                    if (DEBUG) printf("Exiting...\n"); //DEBUG
                     return return_value;
                 }
             } else if (DEBUG) printf("Skipping if/elif block...\n"); //!SECTION - if/elif
@@ -586,12 +578,6 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_
             if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
             if (return_value != NULL) {
                 free(stack);
-                if (DEBUG && destroy_vars_on_exit) {
-                    printf("Freeing variables... (%p)\n", variables); //DEBUG
-                    printf("%s\n", w_dict_stringify(variables));
-                }
-                if (destroy_vars_on_exit) w_dict_destroy(variables);
-                if (DEBUG) printf("Exiting...\n"); //DEBUG
                 return return_value;
             }
         } else if (strcmp(word->value, "endif") == 0) {
@@ -641,12 +627,6 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_
                         continue;
                     } else {
                         free(stack);
-                        if (DEBUG && destroy_vars_on_exit) {
-                            printf("Freeing variables... (%p)\n", variables); //DEBUG
-                            printf("%s\n", w_dict_stringify(variables));
-                        }
-                        if (destroy_vars_on_exit) w_dict_destroy(variables);
-                        if (DEBUG) printf("Exiting...\n"); //DEBUG
                         return return_value;
                     }
                 }
