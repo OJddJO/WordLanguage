@@ -3,17 +3,25 @@ import subprocess
 import sys
 
 def execute_python():
-    subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.DEVNULL)
+    out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    if out.returncode != 0:
+        raise Exception(f"Error while executing python script: {out.stderr.decode('utf-8')}")
 
 def execute_word():
-    subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL)
+    out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    if out.returncode != 0:
+        raise Exception(f"Error while executing python script: {out.stderr.decode('utf-8')}")
 
 def execute_py_output():
     out = subprocess.run(["python", f"./scripts/{file}.py"], stdout=subprocess.PIPE)
+    if out.returncode != 0:
+        raise Exception(f"Error while executing python script: {out.stderr.decode('utf-8')}")
     print(out.stdout.decode("utf-8"))
 
 def execute_word_output():
     out = subprocess.run(["../bin/word.exe", f"./scripts/{file}.w"], stdout=subprocess.PIPE)
+    if out.returncode != 0:
+        raise Exception(f"Error while executing python script: {out.stderr.decode('utf-8')}")
     print(out.stdout.decode("utf-8"))
 
 if __name__ == "__main__":
