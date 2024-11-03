@@ -28,13 +28,16 @@ int main(int argc, char *argv[]) {
 
     //initialize variables
     W_Type return_type = NULL_TYPE;
-    W_Dict *main_scope = w_dict_init();
+    W_Dict *default_vars = w_dict_init();
     W_Bool *w_true = w_bool_init();
     w_bool_set(w_true, true);
-    w_dict_set(main_scope, "true", w_true);
+    w_dict_set(default_vars, "true", w_true);
     W_Bool *w_false = w_bool_init();
     w_bool_set(w_false, false);
-    w_dict_set(main_scope, "false", w_false);
+    w_dict_set(default_vars, "false", w_false);
+
+    Scope *main_scope = init_scope();
+    main_scope->vars = default_vars;
 
     if (DEBUG) printf("Executing...\n");
     execute(parsed_code, main_scope, return_type, true);
@@ -48,17 +51,16 @@ int main(int argc, char *argv[]) {
 /**
  * \brief Executes the parsed code.
  * \param parsed_code The parsed code to execute.
- * \param global_scope The arguments to pass to the code.
+ * \param scope The scope to execute the code in.
  * \param return_type The type of the return value.
  * \param destroy_vars_on_exit Whether to destroy the variables on exit.
  * \return The result of the execution
  */
-void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool destroy_vars_on_exit) {
-    W_Dict *variables = global_scope;
+void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_vars_on_exit) {
     void *result = NULL;
     // if (DEBUG) {
     //     printf("Args:\n"); //DEBUG
-    //     char *str = w_dict_stringify(variables);
+    //     char *str = w_dict_stringify(scope->vars);
     //     printf("%s\n", str);
     //     free(str);
     //     // print parsed code
@@ -80,11 +82,11 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
         }
 
         list *stack = list_init(); //the stack of words to evaluate
-        eval_parsed_lines(current_block, variables, stack);
-        //print stack
+        eval_parsed_lines(current_block, scope, stack);
+        // print stack
         // if (DEBUG) {
         //     printf("Stack:\n");
-        //     W_List_Element *current_word = stack->head;
+        //     list_element *current_word = stack->head;
         //     while (current_word != NULL) {
         //         W_Word *word = (W_Word *)current_word->value;
         //         printf("%s ", word->value);
@@ -201,13 +203,13 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             }
 
-            //add function to variables
-            W_Func *prev_fn = (W_Func *)w_dict_get(variables, name);
+            //add function to inner_scope
+            W_Func *prev_fn = (W_Func *)get_var(scope, name);
             if (prev_fn != NULL){
                 fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", name, word->line);
                 exit(1);
             }
-            w_dict_set(variables, name, f); //!SECTION - def
+            w_dict_set(scope->vars, name, f); //!SECTION - def
 
         } else if (strcmp(word->value, "enddef") == 0) {
             statement = "enddef";
@@ -235,7 +237,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
             }
             W_Var *result;
             if (word->type == IDENTIFIER) { //if variable
-                result = (W_Var *)w_dict_get(variables, word->value);
+                result = get_var(scope, word->value);
                 if (result == NULL) {
                     fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -294,15 +296,15 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
             free(stack);
             if (DEBUG) {
                 printf("Exit Variables:\n"); //DEBUG
-                char *str = w_dict_stringify(variables);
+                char *str = w_dict_stringify(scope->vars);
                 printf("%s\n", str);
                 free(str);
             }
             if (DEBUG && destroy_vars_on_exit) {
-                printf("Freeing variables... (%p)\n", variables); //DEBUG
-                printf("%s\n", w_dict_stringify(variables));
+                printf("Freeing inner scope... (%p)\n", scope); //DEBUG
+                printf("%s\n", w_dict_stringify(scope->vars));
             }
-            if (destroy_vars_on_exit) w_dict_destroy(variables);
+            if (destroy_vars_on_exit) destroy_scope(scope);
             if (DEBUG) printf("Exiting...\n"); //DEBUG
             return result; //!SECTION - return
         } else if (strcmp(word->value, "call") == 0) { //SECTION - call
@@ -319,7 +321,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             }
             if (DEBUG) printf("Called function %s\n", word->value); //DEBUG
-            W_Func *f = (W_Func *)w_dict_get(variables, word->value);
+            W_Func *f = (W_Func *)get_var(scope, word->value);
             if (f == NULL) {
                 fprintf(stderr, "Error: Function '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -333,12 +335,15 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
             //copy all variables to function variables
             if (DEBUG) {
                 printf("Copying scope variables to function variables...\n"); //DEBUG
-                printf("Scope variables: (%p)\n", variables); //DEBUG
-                char *str = w_dict_stringify(variables);
+                printf("Scope variables: (%p)\n", scope->vars); //DEBUG
+                char *str = w_dict_stringify(scope->vars);
                 printf("%s\n", str);
                 free(str);
             }
-            W_Dict *fn_vars = w_dict_copy(variables); //function variables
+
+            Scope *fn_scope = init_scope(); //function scope
+            fn_scope->parent = scope;
+            W_Dict *fn_vars = fn_scope->vars; //function variables
 
             int nb_args = dict_size(fn_args); //number of arguments
             current_word = current_word->next;
@@ -363,7 +368,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                         }
                         char *arg_name = (char *)current_arg->value; //name of the current argument.
                         if (word->type == IDENTIFIER) { //if argument is a variable
-                            W_Var *arg = (W_Var *)w_dict_get(variables, word->value);
+                            W_Var *arg = get_var(scope, word->value);
                             if (arg == NULL) {
                                 fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                                 exit(1);
@@ -436,13 +441,12 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                             exit(1);
                         }
                         if (DEBUG) printf("Starting function execution...\n");
-                        void *result = execute(f->parsed_code, fn_vars, f->return_type, true);
-                        w_dict_set(variables, word->value, result);
-                        w_dict_destroy(fn_vars);
+                        void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
+                        w_dict_set(scope->vars, word->value, result);
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
-                    execute(f->parsed_code, fn_vars, f->return_type, true);
+                    execute(f->parsed_code, fn_scope, f->return_type, true);
                 }
                 if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
@@ -450,7 +454,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             } else {
                 if (DEBUG) printf("Starting function execution...\n");
-                execute(f->parsed_code, fn_vars, f->return_type, true);
+                execute(f->parsed_code, fn_scope, f->return_type, true);
                 if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
@@ -470,7 +474,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 fprintf(stderr, "Error: Expected boolean expression after 'if'/'elif', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Bool *condition = w_dict_get(variables, word->value);
+            W_Bool *condition = (W_Bool *)get_var(scope, word->value);
             if (condition == NULL) {
                 fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -533,7 +537,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     current_line = current_line->next;
                 }
                 if (DEBUG) printf("Executing if/elif block...\n");
-                void *return_value = execute(if_lines, variables, return_type, false);
+                void *return_value = execute(if_lines, scope, return_type, false);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
@@ -574,7 +578,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             }
             if (DEBUG) printf("Executing else block...\n");
-            void *return_value = execute(else_lines, variables, return_type, false);
+            void *return_value = execute(else_lines, scope, return_type, false);
             if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
             if (return_value != NULL) {
                 free(stack);
@@ -617,7 +621,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
             }
             if (DEBUG) printf("Executing infloop...\n");
             while (true) {
-                void *return_value = execute(infloop_lines, variables, return_type, false);
+                void *return_value = execute(infloop_lines, scope, return_type, false);
                 if (return_value != NULL) {
                     if (*(int *)return_value == 1) { // break code is 1
                         free(return_value);
@@ -714,7 +718,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     current_word = current_word->next;
                 } else {
                     if (word->type == IDENTIFIER) {
-                        W_Var *var = (W_Var *)w_dict_get(variables, word->value);
+                        W_Var *var = get_var(scope, word->value);
                         if (var == NULL) {
                             fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                             exit(1);
@@ -785,14 +789,14 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 fprintf(stderr, "Error: Expected variable name after 'store', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            if (w_dict_get(variables, word->value) != NULL) {
+            if (get_var(scope, word->value) != NULL) {
                 fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                 exit(1);
             }
 
             W_Str *var = w_str_init();
             w_str_assign(var, input);
-            w_dict_set(variables, word->value, var); //!SECTION - ask
+            w_dict_set(scope->vars, word->value, var); //!SECTION - ask
         }
         //!SECTION - IO
 
@@ -817,13 +821,13 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     fprintf(stderr, "Error: Expected variable name after keyword 'create', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (w_dict_get(variables, word->value) != NULL) {
+                if (get_var(scope, word->value) != NULL) {
                     fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                     exit(1);
                 }
                 char *name = word->value;
                 W_List *var_list = w_list_init();
-                w_dict_set(variables, name, var_list); //!SECTION - list: create
+                w_dict_set(scope->vars, name, var_list); //!SECTION - list: create
             } else if (strcmp(word->value, "append") == 0) { //SECTION - list: append
                 statement = "list append";
 
@@ -837,7 +841,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     fprintf(stderr, "Error: Expected list name after keyword 'append', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                W_List *var_list = (W_List *)w_dict_get(variables, word->value);
+                W_List *var_list = (W_List *)get_var(scope, word->value);
                 if (var_list == NULL) {
                     fprintf(stderr, "Error: List '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -870,7 +874,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 }
                 W_Var *var;
                 if (word->type == IDENTIFIER) {
-                    var = (W_Var *)w_dict_get(variables, word->value);
+                    var = (W_Var *)get_var(scope, word->value);
                     if (var == NULL) {
                         fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
@@ -902,7 +906,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     fprintf(stderr, "Error: Expected list name after keyword 'get', got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                W_List *var_list = (W_List *)w_dict_get(variables, word->value);
+                W_List *var_list = (W_List *)get_var(scope, word->value);
                 if (var_list == NULL) {
                     fprintf(stderr, "Error: List '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -933,7 +937,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 if (word->type == NUMBER) {
                     index = atoi(word->value);
                 } else if (word->type == IDENTIFIER) {
-                    W_Var *var = (W_Var *)w_dict_get(variables, word->value);
+                    W_Var *var = (W_Var *)get_var(scope, word->value);
                     if (var == NULL) {
                         fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);
@@ -975,12 +979,12 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                     fprintf(stderr, "Error: Expected variable name after index, got '%s', line: %d\n", word->value, word->line);
                     exit(1);
                 }
-                if (w_dict_get(variables, word->value) != NULL) {
+                if (get_var(scope, word->value) != NULL) {
                     fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                     exit(1);
                 }
                 char *name = word->value;
-                w_dict_set(variables, name, var_copy); //!SECTION - list: get
+                w_dict_set(scope->vars, name, var_copy); //!SECTION - list: get
             }
             else {
                 fprintf(stderr, "Error: Unexpected keyword '%s', line: %d\n", word->value, word->line);
@@ -1013,7 +1017,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 fprintf(stderr, "Error: Expected variable name after type keyword, got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            if (w_dict_get(variables, word->value) != NULL) {
+            if (get_var(scope, word->value) != NULL) {
                 fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", word->value, word->line);
                 exit(1);
             }
@@ -1041,7 +1045,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             }
             if (word->type == IDENTIFIER) {
-                W_Var *var = (W_Var *)w_dict_get(variables, word->value);
+                W_Var *var = get_var(scope, word->value);
                 if (var == NULL) {
                     fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -1081,7 +1085,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 }
                 ((W_Var *)value)->assign(value, word->value);
             }
-            w_dict_set(variables, name, value); //!SECTION - assign
+            w_dict_set(scope->vars, name, value); //!SECTION - assign
         } else if (strcmp(word->value, "change") == 0) { //SECTION - change
             statement = "variable change";
 
@@ -1095,7 +1099,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 fprintf(stderr, "Error: Expected variable name after keyword 'change', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Var *var = (W_Var *)w_dict_get(variables, word->value);
+            W_Var *var = get_var(scope, word->value);
             if (var == NULL) {
                 fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
@@ -1122,7 +1126,7 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 exit(1);
             }
             if (word->type == IDENTIFIER) {
-                W_Var *src_var = (W_Var *)w_dict_get(variables, word->value);
+                W_Var *src_var = get_var(scope, word->value);
                 if (src_var == NULL) {
                     fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                     exit(1);
@@ -1176,12 +1180,12 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
                 fprintf(stderr, "Error: Expected variable name after keyword 'delete', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Var *var = (W_Var *)w_dict_get(variables, word->value);
+            W_Var *var = get_var(scope, word->value);
             if (var == NULL) {
                 fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
             }
-            w_dict_remove(variables, word->value); //!SECTION - delete
+            w_dict_remove(scope->vars, word->value); //!SECTION - delete
         }
         //!SECTION - Variables
         if (statement != NULL) {
@@ -1198,15 +1202,15 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
     }
     if (DEBUG) {
         printf("Exit Variables:\n"); //DEBUG
-        char *str = w_dict_stringify(variables);
+        char *str = w_dict_stringify(scope->vars);
         printf("%s\n", str);
         free(str);
     }
     if (DEBUG && destroy_vars_on_exit) {
-        printf("Freeing variables... (%p)\n", variables); //DEBUG
-        printf("%s\n", w_dict_stringify(variables));
+        printf("Freeing inner scope... (%p)\n", scope->vars); //DEBUG
+        printf("%s\n", w_dict_stringify(scope->vars)); //DEBUG
     }
-    if (destroy_vars_on_exit) w_dict_destroy(variables);
+    if (destroy_vars_on_exit) destroy_scope(scope);
     return NULL;
 }
 
@@ -1217,10 +1221,10 @@ void *execute(list *parsed_code, W_Dict *global_scope, W_Type return_type, bool 
 /**
  * \brief Evaluates the parsed lines.
  * \param current_block The parsed line to evaluate.
- * \param variables The variables to use in the evaluation.
+ * \param scope Current scope.
  * \param stack The stack to store the parsed lines after eval.
  */
-void eval_parsed_lines(list_element *current_block, W_Dict *variables, list *stack) {
+void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
     while (current_block != NULL) {
         if (current_block->value == NULL) {
             current_block = current_block->next;
@@ -1425,7 +1429,7 @@ void eval_parsed_lines(list_element *current_block, W_Dict *variables, list *sta
                         list_append(result, w);
                     }
                 } else if (word->type == IDENTIFIER) { //if variable
-                    W_Var *w = (W_Var *)w_dict_get(variables, word->value);
+                    W_Var *w = get_var(scope, word->value);
                     if (w == NULL) {
                         fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                         exit(1);

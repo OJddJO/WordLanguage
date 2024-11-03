@@ -6,5 +6,5 @@ def fibonacci(n):
     else:
         return fibonacci(n-1) + fibonacci(n-2)
 
-result = fibonacci(25)
-print("Fibonacci of 25 is", result)
+result = fibonacci(20)
+print("Fibonacci of 20 is", result)

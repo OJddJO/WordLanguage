@@ -10,5 +10,5 @@ def int fibonacci with int n
     endif
 enddef
 
-call fibonacci with 25 store result
-print "Fibonacci of 25 is" result
+call fibonacci with 20 store result
+print "Fibonacci of 20 is" result

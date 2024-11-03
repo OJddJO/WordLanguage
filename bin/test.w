@@ -1,12 +1,12 @@
-def int fibo with int n
+def int fibonacci with int n
     if n less 2
         return n
     else
-        call fibo with n minus 1 store a
-        call fibo with n minus 2 store b
-        return a plus b
+        call fibonacci with n minus 1 store result1
+        call fibonacci with n minus 2 store result2
+        return result1 plus result2
     endif
 enddef
 
-call fibo with 25 store result
+call fibonacci with 10 store result
 print result

@@ -68,6 +68,73 @@ void list_remove(list *l, int index) {
 }
 
 /**
+ * \brief Get the value of an element in the list
+ * \param l The list to get the element from
+ * \param index The index of the element to get
+ * \return The value of the element at the given index, or NULL if the index is out of bounds
+ **/
+void *list_get(list *l, int index) {
+    if (index < 0 || index >= l->size) {
+        return NULL;
+    }
+    list_element *e;
+    if (index > l->middle) {
+        e = l->tail;
+        for (int i = l->size - 1; i > index; i--) {
+            e = e->prev;
+        }
+    } else {
+        e = l->head;
+        for (int i = 0; i < index; i++) {
+            e = e->next;
+        }
+    }
+    return e->value;
+}
+
+/**
+ * \brief Insert an element into the list (malloc)
+ * \param l The list to insert the element into
+ * \param index The index to insert the element at
+ * \param value The value of the element to insert
+ **/
+void list_insert(list *l, int index, void *value) {
+    if (index < 0 || index > l->size) {
+        return;
+    }
+    list_element *e = (list_element *)malloc(sizeof(list_element));
+    e->value = value;
+    if (index == 0) {
+        e->prev = NULL;
+        e->next = l->head;
+        if (l->head != NULL) {
+            l->head->prev = e;
+        } else {
+            l->tail = e;
+        }
+        l->head = e;
+    } else if (index == l->size) {
+        e->prev = l->tail;
+        e->next = NULL;
+        l->tail->next = e;
+        l->tail = e;
+    } else {
+        list_element *current = l->head;
+        for (int i = 0; i < index; i++) {
+            current = current->next;
+        }
+        e->prev = current->prev;
+        e->next = current;
+        current->prev->next = e;
+        current->prev = e;
+    }
+    l->size++;
+    if (l->size % 2 == 0) {
+        l->middle++;
+    }
+}
+
+/**
  * \brief Get the size of the list
  * \param l The list to get the size of
  * \return The size of the list
