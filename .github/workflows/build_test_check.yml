@@ -2,12 +2,15 @@ name: Build/Test Check
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'src/**'
       - 'include/**'
       - '.github/workflows/build_test_check.yml'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
       - 'src/**'
       - 'include/**'
