@@ -1,12 +1,12 @@
-def int fibonacci with int n
-    if n less 2
-        return n
-    else
-        call fibonacci with n minus 1 store result1
-        call fibonacci with n minus 2 store result2
-        return result1 plus result2
-    endif
+int a assign 0
+def null test
+    infloop
+        if a gequal 5
+            break
+        endif
+        change a to a plus 1
+    endinf
 enddef
 
-call fibonacci with 10 store result
-print result
+call test
+print a

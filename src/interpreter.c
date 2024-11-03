@@ -1099,7 +1099,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 fprintf(stderr, "Error: Expected variable name after keyword 'change', got '%s', line: %d\n", word->value, word->line);
                 exit(1);
             }
-            W_Var *var = get_var(scope, word->value);
+            W_Var *var = w_dict_get(scope->vars, word->value); //get local variable
             if (var == NULL) {
                 fprintf(stderr, "Error: Variable '%s' does not exist, line: %d\n", word->value, word->line);
                 exit(1);
