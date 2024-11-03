@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG false
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
 
@@ -37,10 +37,10 @@ int main(int argc, char *argv[]) {
     w_dict_set(default_args, "false", w_false);
 
     if (DEBUG) printf("Executing...\n");
-    execute(parsed_code, default_args, return_type);
+    execute(parsed_code, default_args, return_type, true);
     if (DEBUG) printf("Executed !\n");
     // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)3
-    // w_dict_destroy(default_args);
+    w_dict_destroy(default_args);
 
     if (DEBUG) printf("Done\n"); //DEBUG
     return 0;
@@ -51,21 +51,22 @@ int main(int argc, char *argv[]) {
  * \param parsed_code The parsed code to execute.
  * \param args The arguments to pass to the code.
  * \param return_type The type of the return value.
- * \param DEBUG Whether to print DEBUG information.
+ * \param destroy_vars_on_exit Whether to destroy the variables on exit.
+ * \param is_function_call Whether the code is a function call.
  * \return The result of the execution
  */
-void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
+void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_vars_on_exit) {
     W_Dict *variables = args;
     void *result = NULL;
-    if (DEBUG) {
-        printf("Args:\n"); //DEBUG
-        char *str = w_dict_stringify(variables);
-        printf("%s\n", str);
-        free(str);
-        // print parsed code
-        printf("Parsed code:\n");
-        print_parsed_code(parsed_code);
-    }
+    // if (DEBUG) {
+    //     printf("Args:\n"); //DEBUG
+    //     char *str = w_dict_stringify(variables);
+    //     printf("%s\n", str);
+    //     free(str);
+    //     // print parsed code
+    //     printf("Parsed code:\n");
+    //     print_parsed_code(parsed_code);
+    // }
 
     list_element *current_line = parsed_code->head;
     while (current_line != NULL) {
@@ -293,6 +294,18 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
             }
             free(result_type_str);
             free(stack);
+            if (DEBUG) {
+                printf("Exit Variables:\n"); //DEBUG
+                char *str = w_dict_stringify(variables);
+                printf("%s\n", str);
+                free(str);
+            }
+            if (DEBUG && destroy_vars_on_exit) {
+                printf("Freeing variables... (%p)\n", variables); //DEBUG
+                printf("%s\n", w_dict_stringify(variables));
+            }
+            if (destroy_vars_on_exit) w_dict_destroy(variables);
+            if (DEBUG) printf("Exiting...\n"); //DEBUG
             return result; //!SECTION - return
         } else if (strcmp(word->value, "call") == 0) { //SECTION - call
             statement = "function call";
@@ -322,7 +335,7 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
             //copy all variables to function variables
             if (DEBUG) {
                 printf("Copying scope variables to function variables...\n"); //DEBUG
-                printf("Scope variables:\n"); //DEBUG
+                printf("Scope variables: (%p)\n", variables); //DEBUG
                 char *str = w_dict_stringify(variables);
                 printf("%s\n", str);
                 free(str);
@@ -402,7 +415,7 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                     exit(1);
                 }
                 if (DEBUG) {
-                    printf("Function variables:\n"); //DEBUG
+                    printf("Function variables: (%p)\n", fn_vars); //DEBUG
                     char *str = w_dict_stringify(fn_vars);
                     printf("%s\n", str);
                     free(str);
@@ -425,14 +438,13 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                             exit(1);
                         }
                         if (DEBUG) printf("Starting function execution...\n");
-                        void *result = execute(f->parsed_code, fn_vars, f->return_type);
+                        void *result = execute(f->parsed_code, fn_vars, f->return_type, true);
                         w_dict_set(variables, word->value, result);
                         w_dict_destroy(fn_vars);
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
-                    execute(f->parsed_code, fn_vars, f->return_type);
-                    w_dict_destroy(fn_vars);
+                    execute(f->parsed_code, fn_vars, f->return_type, true);
                 }
                 if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
@@ -440,8 +452,7 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             } else {
                 if (DEBUG) printf("Starting function execution...\n");
-                execute(f->parsed_code, fn_vars, f->return_type);
-                w_dict_destroy(fn_vars);
+                execute(f->parsed_code, fn_vars, f->return_type, true);
                 if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
@@ -524,10 +535,16 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                     current_line = current_line->next;
                 }
                 if (DEBUG) printf("Executing if/elif block...\n");
-                void *return_value = execute(if_lines, variables, return_type);
+                void *return_value = execute(if_lines, variables, return_type, false);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     free(stack);
+                    if (DEBUG && destroy_vars_on_exit) {
+                        printf("Freeing variables... (%p)\n", variables); //DEBUG
+                        printf("%s\n", w_dict_stringify(variables));
+                    }
+                    if (destroy_vars_on_exit) w_dict_destroy(variables);
+                    if (DEBUG) printf("Exiting...\n"); //DEBUG
                     return return_value;
                 }
             } else if (DEBUG) printf("Skipping if/elif block...\n"); //!SECTION - if/elif
@@ -565,10 +582,16 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                 exit(1);
             }
             if (DEBUG) printf("Executing else block...\n");
-            void *return_value = execute(else_lines, variables, return_type);
+            void *return_value = execute(else_lines, variables, return_type, false);
             if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
             if (return_value != NULL) {
                 free(stack);
+                if (DEBUG && destroy_vars_on_exit) {
+                    printf("Freeing variables... (%p)\n", variables); //DEBUG
+                    printf("%s\n", w_dict_stringify(variables));
+                }
+                if (destroy_vars_on_exit) w_dict_destroy(variables);
+                if (DEBUG) printf("Exiting...\n"); //DEBUG
                 return return_value;
             }
         } else if (strcmp(word->value, "endif") == 0) {
@@ -608,7 +631,7 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
             }
             if (DEBUG) printf("Executing infloop...\n");
             while (true) {
-                void *return_value = execute(infloop_lines, variables, return_type);
+                void *return_value = execute(infloop_lines, variables, return_type, false);
                 if (return_value != NULL) {
                     if (*(int *)return_value == 1) { // break code is 1
                         free(return_value);
@@ -618,6 +641,12 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
                         continue;
                     } else {
                         free(stack);
+                        if (DEBUG && destroy_vars_on_exit) {
+                            printf("Freeing variables... (%p)\n", variables); //DEBUG
+                            printf("%s\n", w_dict_stringify(variables));
+                        }
+                        if (destroy_vars_on_exit) w_dict_destroy(variables);
+                        if (DEBUG) printf("Exiting...\n"); //DEBUG
                         return return_value;
                     }
                 }
@@ -1193,7 +1222,12 @@ void *execute(list *parsed_code, W_Dict *args, W_Type return_type) {
         printf("%s\n", str);
         free(str);
     }
-    return result;
+    if (DEBUG && destroy_vars_on_exit) {
+        printf("Freeing variables... (%p)\n", variables); //DEBUG
+        printf("%s\n", w_dict_stringify(variables));
+    }
+    if (destroy_vars_on_exit) w_dict_destroy(variables);
+    return NULL;
 }
 
 /************************************************

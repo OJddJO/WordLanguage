@@ -21,7 +21,7 @@ if __name__ == "__main__":
         nb_iterations = int(sys.argv[1])
     else:
         nb_iterations = 1000
-    file_list = ["if", "while", "fibonacci"]
+    file_list = ["if", "while", "fibonacci_10", "fibonacci_25"]
     for file in file_list:
         print(f"Running benchmark for '{file}' scripts")
         py_time = timeit.timeit(execute_python, number=nb_iterations)

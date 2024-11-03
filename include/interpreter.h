@@ -11,7 +11,7 @@ char *type_keywords[] = {
     "null", "int", "float", "str", "bool", "list",
 };
 
-void *execute(list *parsed_code, W_Dict *args, W_Type return_type);
+void *execute(list *parsed_code, W_Dict *args, W_Type return_type, bool destroy_vars_on_exit);
 
 // Utility
 

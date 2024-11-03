@@ -1,9 +1,12 @@
-int value assign 3
+def int fibo with int n
+    if n less 2
+        return n
+    else
+        call fibo with n minus 1 store a
+        call fibo with n minus 2 store b
+        return a plus b
+    endif
+enddef
 
-if value equal 0
-    print "Value is 0"
-elif value equal 1
-    print "Value is 1"
-else
-    print "Value is neither 0 nor 1"
-endif
+call fibo with 2 store result
+print result
