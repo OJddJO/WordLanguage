@@ -1228,6 +1228,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
  * \param stack The stack to store the parsed lines after eval.
  */
 void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
+    if (DEBUG) printf("Evaluating parsed lines...\n"); //DEBUG
     while (current_block != NULL) {
         if (current_block->value == NULL) {
             current_block = current_block->next;
@@ -1450,6 +1451,7 @@ void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
                 exit(1);
             }
             W_Var *result_var = (W_Var *)list_pop(result);
+            if (DEBUG) printf("Creating result word...\n"); //DEBUG
             char *str = result_var->stringify(result_var);
             W_Word *result_word = (W_Word *)w_malloc(sizeof(W_Word));
             result_word->type = return_type;
@@ -1467,12 +1469,7 @@ void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
  * \param stack The stack to destroy.
  */
 void destroy_stack(list *stack) {
-    if (DEBUG) {
-        for (int i = 0; i < list_size(stack); i++) {
-            printf("%s ", ((W_Word *)list_get(stack, i))->value);
-        }
-        printf("\n");
-    }
+    if (DEBUG) printf("Destroying stack...\n"); //DEBUG
     list_element *current = stack->head;
     while (current != NULL) {
         W_Word *word = (W_Word *)current->value;
