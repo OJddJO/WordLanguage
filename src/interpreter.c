@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG true
+#define DEBUG false
 
 int main(int argc, char *argv[]) {
 
@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
 
     list *parsed_code = parse(lexed_code);
     if (DEBUG) print_parsed_code(parsed_code); //DEBUG
+
+    if (MONITOR_MEMORY) w_alloc_print();
 
     //initialize variables
     W_Type return_type = NULL_TYPE;
@@ -540,6 +542,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 }
                 if (DEBUG) printf("Executing if/elif block...\n");
                 void *return_value = execute(if_lines, scope, return_type, false);
+                list_destroy_no_free(if_lines);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
                     destroy_stack(stack);
@@ -581,11 +584,12 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             }
             if (DEBUG) printf("Executing else block...\n");
             void *return_value = execute(else_lines, scope, return_type, false);
-            if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
+            list_destroy_no_free(else_lines);
+            if (DEBUG) printf("Else block executed !\n");
             if (return_value != NULL) {
                 destroy_stack(stack);
                 return return_value;
-            }
+            } //!SECTION - else
         } else if (strcmp(word->value, "endif") == 0) {
             statement = "endif";
         } else if (strcmp(word->value, "infloop") == 0) { //SECTION - infloop
@@ -637,6 +641,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
             }
+            list_destroy_no_free(infloop_lines);
             if (DEBUG) printf("infloop executed !\n"); //!SECTION - infloop
         } else if (strcmp(word->value, "endinf") == 0) {
             statement = "endinf";
@@ -1200,7 +1205,6 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             }
         }
         destroy_stack(stack);
-        printf("ok\n");
         current_line = current_line->next;
     }
     if (DEBUG) {
@@ -1458,10 +1462,14 @@ void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
             result_word->value = str;
             result_word->line = line;
             result_word->is_generated = true;
+            result_var->destroy(result_var);
+            list_destroy(result);
+            if (DEBUG) printf("Result created\n"); //DEBUG
             list_append(stack, result_word);
         }
         current_block = current_block->next;
     }
+    if (DEBUG) printf("Evaluated parsed lines\n"); //DEBUG
 }
 
 /**
@@ -1482,6 +1490,7 @@ void destroy_stack(list *stack) {
         current = next;
     }
     w_free(stack);
+    if (DEBUG) printf("Stack destroyed\n"); //DEBUG
 }
 
 /**

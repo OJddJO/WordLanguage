@@ -8,12 +8,11 @@
 #include <stdbool.h>
 #include "w_alloc.h"
 
-#define MONITOR_MEMORY true
+#define MONITOR_MEMORY false
 
 #if MONITOR_MEMORY
 
 extern int w_alloc_count;
-extern long long int w_alloc_used;
 extern long long int w_alloc_total;
 
 void *w_malloc(size_t size);

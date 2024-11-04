@@ -74,8 +74,8 @@ char *w_float_stringify(W_Float *f) {
  * \param f The float to destroy.
  */
 void w_float_destroy(W_Float *f) {
-    if (f->value != NULL) free(f->value);
-    free(f);
+    if (f->value != NULL) w_free(f->value);
+    w_free(f);
 }
 
 /**

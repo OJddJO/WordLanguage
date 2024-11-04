@@ -73,8 +73,8 @@ char *w_int_stringify(W_Int *i) {
  * \param i The integer to destroy.
  */
 void w_int_destroy(W_Int *i) {
-    if (i->value != NULL) free(i->value);
-    free(i);
+    if (i->value != NULL) w_free(i->value);
+    w_free(i);
 }
 
 /**

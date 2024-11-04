@@ -78,8 +78,8 @@ char *w_bool_stringify(W_Bool *b) {
  * \param b The boolean to destroy.
  */
 void w_bool_destroy(W_Bool *b) {
-    if (b->value != NULL) free(b->value);
-    free(b);
+    if (b->value != NULL) w_free(b->value);
+    w_free(b);
 }
 
 /**

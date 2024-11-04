@@ -64,7 +64,7 @@ void list_remove(list *l, int index) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
 }
 
 /**
@@ -164,7 +164,7 @@ void *list_pop(list *l) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
     return value;
 }
 
@@ -176,9 +176,23 @@ void list_destroy(list *l) {
     list_element *e = l->head;
     while (e != NULL) {
         list_element *next = e->next;
-        if (e->value != NULL) free(e->value);
-        free(e);
+        if (e->value != NULL) w_free(e->value);
+        w_free(e);
         e = next;
     }
-    free(l);
+    w_free(l);
+}
+
+/**
+ * \brief Destroy a list without freeing the values
+ * \param l The list to destroy
+ **/
+void list_destroy_no_free(list *l) {
+    list_element *e = l->head;
+    while (e != NULL) {
+        list_element *next = e->next;
+        w_free(e);
+        e = next;
+    }
+    w_free(l);
 }

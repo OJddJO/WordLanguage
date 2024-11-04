@@ -22,7 +22,7 @@ W_Func *w_func_init() {
  */
 void w_func_destroy(W_Func *f) {
     dict_destroy(f->args);
-    free(f);
+    w_free(f);
 }
 
 /**

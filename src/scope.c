@@ -34,5 +34,5 @@ W_Var *get_var(Scope *scope, char *name) {
  */
 void destroy_scope(Scope *scope) {
     w_dict_destroy(scope->vars);
-    free(scope);
+    w_free(scope);
 }

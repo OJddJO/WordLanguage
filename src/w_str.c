@@ -23,8 +23,8 @@ W_Str *w_str_init() {
  * \param value The new value.
  */
 void w_str_assign(W_Str *s, char *value) {
-    if (s->type != NULL_TYPE) { //free the previous value
-        free(s->value);
+    if (s->type != NULL_TYPE) { //w_free the previous value
+        w_free(s->value);
     } else s->type = STRING;
     //strip quotes
     int len = strlen(value)-2;
@@ -41,7 +41,7 @@ void w_str_assign(W_Str *s, char *value) {
  */
 void w_str_set(W_Str *s, char *value) {
     if (s->type != NULL_TYPE) {
-        free(s->value);
+        w_free(s->value);
     } else s->type = STRING;
     char *v = (char *)w_malloc(strlen(value) + 1);
     strcpy(v, value);
@@ -109,8 +109,8 @@ char *w_str_stringify(W_Str *s) {
  * \param s The string.
  */
 void w_str_destroy(W_Str *s) {
-    free(s->value);
-    free(s);
+    w_free(s->value);
+    w_free(s);
 }
 
 /**

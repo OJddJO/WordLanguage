@@ -130,7 +130,7 @@ char *w_dict_stringify(W_Dict *d) {
         if (((W_Var *)current_value->value)->type == STRING) size += 2; //for quotes
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         size += strlen(tmp) + 1;
-        free(tmp);
+        w_free(tmp);
         current_key = current_key->next;
         current_value = current_value->next;
     }
@@ -152,7 +152,7 @@ char *w_dict_stringify(W_Dict *d) {
         if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\"");
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         strcat(str, tmp);
-        free(tmp);
+        w_free(tmp);
         if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\""); 
         if (i < d->keys->size - 1) {
             strcat(str, ", ");
@@ -171,7 +171,7 @@ char *w_dict_stringify(W_Dict *d) {
 void w_dict_destroy(W_Dict *d) {
     list_destroy(d->keys);
     w_list_destroy(d->values);
-    free(d);
+    w_free(d);
 }
 
 /**

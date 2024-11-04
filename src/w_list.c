@@ -95,7 +95,7 @@ void w_list_remove(W_List *l, int index) {
     }
     l->size--;
     ((W_Var*) e->value)->destroy(e->value);
-    free(e);
+    w_free(e);
 }
 
 /**
@@ -119,7 +119,7 @@ void *w_list_pop(W_List *l) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
     return value;
 }
 
@@ -208,7 +208,7 @@ char *w_list_stringify(W_List *l) {
         if (((W_Var *)e->value)->type == STRING) size += 2; // for quotes
         char *str = ((W_Var *)e->value)->stringify(e->value);
         size += strlen(str) + 1; // +1 for comma or null terminator
-        free(str);
+        w_free(str);
         e = e->next;
     }
 
@@ -225,7 +225,7 @@ char *w_list_stringify(W_List *l) {
         if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
         char *value = ((W_Var *) e->value)->stringify(e->value);
         strcat(str, value);
-        free(value);
+        w_free(value);
         if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
         if (i < l->size - 1) {
             strcat(str, ", ");
@@ -261,8 +261,8 @@ void w_list_destroy(W_List *l) {
     while (e != NULL) {
         W_List_Element *next = e->next;
         if (e->value != NULL) ((W_Var*)e->value)->destroy(e->value);
-        free(e);
+        w_free(e);
         e = next;
     }
-    free(l);
+    w_free(l);
 }

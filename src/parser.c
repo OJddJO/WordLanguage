@@ -104,7 +104,7 @@ list *shunting_yard(list_element *current_word) {
     while (operators->size > 0) {
         list_append(post_order, list_pop(operators));
     }
-    free(operators);
+    w_free(operators);
     return post_order;
 }
 

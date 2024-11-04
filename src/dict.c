@@ -29,7 +29,7 @@ void dict_set(dict *d, char *key, void *value) {
         for (int i = 0; i < d->keys->size; i++) {
             if (strcmp((char *)current_key->value, key) == 0) {
                 if (current_value->value != NULL) {
-                    free(current_value->value);
+                    w_free(current_value->value);
                 }
                 current_value->value = value;
                 return;
@@ -123,5 +123,5 @@ void dict_remove(dict *d, char *key) {
 void dict_destroy(dict *d) {
     list_destroy(d->keys);
     list_destroy(d->values);
-    free(d);
+    w_free(d);
 }

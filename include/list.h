@@ -30,5 +30,6 @@ void list_insert(list *l, int index, void *value);
 int list_size(list *l);
 void *list_pop(list *l);
 void list_destroy(list *l);
+void list_destroy_no_free(list *l);
 
 #endif

@@ -99,8 +99,8 @@ void *w_plus(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for addition. (%s + %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -132,8 +132,8 @@ void *w_minus(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for subtraction. (%s - %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -165,8 +165,8 @@ void *w_time(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for multiplication. (%s * %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -191,8 +191,8 @@ W_Float *w_div(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     return result;
@@ -213,8 +213,8 @@ W_Int *w_mod(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -234,8 +234,8 @@ W_Int *w_ediv(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for ediv. (%s // %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -267,8 +267,8 @@ void *w_power(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for power operation. (%s ** %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
@@ -287,7 +287,7 @@ W_Float *w_sqrt(W_Var *a) {
     } else {
         char *type_a_str = w_get_type_str(a);
         printf("Error: Unsupported type for square root operation. (sqrt %s )\n", type_a_str);
-        free(type_a_str);
+        w_free(type_a_str);
         exit(1);
     }
 }
@@ -348,8 +348,8 @@ W_Bool *w_equal(W_Var *a, W_Var *b) {
         || (type_b != INT && type_b != FLOAT && type_b != STRING && type_b != BOOL && type_b != LIST)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for equality comparison. (%s == %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     if (type_a == type_b) {
@@ -393,8 +393,8 @@ W_Bool *w_greater(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for greater comparison. (%s > %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) > *(float *)b->get(b));
@@ -413,8 +413,8 @@ W_Bool *w_less(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for less comparison. (%s < %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) < *(float *)b->get(b));
@@ -433,8 +433,8 @@ W_Bool *w_gequal(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for greater or equal comparison. (%s >= %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) >= *(float *)b->get(b));
@@ -453,8 +453,8 @@ W_Bool *w_lequal(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for less or equal comparison. (%s <= %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) <= *(float *)b->get(b));
