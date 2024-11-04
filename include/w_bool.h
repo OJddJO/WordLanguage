@@ -2,6 +2,7 @@
 #define __W_BOOL_H__
 
 #include <stdbool.h>
+#include "w_alloc.h"
 #include "w_type.h"
 
 typedef struct _w_bool {

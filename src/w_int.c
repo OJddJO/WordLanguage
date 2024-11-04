@@ -1,11 +1,11 @@
 #include "w_int.h"
 
 /**
- * \brief Initializes a new integer. (malloc)
+ * \brief Initializes a new integer. (w_malloc)
  * \return A pointer to the newly created integer.
  */
 W_Int *w_int_init() {
-    W_Int *i = (W_Int *)malloc(sizeof(W_Int));
+    W_Int *i = (W_Int *)w_malloc(sizeof(W_Int));
     i->type = NULL_TYPE;
     i->value = NULL;
     i->destroy = &w_int_destroy;
@@ -18,7 +18,7 @@ W_Int *w_int_init() {
 }
 
 /**
- * \brief Assigns the value of the given integer. (malloc)
+ * \brief Assigns the value of the given integer. (w_malloc)
  * \param i The integer to set the value of.
  * \param value The value to set as a string.
  */
@@ -26,7 +26,7 @@ void w_int_assign(W_Int *i, char *value) {
     int *v;
     int var_value = atoi(value);
     if (i->type == NULL_TYPE) {
-        v = (int *)malloc(sizeof(int));
+        v = (int *)w_malloc(sizeof(int));
         i->type = INT;
     } else v = i->value;
     *v = var_value;
@@ -34,14 +34,14 @@ void w_int_assign(W_Int *i, char *value) {
 }
 
 /**
- * \brief Sets the value of the given integer. (malloc)
+ * \brief Sets the value of the given integer. (w_malloc)
  * \param i The integer to set the value of.
  * \param value The value to set.
  */
 void w_int_set(W_Int *i, int value) {
     int *v;
     if (i->type == NULL_TYPE) {
-        v = (int *)malloc(sizeof(int));
+        v = (int *)w_malloc(sizeof(int));
         i->type = INT;
     } else v = i->value;
     *v = value;
@@ -58,12 +58,12 @@ int *w_int_value(W_Int *i) {
 }
 
 /**
- * \brief Stringifies the given integer. (malloc)
+ * \brief Stringifies the given integer. (w_malloc)
  * \param i The integer to stringify.
  */
 char *w_int_stringify(W_Int *i) {
     int len = snprintf(NULL, 0, "%d", *i->value);
-    char *str = (char *)malloc(len + 1);
+    char *str = (char *)w_malloc(len + 1);
     sprintf(str, "%d", *i->value);
     return str;
 }
@@ -78,7 +78,7 @@ void w_int_destroy(W_Int *i) {
 }
 
 /**
- * \brief Copies the given integer. (malloc)
+ * \brief Copies the given integer. (w_malloc)
  * \param i The integer to copy.
  * \return A copy of the integer.
  */

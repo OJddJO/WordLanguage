@@ -7,6 +7,7 @@
 #define __LIST_H__
 
 #include <stdlib.h>
+#include "w_alloc.h"
 
 typedef struct _list_element {
     void *value;

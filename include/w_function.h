@@ -1,6 +1,7 @@
 #ifndef __W_FUNCTION_H__
 #define __W_FUNCTION_H__
 
+#include "w_alloc.h"
 #include "w_type.h"
 #include "list.h"
 #include "dict.h"

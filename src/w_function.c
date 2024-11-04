@@ -1,11 +1,11 @@
 #include "w_function.h"
 
 /**
- * \brief Initializes a new function. (malloc)
+ * \brief Initializes a new function. (w_malloc)
  * \return A new function.
  */
 W_Func *w_func_init() {
-    W_Func *f = (W_Func *)malloc(sizeof(W_Func));
+    W_Func *f = (W_Func *)w_malloc(sizeof(W_Func));
     f->type = FUNCTION;
     f->return_type = NULL_TYPE;
     f->args = dict_init();
@@ -26,18 +26,18 @@ void w_func_destroy(W_Func *f) {
 }
 
 /**
- * \brief Converts the given function to a string. (malloc)
+ * \brief Converts the given function to a string. (w_malloc)
  * \param f The function to convert.
  * \return The string representation of the function.
  */
 char *w_func_stringify(W_Func *f) {
-    char *str = (char *)malloc(sizeof(void *)*2 + 13);
+    char *str = (char *)w_malloc(sizeof(void *)*2 + 13);
     sprintf(str, "function at %p", f);
     return str;
 }
 
 /**
- * \brief Copies the given function. (malloc)
+ * \brief Copies the given function. (w_malloc)
  * \param f The function to copy.
  * \return A copy of the function.
  */
@@ -50,7 +50,7 @@ W_Func *w_func_copy(W_Func *f) {
     for (int i = 0; i < f->args->keys->size; i++) {
         char *key = (char *)current_key->value;
         W_Type *value = current_value->value;
-        W_Type *value_copy = (W_Type *)malloc(sizeof(W_Type));
+        W_Type *value_copy = (W_Type *)w_malloc(sizeof(W_Type));
         *value_copy = *value;
         dict_set(args_copy, key, value_copy);
         current_key = current_key->next;

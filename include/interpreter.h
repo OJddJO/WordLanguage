@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "w_alloc.h"
 #include "lexer.h"
 #include "parser.h"
 #include "scope.h"
@@ -17,6 +18,7 @@ void *execute(list *parsed_code, Scope *current_scope, W_Type return_type, bool 
 // Utility
 
 void eval_parsed_lines(list_element *parsed_line, Scope *scope, list *stack);
+void destroy_stack(list *stack);
 char *remove_dot(W_Word *word);
 bool is_type_keyword(char *word);
 bool is_float(char *str);

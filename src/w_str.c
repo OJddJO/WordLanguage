@@ -1,11 +1,11 @@
 #include "w_str.h"
 
 /**
- * \brief Initializes a new string. (malloc)
+ * \brief Initializes a new string. (w_malloc)
  * \return A pointer to the new string.
  */
 W_Str *w_str_init() {
-    W_Str *s = (W_Str *)malloc(sizeof(W_Str));
+    W_Str *s = (W_Str *)w_malloc(sizeof(W_Str));
     s->type = NULL_TYPE;
     s->value = NULL;
     s->destroy = &w_str_destroy;
@@ -18,7 +18,7 @@ W_Str *w_str_init() {
 }
 
 /**
- * \brief Assigns the value of a string. (malloc)
+ * \brief Assigns the value of a string. (w_malloc)
  * \param s The string.
  * \param value The new value.
  */
@@ -28,14 +28,14 @@ void w_str_assign(W_Str *s, char *value) {
     } else s->type = STRING;
     //strip quotes
     int len = strlen(value)-2;
-    char *v = (char *)malloc(len + 1);
+    char *v = (char *)w_malloc(len + 1);
     strncpy(v, value+1, len);
     v[len] = '\0';
     s->value = v;
 }
 
 /**
- * \brief Sets the value of a string. (malloc)
+ * \brief Sets the value of a string. (w_malloc)
  * \param s The string.
  * \param value The new value.
  */
@@ -43,7 +43,7 @@ void w_str_set(W_Str *s, char *value) {
     if (s->type != NULL_TYPE) {
         free(s->value);
     } else s->type = STRING;
-    char *v = (char *)malloc(strlen(value) + 1);
+    char *v = (char *)w_malloc(strlen(value) + 1);
     strcpy(v, value);
     s->value = v;
 }
@@ -58,27 +58,27 @@ char *w_str_value(W_Str *s) {
 }
 
 /**
- * \brief Concatenates two strings. (malloc)
+ * \brief Concatenates two strings. (w_malloc)
  * \param s1 The first string.
  * \param s2 The second string.
  * \return The concatenation of the two strings.
  */
 char *w_str_concat(W_Str *s1, W_Str *s2) {
-    char *result = (char *)malloc(strlen(s1->value) + strlen(s2->value) + 1);
+    char *result = (char *)w_malloc(strlen(s1->value) + strlen(s2->value) + 1);
     strcpy(result, s1->value);
     strcat(result, s2->value);
     return result;
 }
 
 /**
- * \brief Slices a string. (malloc)
+ * \brief Slices a string. (w_malloc)
  * \param s The string.
  * \param start The start index.
  * \param end The end index.
  * \return The sliced string.
  */
 char *w_str_slice(W_Str *s, int start, int end) { 
-    char *result = (char *)malloc(end - start + 1);
+    char *result = (char *)w_malloc(end - start + 1);
     strncpy(result, s->value + start, end - start);
     result[end - start] = '\0';
     return result;
@@ -94,14 +94,14 @@ int w_str_length(W_Str *s) {
 }
 
 /**
- * \brief Stringifies a string. (malloc)
+ * \brief Stringifies a string. (w_malloc)
  * \param s The string.
  * \return The string representation of the string.
  */
 char *w_str_stringify(W_Str *s) {
-    char *str = (char *)malloc(strlen(s->value)+1);
+    char *str = (char *)w_malloc(strlen(s->value)+1);
     strcpy(str, s->value);
-    return str; //bruh just to return the same string but malloc...
+    return str; //bruh just to return the same string but w_malloc...
 }
 
 /**
@@ -114,7 +114,7 @@ void w_str_destroy(W_Str *s) {
 }
 
 /**
- * \brief Copies a string. (malloc)
+ * \brief Copies a string. (w_malloc)
  * \param s The string.
  * \return A pointer to the copied string.
  */
