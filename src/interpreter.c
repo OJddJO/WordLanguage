@@ -1174,7 +1174,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 var->assign(var, word->value);
-            } //!SECTION - change
+            }
+            //!SECTION - change
         } else if (strcmp(word->value, "delete") == 0) { //SECTION - delete
             statement = "variable deletion";
 
