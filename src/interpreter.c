@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG false
+#define DEBUG true
 
 int main(int argc, char *argv[]) {
 
@@ -29,17 +29,16 @@ int main(int argc, char *argv[]) {
     if (MONITOR_MEMORY) w_alloc_print();
 
     //initialize variables
+    if (DEBUG) printf("Initializing main scope...\n"); //DEBUG
+    Scope *main_scope = init_scope();
     W_Type return_type = NULL_TYPE;
-    W_Dict *default_vars = w_dict_init();
+    W_Dict *default_vars = main_scope->vars;
     W_Bool *w_true = w_bool_init();
     w_bool_set(w_true, true);
     w_dict_set(default_vars, "true", w_true);
     W_Bool *w_false = w_bool_init();
     w_bool_set(w_false, false);
     w_dict_set(default_vars, "false", w_false);
-
-    Scope *main_scope = init_scope();
-    main_scope->vars = default_vars;
 
     if (DEBUG) printf("Executing...\n");
     execute(parsed_code, main_scope, return_type, true);
@@ -306,7 +305,9 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             }
             if (DEBUG && destroy_scope_on_exit) {
                 printf("Freeing inner scope... (%p)\n", scope); //DEBUG
-                printf("%s\n", w_dict_stringify(scope->vars));
+                char *str_dict =  w_dict_stringify(scope->vars);
+                printf("%s\n", str_dict);
+                w_free(str_dict);
             }
             if (destroy_scope_on_exit) destroy_scope(scope);
             if (DEBUG) printf("Exiting...\n"); //DEBUG
@@ -1215,7 +1216,9 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
     }
     if (DEBUG && destroy_scope_on_exit) {
         printf("Freeing inner scope... (%p)\n", scope->vars); //DEBUG
-        printf("%s\n", w_dict_stringify(scope->vars)); //DEBUG
+        char *dict_str = w_dict_stringify(scope->vars);
+        printf("%s\n", dict_str);
+        w_free(dict_str);
     }
     if (destroy_scope_on_exit) destroy_scope(scope);
     return NULL;

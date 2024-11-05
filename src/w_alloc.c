@@ -16,7 +16,7 @@ void *w_malloc(size_t size) {
         fprintf(stderr, "[MEMORY] Error: Could not allocate memory\n");
         exit(1);
     }
-    printf("[MEMORY] Allocated %zu bytes at %p\n", size, ptr);
+    // printf("[MEMORY] Allocated %zu bytes at %p\n", size, ptr);
     w_alloc_count++;
     w_alloc_total += size;
     return ptr;
@@ -27,10 +27,10 @@ void *w_malloc(size_t size) {
  * \param ptr The memory to free.
  */
 void w_free(void *ptr) {
-    printf("[MEMORY] Freeing memory at %p... ", ptr);
+    // printf("[MEMORY] Freeing memory at %p... ", ptr);
     free(ptr);
     w_alloc_count--;
-    printf("Freed\n");
+    // printf("Freed\n");
 }
 
 /**

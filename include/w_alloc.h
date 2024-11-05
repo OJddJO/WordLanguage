@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "w_alloc.h"
 
-#define MONITOR_MEMORY false
+#define MONITOR_MEMORY true
 
 #if MONITOR_MEMORY
 
