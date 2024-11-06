@@ -8,6 +8,15 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (strlen(argv[1]) < 3) {
+        fprintf(stderr, "Error: Invalid file name\n");
+        return 1;
+    }
+    if (strcmp(argv[1] + strlen(argv[1]) - 2, ".w") != 0) {
+        fprintf(stderr, "Error: Invalid file extension\n");
+        return 1;
+    }
+
     FILE *file;
     if (DEBUG) file = fopen("test.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
