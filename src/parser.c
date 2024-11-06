@@ -15,7 +15,13 @@ list *parse(list *tokenized_code) {
         list_append(parsed_code, current_block);
         current_line = current_line->next;
     }
-    list_destroy(tokenized_code);
+    current_line = tokenized_code->head;
+    while (current_line != NULL) {
+        list *line = (list *)current_line->value;
+        list_destroy_no_free(line);
+        current_line = current_line->next;
+    }
+    list_destroy_no_free(tokenized_code);
     return parsed_code;
 }
 
@@ -167,13 +173,22 @@ void parser_destroy(list *parsed_code) {
                 list_element *next_block = current_block->next;
                 list *parsed_words = (list *)current_block->value;
                 if (parsed_words != NULL) {
-                    list_destroy(parsed_words);
+                    list_element *current_word = parsed_words->head;
+                    while (current_word != NULL) {
+                        W_Word *word = (W_Word *)current_word->value;
+                        if (word != NULL) {
+                            w_free(word->value);
+                            w_free(word);
+                        }
+                        current_word = current_word->next;
+                    }
+                    list_destroy_no_free(parsed_words);
                 }
                 current_block = next_block;
             }
-            list_destroy(line);
+            list_destroy_no_free(line);
         }
         current_line = next_line;
     }
-    list_destroy(parsed_code);
+    list_destroy_no_free(parsed_code);
 }

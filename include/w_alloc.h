@@ -12,6 +12,8 @@
 
 #if MONITOR_MEMORY
 
+#define DEBUG true
+
 extern int w_alloc_count;
 extern long long int w_alloc_total;
 

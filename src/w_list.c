@@ -200,6 +200,14 @@ void w_list_concat(W_List *l1, W_List *l2) {
  * \return The string representation of the list
  **/
 char *w_list_stringify(W_List *l) {
+    if (l->size == 0) {
+        char *str = (char *)w_malloc(3);
+        str[0] = '[';
+        str[1] = ']';
+        str[2] = '\0';
+        return str;
+    }
+
     int size = 0;
     W_List_Element *e = l->head;
 

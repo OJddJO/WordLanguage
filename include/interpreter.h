@@ -9,6 +9,10 @@
 #include "scope.h"
 #include "w_stdlib.h"
 
+#ifndef DEBUG
+#define DEBUG false
+#endif
+
 char *type_keywords[] = {
     "null", "int", "float", "str", "bool", "list",
 };
