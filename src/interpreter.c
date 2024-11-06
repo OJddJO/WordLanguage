@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
     list *parsed_code = parse(lexed_code);
     if (DEBUG) print_parsed_code(parsed_code); //DEBUG
 
-    if (MONITOR_MEMORY) w_alloc_print();
-
     //initialize variables
     if (DEBUG) printf("Initializing main scope...\n"); //DEBUG
     Scope *main_scope = init_scope();
