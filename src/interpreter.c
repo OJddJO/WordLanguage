@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#define DEBUG true
+#define DEBUG false
 
 int main(int argc, char *argv[]) {
 
@@ -543,13 +543,14 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 }
                 if (DEBUG) printf("Executing if/elif block...\n");
                 void *return_value = execute(if_lines, scope, return_type, false);
-                list_destroy_no_free(if_lines);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
+                    list_destroy_no_free(if_lines);
                     destroy_stack(stack);
                     return return_value;
                 }
-            } else if (DEBUG) printf("Skipping if/elif block...\n"); //!SECTION - if/elif
+            } else if (DEBUG) printf("Skipping if/elif block...\n");
+            list_destroy_no_free(if_lines); //!SECTION - if/elif
         } else if (strcmp(word->value, "else") == 0) { //SECTION - else
             statement = "else block";
 
