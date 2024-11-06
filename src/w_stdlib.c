@@ -5,12 +5,12 @@
  ***********************************************/
 
 /**
- * \brief Get the type of a variable as a string (malloc)
+ * \brief Get the type of a variable as a string (w_malloc)
  * \param var The variable to get the type of
  * \return The type of the variable
  */
 char *w_get_type_str(W_Var *var) {
-    char *type = (char *)malloc(9);
+    char *type = (char *)w_malloc(9);
     switch (var->type) {
         case INT:
             strcpy(type, "int");
@@ -73,7 +73,7 @@ W_Type w_get_type(char *str) {
  ***********************************************/
 
 /**
- * \brief Add two variables (malloc)
+ * \brief Add two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the addition
@@ -99,14 +99,14 @@ void *w_plus(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for addition. (%s + %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Subtract two variables (malloc)
+ * \brief Subtract two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the subtraction
@@ -132,14 +132,14 @@ void *w_minus(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for subtraction. (%s - %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Multiply two variables (malloc)
+ * \brief Multiply two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the multiplication
@@ -165,14 +165,14 @@ void *w_time(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for multiplication. (%s * %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Divide two variables (malloc)
+ * \brief Divide two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the division
@@ -191,15 +191,15 @@ W_Float *w_div(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for division. (%s / %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     return result;
 }
 
 /**
- * \brief Modulo two variables (malloc)
+ * \brief Modulo two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the modulo
@@ -213,14 +213,14 @@ W_Int *w_mod(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for modulo. (%s %% %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Integer division two variables (malloc)
+ * \brief Integer division two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the integer division
@@ -234,14 +234,14 @@ W_Int *w_ediv(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for ediv. (%s // %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Raise a variable to the power of another variable (malloc)
+ * \brief Raise a variable to the power of another variable (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the power operation
@@ -267,14 +267,14 @@ void *w_power(W_Var *a, W_Var *b) {
     } else {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for power operation. (%s ** %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
 }
 
 /**
- * \brief Square root a variable (malloc)
+ * \brief Square root a variable (w_malloc)
  * \param a The variable to square root
  * \return The result of the square root operation
  */
@@ -287,7 +287,7 @@ W_Float *w_sqrt(W_Var *a) {
     } else {
         char *type_a_str = w_get_type_str(a);
         printf("Error: Unsupported type for square root operation. (sqrt %s )\n", type_a_str);
-        free(type_a_str);
+        w_free(type_a_str);
         exit(1);
     }
 }
@@ -297,7 +297,7 @@ W_Float *w_sqrt(W_Var *a) {
  ***********************************************/
 
 /**
- * \brief Logical AND two variables (malloc)
+ * \brief Logical AND two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the AND operation
@@ -309,7 +309,7 @@ W_Bool *w_and (W_Var *a, W_Var *b) {
 }
 
 /**
- * \brief Logical OR two variables (malloc)
+ * \brief Logical OR two variables (w_malloc)
  * \param a The first variable
  * \param b The second variable
  * \return The result of the OR operation
@@ -321,7 +321,7 @@ W_Bool *w_or (W_Var *a, W_Var *b) {
 }
 
 /**
- * \brief Logical NOT a variable (malloc)
+ * \brief Logical NOT a variable (w_malloc)
  * \param a The variable to NOT
  * \return The result of the NOT operation
  */
@@ -348,8 +348,8 @@ W_Bool *w_equal(W_Var *a, W_Var *b) {
         || (type_b != INT && type_b != FLOAT && type_b != STRING && type_b != BOOL && type_b != LIST)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for equality comparison. (%s == %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     if (type_a == type_b) {
@@ -393,8 +393,8 @@ W_Bool *w_greater(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for greater comparison. (%s > %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) > *(float *)b->get(b));
@@ -413,8 +413,8 @@ W_Bool *w_less(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for less comparison. (%s < %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) < *(float *)b->get(b));
@@ -433,8 +433,8 @@ W_Bool *w_gequal(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for greater or equal comparison. (%s >= %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) >= *(float *)b->get(b));
@@ -453,8 +453,8 @@ W_Bool *w_lequal(W_Var *a, W_Var *b) {
     if ((type_a != INT && type_a != FLOAT) || (type_b != INT && type_b != FLOAT)) {
         char *type_a_str = w_get_type_str(a), *type_b_str = w_get_type_str(b);
         printf("Error: Unsupported types for less or equal comparison. (%s <= %s)\n", type_a_str, type_b_str);
-        free(type_a_str);
-        free(type_b_str);
+        w_free(type_a_str);
+        w_free(type_b_str);
         exit(1);
     }
     w_bool_set(result, *(float *)a->get(a) <= *(float *)b->get(b));
@@ -466,7 +466,7 @@ W_Bool *w_lequal(W_Var *a, W_Var *b) {
  ***********************************************/
 
 /**
- * \brief Initialize a variable (malloc)
+ * \brief Initialize a variable (w_malloc)
  * \param type The type of the variable
  * \return The initialized variable
  */

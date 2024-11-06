@@ -6,11 +6,11 @@
 #include "list.h"
 
 /**
- * \brief Initialize a list (malloc)
+ * \brief Initialize a list (w_malloc)
  * \return A pointer to the new list
  **/
 list *list_init() {
-    list *l = (list *)malloc(sizeof(list));
+    list *l = (list *)w_malloc(sizeof(list));
     l->head = NULL;
     l->tail = NULL;
     l->size = 0;
@@ -19,12 +19,12 @@ list *list_init() {
 }
 
 /**
- * \brief Add an element to the list (malloc)
+ * \brief Add an element to the list (w_malloc)
  * \param l The list to add the element to
  * \param value The value of the element to add
  **/
 void list_append(list *l, void *value) {
-    list_element *e = (list_element *)malloc(sizeof(list_element));
+    list_element *e = (list_element *)w_malloc(sizeof(list_element));
     e->value = value;
     e->prev = l->tail;
     e->next = NULL;
@@ -64,7 +64,7 @@ void list_remove(list *l, int index) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
 }
 
 /**
@@ -93,7 +93,7 @@ void *list_get(list *l, int index) {
 }
 
 /**
- * \brief Insert an element into the list (malloc)
+ * \brief Insert an element into the list (w_malloc)
  * \param l The list to insert the element into
  * \param index The index to insert the element at
  * \param value The value of the element to insert
@@ -102,7 +102,7 @@ void list_insert(list *l, int index, void *value) {
     if (index < 0 || index > l->size) {
         return;
     }
-    list_element *e = (list_element *)malloc(sizeof(list_element));
+    list_element *e = (list_element *)w_malloc(sizeof(list_element));
     e->value = value;
     if (index == 0) {
         e->prev = NULL;
@@ -144,7 +144,7 @@ int list_size(list *l) {
 }
 
 /**
- * \brief Remove and return the last element in the list (malloc)
+ * \brief Remove and return the last element in the list (w_malloc)
  * \param l The list to pop the element from
  * \return The value of the last element in the list, or NULL if the list is empty
  **/
@@ -164,7 +164,7 @@ void *list_pop(list *l) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
     return value;
 }
 
@@ -176,9 +176,23 @@ void list_destroy(list *l) {
     list_element *e = l->head;
     while (e != NULL) {
         list_element *next = e->next;
-        if (e->value != NULL) free(e->value);
-        free(e);
+        if (e->value != NULL) w_free(e->value);
+        w_free(e);
         e = next;
     }
-    free(l);
+    w_free(l);
+}
+
+/**
+ * \brief Destroy a list without freeing the values
+ * \param l The list to destroy
+ **/
+void list_destroy_no_free(list *l) {
+    list_element *e = l->head;
+    while (e != NULL) {
+        list_element *next = e->next;
+        w_free(e);
+        e = next;
+    }
+    w_free(l);
 }

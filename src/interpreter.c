@@ -8,6 +8,15 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (strlen(argv[1]) < 3) {
+        fprintf(stderr, "Error: Invalid file name\n");
+        return 1;
+    }
+    if (strcmp(argv[1] + strlen(argv[1]) - 2, ".w") != 0) {
+        fprintf(stderr, "Error: Invalid file extension\n");
+        return 1;
+    }
+
     FILE *file;
     if (DEBUG) file = fopen("test.w", "r"); //DEBUG
     else file = fopen(argv[1], "r");
@@ -26,9 +35,13 @@ int main(int argc, char *argv[]) {
     list *parsed_code = parse(lexed_code);
     if (DEBUG) print_parsed_code(parsed_code); //DEBUG
 
+    if (MONITOR_MEMORY) w_alloc_print();
+
     //initialize variables
+    if (DEBUG) printf("Initializing main scope...\n"); //DEBUG
+    Scope *main_scope = init_scope();
     W_Type return_type = NULL_TYPE;
-    W_Dict *default_vars = w_dict_init();
+    W_Dict *default_vars = main_scope->vars;
     W_Bool *w_true = w_bool_init();
     w_bool_set(w_true, true);
     w_dict_set(default_vars, "true", w_true);
@@ -36,15 +49,14 @@ int main(int argc, char *argv[]) {
     w_bool_set(w_false, false);
     w_dict_set(default_vars, "false", w_false);
 
-    Scope *main_scope = init_scope();
-    main_scope->vars = default_vars;
-
     if (DEBUG) printf("Executing...\n");
     execute(parsed_code, main_scope, return_type, true);
     if (DEBUG) printf("Executed !\n");
     // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
 
     if (DEBUG) printf("Done\n"); //DEBUG
+    if (MONITOR_MEMORY) w_alloc_print();
+
     return 0;
 }
 
@@ -53,16 +65,16 @@ int main(int argc, char *argv[]) {
  * \param parsed_code The parsed code to execute.
  * \param scope The scope to execute the code in.
  * \param return_type The type of the return value.
- * \param destroy_vars_on_exit Whether to destroy the variables on exit.
+ * \param destroy_scope_on_exit Whether to destroy the scope on exit.
  * \return The result of the execution
  */
-void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_vars_on_exit) {
+void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_scope_on_exit) {
     void *result = NULL;
     // if (DEBUG) {
     //     printf("Args:\n"); //DEBUG
     //     char *str = w_dict_stringify(scope->vars);
     //     printf("%s\n", str);
-    //     free(str);
+    //     w_free(str);
     //     // print parsed code
     //     printf("Parsed code:\n");
     //     print_parsed_code(parsed_code);
@@ -149,7 +161,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                             fprintf(stderr, "Error: Cannot have null argument, line: %d\n", word->line);
                             exit(1);
                         }
-                        W_Type *arg_type = (W_Type *)malloc(sizeof(W_Type));
+                        W_Type *arg_type = (W_Type *)w_malloc(sizeof(W_Type));
                         *arg_type = w_get_type(word->value);
 
                         current_word = current_word->next;
@@ -226,7 +238,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     fprintf(stderr, "Error: Cannot return value from null function, line: %d\n", word->line);
                     exit(1);
                 } else {
-                    free(stack);
+                    destroy_stack(stack);
                     return NULL;
                 }
             }
@@ -290,21 +302,23 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 printf("Returning: ");
                 char *str = result->stringify(result);
                 printf("%s\n", str);
-                free(str);
+                w_free(str);
             }
-            free(result_type_str);
-            free(stack);
+            w_free(result_type_str);
+            destroy_stack(stack);
             if (DEBUG) {
                 printf("Exit Variables:\n"); //DEBUG
                 char *str = w_dict_stringify(scope->vars);
                 printf("%s\n", str);
-                free(str);
+                w_free(str);
             }
-            if (DEBUG && destroy_vars_on_exit) {
+            if (DEBUG && destroy_scope_on_exit) {
                 printf("Freeing inner scope... (%p)\n", scope); //DEBUG
-                printf("%s\n", w_dict_stringify(scope->vars));
+                char *str_dict =  w_dict_stringify(scope->vars);
+                printf("%s\n", str_dict);
+                w_free(str_dict);
             }
-            if (destroy_vars_on_exit) destroy_scope(scope);
+            if (destroy_scope_on_exit) destroy_scope(scope);
             if (DEBUG) printf("Exiting...\n"); //DEBUG
             return result; //!SECTION - return
         } else if (strcmp(word->value, "call") == 0) { //SECTION - call
@@ -338,7 +352,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 printf("Scope variables: (%p)\n", scope->vars); //DEBUG
                 char *str = w_dict_stringify(scope->vars);
                 printf("%s\n", str);
-                free(str);
+                w_free(str);
             }
 
             Scope *fn_scope = init_scope(); //function scope
@@ -379,8 +393,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                                 char *arg_type_str = w_get_type_str(&dummy);
                                 char *input_type_str = w_get_type_str(arg);
                                 fprintf(stderr, "Error: Expected %s value for argument '%s', got %s, line: %d\n", arg_type_str, arg_name, input_type_str, word->line);
-                                free(arg_type_str);
-                                free(input_type_str);
+                                w_free(arg_type_str);
+                                w_free(input_type_str);
                                 exit(1);
                             }
                             W_Var *arg_copy = ((W_Var *)arg)->copy(arg); //copy of the argument
@@ -421,7 +435,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     printf("Function variables: (%p)\n", fn_vars); //DEBUG
                     char *str = w_dict_stringify(fn_vars);
                     printf("%s\n", str);
-                    free(str);
+                    w_free(str);
                 }
                 if (current_word != NULL) {
                     word = current_word->value;
@@ -540,10 +554,12 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 void *return_value = execute(if_lines, scope, return_type, false);
                 if (DEBUG) printf("If/elif block executed !\n");
                 if (return_value != NULL) {
-                    free(stack);
+                    list_destroy_no_free(if_lines);
+                    destroy_stack(stack);
                     return return_value;
                 }
-            } else if (DEBUG) printf("Skipping if/elif block...\n"); //!SECTION - if/elif
+            } else if (DEBUG) printf("Skipping if/elif block...\n");
+            list_destroy_no_free(if_lines); //!SECTION - if/elif
         } else if (strcmp(word->value, "else") == 0) { //SECTION - else
             statement = "else block";
 
@@ -579,11 +595,12 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             }
             if (DEBUG) printf("Executing else block...\n");
             void *return_value = execute(else_lines, scope, return_type, false);
-            if (DEBUG) printf("Else block executed !\n"); //!SECTION - else
+            list_destroy_no_free(else_lines);
+            if (DEBUG) printf("Else block executed !\n");
             if (return_value != NULL) {
-                free(stack);
+                destroy_stack(stack);
                 return return_value;
-            }
+            } //!SECTION - else
         } else if (strcmp(word->value, "endif") == 0) {
             statement = "endif";
         } else if (strcmp(word->value, "infloop") == 0) { //SECTION - infloop
@@ -624,17 +641,18 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 void *return_value = execute(infloop_lines, scope, return_type, false);
                 if (return_value != NULL) {
                     if (*(int *)return_value == 1) { // break code is 1
-                        free(return_value);
+                        w_free(return_value);
                         break;
                     } else if (*(int *)return_value == 2) { // continue code is 2
-                        free(return_value);
+                        w_free(return_value);
                         continue;
                     } else {
-                        free(stack);
+                        destroy_stack(stack);
                         return return_value;
                     }
                 }
             }
+            list_destroy_no_free(infloop_lines);
             if (DEBUG) printf("infloop executed !\n"); //!SECTION - infloop
         } else if (strcmp(word->value, "endinf") == 0) {
             statement = "endinf";
@@ -646,8 +664,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 fprintf(stderr, "Error: Unexpected value after 'break', line: %d\n", word->line);
                 exit(1);
             }
-            free(stack);
-            int *result = (int *)malloc(sizeof(int));
+            destroy_stack(stack);
+            int *result = (int *)w_malloc(sizeof(int));
             *result = 1; // break code for infloop
             return result; //!SECTION - break
         } else if (strcmp(word->value, "continue") == 0) { //SECTION - continue
@@ -658,8 +676,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 fprintf(stderr, "Error: Unexpected value after 'continue', line: %d\n", word->line);
                 exit(1);
             }
-            free(stack);
-            int *result = (int *)malloc(sizeof(int));
+            destroy_stack(stack);
+            int *result = (int *)w_malloc(sizeof(int));
             *result = 2; // continue code for infloop
             return result; //!SECTION - continue
         }
@@ -725,7 +743,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                         }
                         char *str = var->stringify(var);
                         printf("%s", str);
-                        free(str);
+                        w_free(str);
                     } else if (word->type == STR) {
                         char str[strlen(word->value)-1];
                         strncpy(str, word->value+1, strlen(word->value)-2);
@@ -849,7 +867,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 if (var_list->type != LIST) {
                     char *var_type = w_get_type_str((W_Var *)var_list);
                     fprintf(stderr, "Error: Expected list name after keyword 'append', got '%s' (type: %s), line: %d\n", word->value, var_type, word->line);
-                    free(var_type);
+                    w_free(var_type);
                     exit(1);
                 }
                 current_word = current_word->next;
@@ -914,7 +932,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 if (var_list->type != LIST) {
                     char *var_type = w_get_type_str((W_Var *)var_list);
                     fprintf(stderr, "Error: Expected list name after keyword 'append', got '%s' (type: %s), line: %d\n", word->value, var_type, word->line);
-                    free(var_type);
+                    w_free(var_type);
                     exit(1);
                 }
                 current_word = current_word->next;
@@ -945,7 +963,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     if (var->type != INT) {
                         char *var_type_str = w_get_type_str(var);
                         fprintf(stderr, "Error: Expected int value after keyword 'index', got '%s' (type: %s), line: %d\n", word->value, var_type_str, word->line);
-                        free(var_type_str);
+                        w_free(var_type_str);
                         exit(1);
                     }
                     index = *(int *)var->value;
@@ -1056,8 +1074,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     dummy.type = type;
                     char *type_str = w_get_type_str(&dummy);
                     fprintf(stderr, "Error: Expected %s value after keyword 'assign', got '%s' (type: %s), line: %d\n", type_str, word->value, var_type_str, word->line);
-                    free(var_type_str);
-                    free(type_str);
+                    w_free(var_type_str);
+                    w_free(type_str);
                     exit(1);
                 }
                 value = var->copy(var);
@@ -1135,13 +1153,13 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     char *src_type_str = w_get_type_str(src_var);
                     char *var_type_str = w_get_type_str(var);
                     fprintf(stderr, "Error: Expected %s value after keyword 'to', got %s (type: %s), line: %d\n", var_type_str, word->value, src_type_str, word->line);
-                    free(src_type_str);
-                    free(var_type_str);
+                    w_free(src_type_str);
+                    w_free(var_type_str);
                     exit(1);
                 } else {
                     char *value = src_var->stringify(src_var);
                     var->assign(var, value);
-                    free(value);
+                    w_free(value);
                 }
             } else {
                 if (type == INT) { //get int value
@@ -1166,7 +1184,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 var->assign(var, word->value);
-            } //!SECTION - change
+            }
+            //!SECTION - change
         } else if (strcmp(word->value, "delete") == 0) { //SECTION - delete
             statement = "variable deletion";
 
@@ -1197,20 +1216,22 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 }
             }
         }
-        free(stack);
+        destroy_stack(stack);
         current_line = current_line->next;
     }
     if (DEBUG) {
         printf("Exit Variables:\n"); //DEBUG
         char *str = w_dict_stringify(scope->vars);
         printf("%s\n", str);
-        free(str);
+        w_free(str);
     }
-    if (DEBUG && destroy_vars_on_exit) {
+    if (DEBUG && destroy_scope_on_exit) {
         printf("Freeing inner scope... (%p)\n", scope->vars); //DEBUG
-        printf("%s\n", w_dict_stringify(scope->vars)); //DEBUG
+        char *dict_str = w_dict_stringify(scope->vars);
+        printf("%s\n", dict_str);
+        w_free(dict_str);
     }
-    if (destroy_vars_on_exit) destroy_scope(scope);
+    if (destroy_scope_on_exit) destroy_scope(scope);
     return NULL;
 }
 
@@ -1225,6 +1246,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
  * \param stack The stack to store the parsed lines after eval.
  */
 void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
+    if (DEBUG) printf("Evaluating parsed lines...\n"); //DEBUG
     while (current_block != NULL) {
         if (current_block->value == NULL) {
             current_block = current_block->next;
@@ -1417,7 +1439,7 @@ void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
                         w2->destroy(w2);
                         return_type = IDENTIFIER;
                     }
-                    free(without_dot);
+                    w_free(without_dot);
                 } else if (word->type == NUMBER) { //if number
                     if (is_float(word->value)) {
                         W_Float *w = w_var_init(FLOAT);
@@ -1447,15 +1469,42 @@ void eval_parsed_lines(list_element *current_block, Scope *scope, list *stack) {
                 exit(1);
             }
             W_Var *result_var = (W_Var *)list_pop(result);
+            if (DEBUG) printf("Creating result word...\n"); //DEBUG
             char *str = result_var->stringify(result_var);
-            W_Word *result_word = (W_Word *)malloc(sizeof(W_Word));
+            W_Word *result_word = (W_Word *)w_malloc(sizeof(W_Word));
             result_word->type = return_type;
             result_word->value = str;
             result_word->line = line;
+            result_word->is_generated = true;
+            result_var->destroy(result_var);
+            list_destroy(result);
+            if (DEBUG) printf("Result created\n"); //DEBUG
             list_append(stack, result_word);
         }
         current_block = current_block->next;
     }
+    if (DEBUG) printf("Evaluated parsed lines\n"); //DEBUG
+}
+
+/**
+ * \brief Destroys the stack and generated words only.
+ * \param stack The stack to destroy.
+ */
+void destroy_stack(list *stack) {
+    if (DEBUG) printf("Destroying stack...\n"); //DEBUG
+    list_element *current = stack->head;
+    while (current != NULL) {
+        W_Word *word = (W_Word *)current->value;
+        list_element *next = current->next;
+        if (word->is_generated) {
+            w_free(word->value);
+            w_free(word);
+        }
+        w_free(current);
+        current = next;
+    }
+    w_free(stack);
+    if (DEBUG) printf("Stack destroyed\n"); //DEBUG
 }
 
 /**
@@ -1470,7 +1519,7 @@ char *remove_dot(W_Word *word) {
             priority++;
         } else break;
     }
-    char *without_dot = (char *)malloc(strlen(word->value) - priority + 1);
+    char *without_dot = (char *)w_malloc(strlen(word->value) - priority + 1);
     strncpy(without_dot, word->value + priority, strlen(word->value) - priority);
     without_dot[strlen(word->value) - priority] = '\0';
     return without_dot;

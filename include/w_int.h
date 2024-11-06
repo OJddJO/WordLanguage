@@ -1,6 +1,7 @@
 #ifndef __W_INT_H__
 #define __W_INT_H__
 
+#include "w_alloc.h"
 #include "w_type.h"
 
 typedef struct _w_int {

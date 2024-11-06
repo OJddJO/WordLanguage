@@ -1,11 +1,11 @@
 #include "w_list.h"
 
 /**
- * \brief Initialize a list (malloc)
+ * \brief Initialize a list (w_malloc)
  * \return A pointer to the new list
  **/
 W_List *w_list_init() {
-    W_List *l = (W_List *)malloc(sizeof(W_List));
+    W_List *l = (W_List *)w_malloc(sizeof(W_List));
     l->type = LIST;
     l->head = NULL;
     l->tail = NULL;
@@ -18,12 +18,12 @@ W_List *w_list_init() {
 }
 
 /**
- * \brief Add an element to the list (malloc)
+ * \brief Add an element to the list (w_malloc)
  * \param l The list to add the element to
  * \param value The value of the element to add
  **/
 void w_list_append(W_List *l, void *value) {
-    W_List_Element *e = (W_List_Element *)malloc(sizeof(W_List_Element));
+    W_List_Element *e = (W_List_Element *)w_malloc(sizeof(W_List_Element));
     e->value = value;
     e->prev = l->tail;
     e->next = NULL;
@@ -95,11 +95,11 @@ void w_list_remove(W_List *l, int index) {
     }
     l->size--;
     ((W_Var*) e->value)->destroy(e->value);
-    free(e);
+    w_free(e);
 }
 
 /**
- * \brief Remove and return the last element in the list (malloc)
+ * \brief Remove and return the last element in the list (w_malloc)
  * \param l The list to pop the element from
  * \return The value of the last element in the list, or NULL if the list is empty
  **/
@@ -119,7 +119,7 @@ void *w_list_pop(W_List *l) {
         l->middle--;
     }
     l->size--;
-    free(e);
+    w_free(e);
     return value;
 }
 
@@ -208,12 +208,12 @@ char *w_list_stringify(W_List *l) {
         if (((W_Var *)e->value)->type == STRING) size += 2; // for quotes
         char *str = ((W_Var *)e->value)->stringify(e->value);
         size += strlen(str) + 1; // +1 for comma or null terminator
-        free(str);
+        w_free(str);
         e = e->next;
     }
 
     // Allocate memory for the resulting string
-    char *str = (char *)malloc(size + 3 + 2 * l->size); // +3 for brackets and null terminator, +2*l->size for commas and spaces
+    char *str = (char *)w_malloc(size + 3 + 2 * l->size); // +3 for brackets and null terminator, +2*l->size for commas and spaces
 
     str[0] = '[';
     str[1] = '\0';
@@ -225,7 +225,7 @@ char *w_list_stringify(W_List *l) {
         if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
         char *value = ((W_Var *) e->value)->stringify(e->value);
         strcat(str, value);
-        free(value);
+        w_free(value);
         if (((W_Var *)e->value)->type == STRING) strcat(str, "\"");
         if (i < l->size - 1) {
             strcat(str, ", ");
@@ -238,7 +238,7 @@ char *w_list_stringify(W_List *l) {
 }
 
 /**
- * \brief Copy a list (malloc)
+ * \brief Copy a list (w_malloc)
  * \param l The list to copy
  * \return A copy of the list
  **/
@@ -261,8 +261,8 @@ void w_list_destroy(W_List *l) {
     while (e != NULL) {
         W_List_Element *next = e->next;
         if (e->value != NULL) ((W_Var*)e->value)->destroy(e->value);
-        free(e);
+        w_free(e);
         e = next;
     }
-    free(l);
+    w_free(l);
 }

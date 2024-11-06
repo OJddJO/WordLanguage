@@ -1,11 +1,11 @@
 #include "w_dict.h"
 
 /**
- * \brief Initializes a new dictionary. (malloc)
+ * \brief Initializes a new dictionary. (w_malloc)
  * \return A new dictionary.
  */
 W_Dict *w_dict_init() {
-    W_Dict *d = (W_Dict *)malloc(sizeof(W_Dict));
+    W_Dict *d = (W_Dict *)w_malloc(sizeof(W_Dict));
     d->type = DICT;
     d->keys = list_init(); //list of keys, is a normal list
     d->values = w_list_init(); //list of values, is a w_list list
@@ -15,7 +15,7 @@ W_Dict *w_dict_init() {
 }
 
 /**
- * \brief Sets the given key and value in the given dictionary. (malloc)
+ * \brief Sets the given key and value in the given dictionary. (w_malloc)
  * \param d The dictionary to set the key and value in. 
  * \param key The key to set. Must be a string.
  * \param value The value to set.
@@ -36,7 +36,7 @@ void w_dict_set(W_Dict *d, char *key, void *value) {
             current_value = current_value->next;
         }
     } else {
-        char *key_copy = (char *)malloc(strlen(key) + 1);
+        char *key_copy = (char *)w_malloc(strlen(key) + 1);
         strcpy(key_copy, key);
         list_append(d->keys, key_copy);
         w_list_append(d->values, value);
@@ -115,7 +115,7 @@ void w_dict_remove(W_Dict *d, char *key) {
 }
 
 /**
- * \brief Stringifies the given dictionary. (malloc)
+ * \brief Stringifies the given dictionary. (w_malloc)
  * \param d The dictionary to stringify.
  * \return The stringified dictionary.
  */
@@ -130,13 +130,13 @@ char *w_dict_stringify(W_Dict *d) {
         if (((W_Var *)current_value->value)->type == STRING) size += 2; //for quotes
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         size += strlen(tmp) + 1;
-        free(tmp);
+        w_free(tmp);
         current_key = current_key->next;
         current_value = current_value->next;
     }
 
     // Allocate memory for the resulting string
-    char *str = (char *)malloc(size + 3 + 6 * d->keys->size);
+    char *str = (char *)w_malloc(size + 3 + 6 * d->keys->size);
 
     str[0] = '{';
     str[1] = '\0';
@@ -152,7 +152,7 @@ char *w_dict_stringify(W_Dict *d) {
         if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\"");
         char *tmp = ((W_Var *)current_value->value)->stringify(current_value->value);
         strcat(str, tmp);
-        free(tmp);
+        w_free(tmp);
         if (((W_Var *)current_value->value)->type == STRING) strcat(str, "\""); 
         if (i < d->keys->size - 1) {
             strcat(str, ", ");
@@ -171,7 +171,7 @@ char *w_dict_stringify(W_Dict *d) {
 void w_dict_destroy(W_Dict *d) {
     list_destroy(d->keys);
     w_list_destroy(d->values);
-    free(d);
+    w_free(d);
 }
 
 /**

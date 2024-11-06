@@ -2,6 +2,7 @@
 #define __SCOPE_H__
 
 #include <stdlib.h>
+#include "w_alloc.h"
 #include "w_type.h"
 #include "w_dict.h"
 

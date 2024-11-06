@@ -7,6 +7,7 @@
 #define __DICT_H__
 
 #include <string.h>
+#include "w_alloc.h"
 #include "list.h"
 
 typedef struct _dict {

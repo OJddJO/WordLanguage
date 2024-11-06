@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "w_alloc.h"
 #include "lexer.h"
 #include "w_list.h"
 

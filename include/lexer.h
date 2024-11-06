@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "w_alloc.h"
 #include "list.h"
 
 extern char *keywords[];
@@ -23,6 +24,7 @@ typedef struct _w_word {
     char *value;
     int line;
     bool parsed;
+    bool is_generated;
 } W_Word;
 
 list *word_tokenize(FILE *source);

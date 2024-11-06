@@ -1,6 +1,7 @@
 #ifndef __W_DICT_H__
 #define __W_DICT_H__
 
+#include "w_alloc.h"
 #include "w_type.h"
 #include "w_list.h"
 #include "list.h"

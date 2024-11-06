@@ -5,7 +5,7 @@
  * \return A pointer to the new scope.
  */
 Scope *init_scope() {
-    Scope *scope = (Scope *)malloc(sizeof(Scope));
+    Scope *scope = (Scope *)w_malloc(sizeof(Scope));
     scope->parent = NULL;
     scope->vars = w_dict_init();
     return scope;
@@ -34,5 +34,5 @@ W_Var *get_var(Scope *scope, char *name) {
  */
 void destroy_scope(Scope *scope) {
     w_dict_destroy(scope->vars);
-    free(scope);
+    w_free(scope);
 }

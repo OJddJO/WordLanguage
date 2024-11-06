@@ -1,7 +1,7 @@
 #include "parser.h"
 
 /**
- * \brief Parses the given list of words into a parsing tree. (malloc)
+ * \brief Parses the given list of words into a parsing tree. (w_malloc)
  * \param tokenized_code The list of list of words to parse.
  * \return A list (code) of list (line) of list (operation) of words, representing the parsed code.
  *  [ [ [ word ] ], [ [ word, word, word, ... ] ], ... ]
@@ -20,7 +20,7 @@ list *parse(list *tokenized_code) {
 }
 
 /**
- * \brief Parses the given list of words into a parsing list. (malloc)
+ * \brief Parses the given list of words into a parsing list. (w_malloc)
  * \param line The list of words to parse.
  * \return A list of lists of words, representing the parsed line.
  */
@@ -78,7 +78,7 @@ int get_priority(char *operator) {
 }
 
 /**
- * \brief Returns a list representing the given operation in post-order. (malloc)
+ * \brief Returns a list representing the given operation in post-order. (w_malloc)
  * \param current_word The current operation to parse.
  * \return A list representing the operation.
  */
@@ -104,7 +104,7 @@ list *shunting_yard(list_element *current_word) {
     while (operators->size > 0) {
         list_append(post_order, list_pop(operators));
     }
-    free(operators);
+    w_free(operators);
     return post_order;
 }
 
