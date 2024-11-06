@@ -7,45 +7,45 @@ This directory contains the benchmarking code for the project. The benchmarking 
 On my pc:
 ```
 Running benchmark for 'if' scripts
-Python: 3.458411 s for 100 iterations (avg: 0.034584 s/iter)
-Word: 0.359912 s for 100 iterations (avg: 0.003599 s/iter)
-Ratio python/word: 9.61x
-
-Running benchmark for 'while' scripts
-Python: 3.489668 s for 100 iterations (avg: 0.034897 s/iter)
-Word: 0.358798 s for 100 iterations (avg: 0.003588 s/iter)
+Python: 33.488615 s for 1000 iterations (avg: 0.033489 s/iter)
+Word: 3.441121 s for 1000 iterations (avg: 0.003441 s/iter)
 Ratio python/word: 9.73x
 
+Running benchmark for 'while' scripts
+Python: 33.493601 s for 1000 iterations (avg: 0.033494 s/iter)
+Word: 3.35622 s for 1000 iterations (avg: 0.003356 s/iter)
+Ratio python/word: 9.98x
+
 Running benchmark for 'fibonacci_10' scripts
-Python: 3.48353 s for 100 iterations (avg: 0.034835 s/iter)
-Word: 0.448602 s for 100 iterations (avg: 0.004486 s/iter)
-Ratio python/word: 7.77x
+Python: 33.592082 s for 1000 iterations (avg: 0.033592 s/iter)
+Word: 4.506011 s for 1000 iterations (avg: 0.004506 s/iter)
+Ratio python/word: 7.45x
 
 Running benchmark for 'fibonacci_20' scripts
-Python: 3.564039 s for 100 iterations (avg: 0.03564 s/iter)
-Word: 7.678685 s for 100 iterations (avg: 0.076787 s/iter)
-Ratio python/word: 0.46x
+Python: 34.694974 s for 1000 iterations (avg: 0.034695 s/iter)
+Word: 76.360572 s for 1000 iterations (avg: 0.076361 s/iter)
+Ratio python/word: 0.45x
 ```
 
 On Github Actions:
 ```
 Running benchmark for 'if' scripts
-Python: 1.965424 s for 100 iterations (avg: 0.019654 s/iter)
-Word: 0.384423 s for 100 iterations (avg: 0.003844 s/iter)
-Ratio python/word: 5.11x
+Python: 2.118754 s for 100 iterations (avg: 0.021188 s/iter)
+Word: 0.391955 s for 100 iterations (avg: 0.00392 s/iter)
+Ratio python/word: 5.41x
 
 Running benchmark for 'while' scripts
-Python: 2.005564 s for 100 iterations (avg: 0.020056 s/iter)
-Word: 0.388103 s for 100 iterations (avg: 0.003881 s/iter)
-Ratio python/word: 5.17x
+Python: 2.076555 s for 100 iterations (avg: 0.020766 s/iter)
+Word: 0.387519 s for 100 iterations (avg: 0.003875 s/iter)
+Ratio python/word: 5.36x
 
 Running benchmark for 'fibonacci_10' scripts
-Python: 1.979016 s for 100 iterations (avg: 0.01979 s/iter)
-Word: 0.520043 s for 100 iterations (avg: 0.0052 s/iter)
-Ratio python/word: 3.81x
+Python: 2.110027 s for 100 iterations (avg: 0.0211 s/iter)
+Word: 0.549725 s for 100 iterations (avg: 0.005497 s/iter)
+Ratio python/word: 3.84x
 
 Running benchmark for 'fibonacci_20' scripts
-Python: 2.141 s for 100 iterations (avg: 0.02141 s/iter)
-Word: 13.687988 s for 100 iterations (avg: 0.13688 s/iter)
+Python: 2.279345 s for 100 iterations (avg: 0.022793 s/iter)
+Word: 13.906515 s for 100 iterations (avg: 0.139065 s/iter)
 Ratio python/word: 0.16x
 ```
