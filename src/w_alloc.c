@@ -27,10 +27,10 @@ void *w_malloc(size_t size) {
  * \param ptr The memory to free.
  */
 void w_free(void *ptr) {
-    printf("[MEMORY] Freeing memory at %p...\n", ptr);
+    printf("[MEMORY] Freeing memory at %p... ", ptr);
     free(ptr);
     w_alloc_count--;
-    // printf("Freed\n");
+    printf("Freed\n");
 }
 
 /**

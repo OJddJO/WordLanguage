@@ -1,20 +1,20 @@
 #include "interpreter.h"
-#define DEBUG false
 
 int main(int argc, char *argv[]) {
 
-    if (argc < 2 && !DEBUG) {
-        printf("Usage: word.exe <path>\n");
-        return 1;
-    }
-
-    if (strlen(argv[1]) < 3) {
-        fprintf(stderr, "Error: Invalid file name\n");
-        return 1;
-    }
-    if (strcmp(argv[1] + strlen(argv[1]) - 2, ".w") != 0) {
-        fprintf(stderr, "Error: Invalid file extension\n");
-        return 1;
+    if (!DEBUG) { //file name checks
+        if (argc < 2) {
+            printf("Usage: word.exe <path>\n");
+            return 1;
+        }
+        if (strlen(argv[1]) < 3) {
+            fprintf(stderr, "Error: Invalid file name\n");
+            return 1;
+        }
+        if (strcmp(argv[1] + strlen(argv[1]) - 2, ".w") != 0) {
+            fprintf(stderr, "Error: Invalid file extension\n");
+            return 1;
+        }
     }
 
     FILE *file;
@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
     list *parsed_code = parse(lexed_code);
     if (DEBUG) print_parsed_code(parsed_code); //DEBUG
 
-    if (MONITOR_MEMORY) w_alloc_print();
-
     //initialize variables
     if (DEBUG) printf("Initializing main scope...\n"); //DEBUG
     Scope *main_scope = init_scope();
@@ -52,7 +50,7 @@ int main(int argc, char *argv[]) {
     if (DEBUG) printf("Executing...\n");
     execute(parsed_code, main_scope, return_type, true);
     if (DEBUG) printf("Executed !\n");
-    // parser_destroy(parsed_code); // TODO: Fix double free, not necessary but cleaner (memory leak)
+    parser_destroy(parsed_code);
 
     if (DEBUG) printf("Done\n"); //DEBUG
     if (MONITOR_MEMORY) w_alloc_print();
@@ -119,6 +117,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
         if (strcmp(word->value, "def") == 0) { //SECTION - def
             statement = "function definition";
 
+            if (DEBUG) printf("Defining function...\n");
             W_Func *f = w_func_init(); //create function
             dict *fn_args = f->args; //create arguments dictionary
 
@@ -221,7 +220,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 fprintf(stderr, "Error: Variable '%s' already exists, line: %d\n", name, word->line);
                 exit(1);
             }
-            w_dict_set(scope->vars, name, f); //!SECTION - def
+            w_dict_set(scope->vars, name, f);
+            if (DEBUG) printf("Function defined !\n"); //!SECTION - def
 
         } else if (strcmp(word->value, "enddef") == 0) {
             statement = "enddef";
@@ -353,6 +353,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 char *str = w_dict_stringify(scope->vars);
                 printf("%s\n", str);
                 w_free(str);
+                printf("Initializing function scope...\n");
             }
 
             Scope *fn_scope = init_scope(); //function scope
@@ -432,6 +433,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     exit(1);
                 }
                 if (DEBUG) {
+                    printf("Function scope initialized !\n");
                     printf("Function variables: (%p)\n", fn_vars); //DEBUG
                     char *str = w_dict_stringify(fn_vars);
                     printf("%s\n", str);
@@ -460,7 +462,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 } else {
                     if (DEBUG) printf("Starting function execution...\n");
-                    execute(f->parsed_code, fn_scope, f->return_type, true);
+                    void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
+                    if (result != NULL) ((W_Var *)result)->destroy(result);
                 }
                 if (DEBUG) printf("Function executed !\n");
             } else if (nb_args > 0) {
@@ -468,7 +471,8 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 exit(1);
             } else {
                 if (DEBUG) printf("Starting function execution...\n");
-                execute(f->parsed_code, fn_scope, f->return_type, true);
+                void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
+                if (result != NULL) ((W_Var *)result)->destroy(result);
                 if (DEBUG) printf("Function executed !\n");
             } //!SECTION - call
         }
@@ -556,6 +560,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 if (return_value != NULL) {
                     list_destroy_no_free(if_lines);
                     destroy_stack(stack);
+                    if (destroy_scope_on_exit) destroy_scope(scope);
                     return return_value;
                 }
             } else if (DEBUG) printf("Skipping if/elif block...\n");
@@ -599,6 +604,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             if (DEBUG) printf("Else block executed !\n");
             if (return_value != NULL) {
                 destroy_stack(stack);
+                if (destroy_scope_on_exit) destroy_scope(scope);
                 return return_value;
             } //!SECTION - else
         } else if (strcmp(word->value, "endif") == 0) {
@@ -648,6 +654,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                         continue;
                     } else {
                         destroy_stack(stack);
+                        if (destroy_scope_on_exit) destroy_scope(scope);
                         return return_value;
                     }
                 }

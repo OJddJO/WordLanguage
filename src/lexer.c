@@ -41,7 +41,6 @@ list *word_tokenize(FILE *source) {
     int eval = 0; //if there is a word to eval
     int eval_str = 0; //if the word to eval is a litteral str
 
-    W_Word *w = (W_Word *)w_malloc(sizeof(W_Word));
     list *line = list_init();
     list_append(code, line);
     for (int i = 0; i < size; i++) {
@@ -62,13 +61,13 @@ list *word_tokenize(FILE *source) {
             char *value = (char *)w_malloc(i - start + 1);
             fread(value, 1, i - start, source);
             value[i - start] = '\0';
+            W_Word *w = (W_Word *)w_malloc(sizeof(W_Word));
             w->value = value;
             w->type = word_type(value);
             w->line = n_line;
             w->parsed = false;
             w->is_generated = false;
             list_append(line, w);
-            w = (W_Word *)w_malloc(sizeof(W_Word));
             eval = 0;
         }
         if (c == '\"') {
@@ -87,6 +86,7 @@ list *word_tokenize(FILE *source) {
         char *value = (char *)w_malloc(size - start + 1);
         fread(value, 1, size - start, source);
         value[size - start] = '\0';
+        W_Word *w = (W_Word *)w_malloc(sizeof(W_Word));
         w->value = value;
         w->type = word_type(value);
         w->line = n_line;

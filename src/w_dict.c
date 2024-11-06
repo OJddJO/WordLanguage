@@ -120,6 +120,14 @@ void w_dict_remove(W_Dict *d, char *key) {
  * \return The stringified dictionary.
  */
 char *w_dict_stringify(W_Dict *d) {
+    if (d->keys->size == 0) {
+        char *str = (char *)w_malloc(3);
+        str[0] = '{';
+        str[1] = '}';
+        str[2] = '\0';
+        return str;
+    }
+
     int size = 0;
     list_element *current_key = d->keys->head;
     W_List_Element *current_value = d->values->head;
