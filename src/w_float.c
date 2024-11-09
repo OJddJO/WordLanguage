@@ -7,13 +7,10 @@
 W_Float *w_float_init() {
     W_Float *f = (W_Float *)w_malloc(sizeof(W_Float));
     f->type = NULL_TYPE;
-    f->value = NULL;
     f->destroy = &w_float_destroy;
     f->stringify = &w_float_stringify;
     f->copy = &w_float_copy;
-    f->assign = &w_float_assign;
-    f->set = &w_float_set;
-    f->get = &w_float_value;
+    f->value = NULL;
     return f;
 }
 

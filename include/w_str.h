@@ -6,13 +6,10 @@
 
 typedef struct _w_str {
     W_Type type;
-    char *value;
     void (*destroy)(struct _w_str *);
     char *(*stringify)(struct _w_str *);
     struct _w_str *(*copy)(struct _w_str *);
-    void (*assign)(struct _w_str *, char *);
-    void (*set)(struct _w_str *, char *);
-    char *(*get)(struct _w_str *);
+    char *value;
 } W_Str;
 
 W_Str *w_str_init();

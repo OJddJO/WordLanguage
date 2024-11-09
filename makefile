@@ -5,7 +5,7 @@ OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 DBG         = # debug flags
 
 INCLUDE     = -I ./include
-LIB         = # -L
+LIB         = -lm
 EXTRA       = -Werror
 STATIC      = # for static linking
 

@@ -1,30 +1,5 @@
 #include "lexer.h"
 
-char *keywords[] = {
-    //variables
-    "int", "float", "str", "bool", "assign", "change", "to", "delete",
-    //constructed types
-    "list", "create", "append", "get", "set", "search", "index", "remove", "length",
-    //IO expressions
-    "print", "sep", "end", "ask",
-    //control flow
-    //conditional
-    "if", "elif", "else", "endif",
-    //loop
-    "for", "from", "to", "step", "endfor", "infloop", "endinf", "break", "continue",
-    //functions
-    "def", "null", "with", "return", "enddef", "call", "store",
-};
-
-char *operators[] = {
-    //operations
-    "plus", "minus", "times", "div", "mod", "ediv", "power", "sqrt",
-    //comparison
-    "equal", "greater", "less", "gequal", "lequal",
-    //logical
-    "and", "or", "not",
-};
-
 /**
  * \brief Tokenizes the given file into a list of lists of words. (w_malloc)
  * \param source The file to tokenize.
@@ -79,7 +54,7 @@ list *word_tokenize(FILE *source) {
             list_append(code, line);
             n_line++;
             i++;
-        }
+        } else if (c == '\n') n_line++;
     }
     if (eval) {
         fseek(source, start, SEEK_SET);
@@ -109,7 +84,6 @@ W_Word_Type word_type(char *value) {
     if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return NUMBER;
     }
-    if (is_keyword(value)) return KEYWORD;
     int dot = 0;
     for (int i = 0; i < strlen(value); i++) {
         if (value[i] == '.') {
@@ -120,7 +94,7 @@ W_Word_Type word_type(char *value) {
     strncpy(without_dot, value + dot, strlen(value) - dot);
     without_dot[strlen(value) - dot] = '\0';
     // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
-    if (is_operator(without_dot)) return OPERATOR;
+    if (is_keyword(without_dot)) return KEYWORD;
     return IDENTIFIER;
 }
 
@@ -160,8 +134,6 @@ void lexer_print(list *code) { //debug
             printf("Word: %s | ", w->value);
             if (w->type == KEYWORD) {
                 printf("Type: KEYWORD ");
-            } else if (w->type == OPERATOR) {
-                printf("Type: OPERATOR ");
             } else if (w->type == IDENTIFIER) {
                 printf("Type: IDENTIFIER ");
             } else if (w->type == STR) {
@@ -187,20 +159,5 @@ void lexer_print(list *code) { //debug
  * \return True if the word is a type keyword, false otherwise.
  */
 bool is_keyword(char *word) {
-    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(word, keywords[i]) == 0) return true;
-    }
-    return false;
-}
-
-/**
- * \brief Checks if the given word is an operator.
- * \param word The word to check.
- * \return True if the word is an operator, false otherwise.
- */
-bool is_operator(char *word) {
-    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
-        if (strcmp(word, operators[i]) == 0) return true;
-    }
-    return false;
+    return dict_get(keywords, word) != NULL;
 }

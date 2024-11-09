@@ -1,10 +1,7 @@
 #ifndef __W_STDLIB_H__
 #define __W_STDLIB_H__
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "w_alloc.h"
+#include "keywords.h"
 #include "w_bool.h"
 #include "w_dict.h"
 #include "w_float.h"
@@ -14,38 +11,45 @@
 #include "w_type.h"
 #include "w_function.h"
 
-// Global
-
-W_Type w_get_type(char *str);
-char *w_get_type_str(W_Var *var);
-
 // Math Operations
 
-void *w_plus(W_Var *a, W_Var *b);
-void *w_minus(W_Var *a, W_Var *b);
-void *w_time(W_Var *a, W_Var *b);
-W_Float *w_div(W_Var *a, W_Var *b);
-W_Int *w_mod(W_Var *a, W_Var *b);
-W_Int *w_ediv(W_Var *a, W_Var *b);
-void *w_power(W_Var *a, W_Var *b);
-W_Float *w_sqrt(W_Var *a);
+W_Word *kw_plus(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_minus(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_time(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_div(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_mod(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_ediv(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_power(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element *current_line);
 
 // Logical Operations
 
-W_Bool *w_and(W_Var *a, W_Var *b);
-W_Bool *w_or(W_Var *a, W_Var *b);
-W_Bool *w_not(W_Var *a);
+W_Word *kw_and(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_or(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_not(Scope *scope, list *args, int line, list_element *current_line);
 
 // Comparison Operations
 
-W_Bool *w_equal(W_Var *a, W_Var *b);
-W_Bool *w_greater(W_Var *a, W_Var *b);
-W_Bool *w_less(W_Var *a, W_Var *b);
-W_Bool *w_gequal(W_Var *a, W_Var *b);
-W_Bool *w_lequal(W_Var *a, W_Var *b);
+W_Word *kw_equal(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_greater(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_less(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_gequal(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_lequal(Scope *scope, list *args, int line, list_element *current_line);
 
-// Variables
+// Variable
 
-void *w_var_init(W_Type type);
+W_Word *kw_int(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_float(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_str(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_bool(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_list(Scope *scope, list *args, int line, list_element *current_line);
+
+W_Word *kw_assign(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_delete(Scope *scope, list *args, int line, list_element *current_line);
+
+//IO
+
+W_Word *kw_print(Scope *scope, list *args, int line, list_element *current_line);
+W_Word *kw_input(Scope *scope, list *args, int line, list_element *current_line);
 
 #endif

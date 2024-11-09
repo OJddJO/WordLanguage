@@ -5,11 +5,9 @@
 #include "w_type.h"
 #include "list.h"
 #include "dict.h"
-#include "parser.h"
 
 typedef struct _w_func {
     W_Type type;
-    void *value; //not used "DUMMY"
     void (*destroy)(struct _w_func *);
     char *(*stringify)(struct _w_func *);
     struct _w_func *(*copy)(struct _w_func *);

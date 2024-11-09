@@ -1,3 +1,1 @@
-infloop
-    break
-endinf
+print sqrt 4

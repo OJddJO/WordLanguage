@@ -23,13 +23,13 @@ W_Int *w_int_init() {
  * \param value The value to set as a string.
  */
 void w_int_assign(W_Int *i, char *value) {
-    int *v;
-    int var_value = atoi(value);
+    float *v;
+    float var_value = atof(value);
     if (i->type == NULL_TYPE) {
-        v = (int *)w_malloc(sizeof(int));
+        v = (float *)w_malloc(sizeof(float));
         i->type = INT;
     } else v = i->value;
-    *v = var_value;
+    *v = roundf(var_value);
     i->value = v;
 }
 
@@ -38,10 +38,10 @@ void w_int_assign(W_Int *i, char *value) {
  * \param i The integer to set the value of.
  * \param value The value to set.
  */
-void w_int_set(W_Int *i, int value) {
-    int *v;
+void w_int_set(W_Int *i, float value) {
+    float *v;
     if (i->type == NULL_TYPE) {
-        v = (int *)w_malloc(sizeof(int));
+        v = (float *)w_malloc(sizeof(float));
         i->type = INT;
     } else v = i->value;
     *v = value;
@@ -53,7 +53,7 @@ void w_int_set(W_Int *i, int value) {
  * \param i The integer to get the value of.
  * \return The value of the integer.
  */
-int *w_int_value(W_Int *i) {
+float *w_int_value(W_Int *i) {
     return i->value;
 }
 
@@ -62,9 +62,9 @@ int *w_int_value(W_Int *i) {
  * \param i The integer to stringify.
  */
 char *w_int_stringify(W_Int *i) {
-    int len = snprintf(NULL, 0, "%d", *i->value);
+    int len = snprintf(NULL, 0, "%g", *i->value);
     char *str = (char *)w_malloc(len + 1);
-    sprintf(str, "%d", *i->value);
+    sprintf(str, "%g", *i->value);
     return str;
 }
 

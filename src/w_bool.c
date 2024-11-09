@@ -7,13 +7,10 @@
 W_Bool *w_bool_init() {
     W_Bool *b = (W_Bool *)w_malloc(sizeof(W_Bool));
     b->type = NULL_TYPE;
-    b->value = NULL;
     b->destroy = &w_bool_destroy;
     b->stringify = &w_bool_stringify;
     b->copy = &w_bool_copy;
-    b->assign = &w_bool_assign;
-    b->set = &w_bool_set;
-    b->get = &w_bool_value;
+    b->value = NULL;
     return b;
 }
 

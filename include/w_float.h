@@ -6,13 +6,10 @@
 
 typedef struct _w_float {
     W_Type type;
-    float *value;
     void (*destroy)(struct _w_float *);
     char *(*stringify)(struct _w_float *);
     struct _w_float *(*copy)(struct _w_float *);
-    void (*assign)(struct _w_float *, char *);
-    void (*set)(struct _w_float *, float);
-    float *(*get)(struct _w_float *);
+    float *value;
 } W_Float;
 
 W_Float *w_float_init();

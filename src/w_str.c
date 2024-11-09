@@ -7,13 +7,10 @@
 W_Str *w_str_init() {
     W_Str *s = (W_Str *)w_malloc(sizeof(W_Str));
     s->type = NULL_TYPE;
-    s->value = NULL;
     s->destroy = &w_str_destroy;
     s->stringify = &w_str_stringify; //this is so fuc*ing dumb but it is needed
     s->copy = &w_str_copy;
-    s->assign = &w_str_assign;
-    s->set = &w_str_set;
-    s->get = &w_str_value;
+    s->value = NULL;
     return s;
 }
 
