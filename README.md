@@ -6,7 +6,7 @@
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
 
 > [!WARNING]
-> The interpreter will be completely changed soon. Thus, all code written with the current interpreter will be broken!
+> The interpreter will be completely changed soon, changing the syntax of many keywords. Thus, all code written with the current interpreter will be broken!
 
 WordLanguage is a programming language designed to minimize the use of symbols, making it easy to read and write. Its syntax is simple and closely resembles natural language, aiming to be both easy to learn and powerful enough for complex programming tasks.
 
