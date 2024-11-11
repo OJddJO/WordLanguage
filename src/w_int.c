@@ -6,14 +6,11 @@
  */
 W_Int *w_int_init() {
     W_Int *i = (W_Int *)w_malloc(sizeof(W_Int));
-    i->type = NULL_TYPE;
-    i->value = NULL;
+    i->type = INT;
     i->destroy = &w_int_destroy;
     i->stringify = &w_int_stringify;
     i->copy = &w_int_copy;
-    i->assign = &w_int_assign;
-    i->set = &w_int_set;
-    i->get = &w_int_value;
+    i->value = NULL;
     return i;
 }
 
@@ -25,9 +22,8 @@ W_Int *w_int_init() {
 void w_int_assign(W_Int *i, char *value) {
     float *v;
     float var_value = atof(value);
-    if (i->type == NULL_TYPE) {
+    if (i->value == NULL) {
         v = (float *)w_malloc(sizeof(float));
-        i->type = INT;
     } else v = i->value;
     *v = roundf(var_value);
     i->value = v;
@@ -40,11 +36,10 @@ void w_int_assign(W_Int *i, char *value) {
  */
 void w_int_set(W_Int *i, float value) {
     float *v;
-    if (i->type == NULL_TYPE) {
+    if (i->value == NULL) {
         v = (float *)w_malloc(sizeof(float));
-        i->type = INT;
     } else v = i->value;
-    *v = value;
+    *v = roundf(value);
     i->value = v;
 }
 

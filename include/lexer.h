@@ -1,5 +1,5 @@
-#ifndef __W_LEXER_H__
-#define __W_LEXER_H__
+#ifndef __LEXER_H__
+#define __LEXER_H__
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +13,7 @@
 extern dict *keywords;
 
 list *word_tokenize(FILE *source);
-W_Word_Type word_type(char *value);
+// W_Word_Type word_type(char *value);
 void lexer_destroy(list *words);
 void lexer_print(list *words);
 bool is_keyword(char *word);

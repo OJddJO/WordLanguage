@@ -1,5 +1,7 @@
 #include "parser.h"
 
+static list *shunting_yard(list_element *current_word);
+
 /**
  * \brief Parses the given list of words into a parsing tree. (w_malloc)
  * \param tokenized_code The list of list of words to parse.
@@ -27,40 +29,16 @@ list *parse(list *tokenized_code) {
 }
 
 /**
- * \brief Returns the priority of the given keyword.
- * \param keyword The keyword to parse.
- * \return The priority of the keyword.
+ * \brief Returns a list representing the given line in post-order. (w_malloc)
+ * \param current_word The first word in the line to parse.
+ * \return A list representing the line.
  */
-int get_priority(char *keyword) {
-    int priority = 0;
-    for (int i = 0; i < strlen(keyword); i++) {
-        if (keyword[i] == '.') {
-            priority++;
-        } else break;
-    }
-    char without_dot[strlen(keyword) - priority + 1];
-    strncpy(without_dot, keyword + priority, strlen(keyword) - priority);
-    without_dot[strlen(keyword) - priority] = '\0';
-    if (strcmp(without_dot, "power") == 0 || strcmp(without_dot, "sqrt") == 0) {
-        priority = priority + 2;
-    } else if (strcmp(without_dot, "time") == 0 || strcmp(without_dot, "div") == 0 || strcmp(without_dot, "mod") == 0 || strcmp(without_dot, "ediv") == 0) {
-        priority = priority + 1;
-    }
-    // printf("operator: %s, without_dot: %s, priority: %d\n", operator, without_dot, priority); //debug
-    return priority;
-}
-
-/**
- * \brief Returns a list representing the given operation in post-order. (w_malloc)
- * \param current_word The current operation to parse.
- * \return A list representing the operation.
- */
-list *shunting_yard(list_element *current_word) {
+static list *shunting_yard(list_element *current_word) {
     list *post_order = list_init();
     list *keywords = list_init();
     while (current_word != NULL) {
         W_Word *word = (W_Word *)current_word->value;
-        if (word->type == NUMBER || word->type == IDENTIFIER) {
+        if (word->type == LITT_STR || word->type == NUMBER || word->type == IDENTIFIER) {
             list_append(post_order, word);
         } else if (word->type == KEYWORD) {
             while (keywords->size > 0) {
@@ -77,8 +55,28 @@ list *shunting_yard(list_element *current_word) {
     while (keywords->size > 0) {
         list_append(post_order, list_pop(keywords));
     }
-    w_free(keywords);
+    list_destroy_no_free(keywords);
     return post_order;
+}
+
+/**
+ * \brief Returns the priority of the given keyword.
+ * \param kw The keyword to parse.
+ * \return The priority of the keyword.
+ */
+int get_priority(char *kw) {
+    int priority = 0;
+    for (int i = 0; i < strlen(kw); i++) {
+        if (kw[i] == '.') {
+            priority++;
+        } else break;
+    }
+    char without_dot[strlen(kw) - priority + 1];
+    strncpy(without_dot, kw + priority, strlen(kw) - priority);
+    without_dot[strlen(kw) - priority] = '\0';
+    priority += ((keyword *)dict_get(keywords, without_dot))->priority;
+    // printf("keyword: %s, without_dot: %s, priority: %d\n", kw, without_dot, priority); //debug
+    return priority;
 }
 
 /**
@@ -97,8 +95,8 @@ void print_parsed_code(list *parsed_code) { //debug
             printf("    word: %s | type: ", word->value);
             if (word->type == KEYWORD) {
                 printf("KEYWORD");
-            } else if (word->type == STR) {
-                printf("STR");
+            } else if (word->type == LITT_STR) {
+                printf("LITT_STR");
             } else if (word->type == NUMBER) {
                 printf("NUMBER");
             } else if (word->type == IDENTIFIER) {
@@ -129,10 +127,8 @@ void parser_destroy(list *parsed_code) {
             list_element *current_word = line->head;
             while (current_word != NULL) {
                 W_Word *word = (W_Word *)current_word->value;
-                if (word != NULL) {
-                    w_free(word->value);
-                    w_free(word);
-                }
+                w_free(word->value);
+                w_free(word);
                 current_word = current_word->next;
             }
             list_destroy_no_free(line);

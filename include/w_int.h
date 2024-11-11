@@ -1,19 +1,15 @@
 #ifndef __W_INT_H__
 #define __W_INT_H__
 
-#include "w_alloc.h"
 #include "w_type.h"
 #include <math.h>
 
 typedef struct _w_int {
     W_Type type;
-    float *value;
     void (*destroy)(struct _w_int *);
     char *(*stringify)(struct _w_int *);
     struct _w_int *(*copy)(struct _w_int *);
-    void (*assign)(struct _w_int *, char *);
-    void (*set)(struct _w_int *, int);
-    float *(*get)(struct _w_int *);
+    float *value;
 } W_Int;
 
 W_Int *w_int_init();

@@ -1,15 +1,23 @@
 #ifndef __W_STDLIB_H__
 #define __W_STDLIB_H__
 
-#include "keywords.h"
+#include "keywords.h" // include stdlib, stdio, stdbool, w_alloc, list, dict, scope and w_word
+#include "w_type.h"
 #include "w_bool.h"
 #include "w_dict.h"
 #include "w_float.h"
 #include "w_int.h"
 #include "w_list.h"
 #include "w_str.h"
-#include "w_type.h"
 #include "w_function.h"
+
+#ifndef DEBUG
+#define DEBUG false
+#endif
+
+// Execution
+
+void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_scope_on_exit);
 
 // Math Operations
 

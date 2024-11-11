@@ -7,12 +7,13 @@
 W_Func *w_func_init() {
     W_Func *f = (W_Func *)w_malloc(sizeof(W_Func));
     f->type = FUNCTION;
-    f->return_type = NULL_TYPE;
-    f->args = dict_init();
-    f->parsed_code = list_init();
     f->destroy = &w_func_destroy;
     f->stringify = &w_func_stringify;
     f->copy = &w_func_copy;
+    f->parent_scope = NULL;
+    f->return_type = NULL_TYPE;
+    f->args = dict_init();
+    f->parsed_code = list_init();
     return f;
 }
 
@@ -45,6 +46,7 @@ char *w_func_stringify(W_Func *f) {
 W_Func *w_func_copy(W_Func *f) {
     W_Func *copy = w_func_init();
     copy->return_type = f->return_type;
+    copy->parent_scope = f->parent_scope;
     dict *args_copy = dict_init();
     list_element *current_key = f->args->keys->head;
     list_element *current_value = f->args->values->head;

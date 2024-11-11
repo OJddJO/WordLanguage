@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+static W_Word_Type word_type(char *value);
+
 /**
  * \brief Tokenizes the given file into a list of lists of words. (w_malloc)
  * \param source The file to tokenize.
@@ -77,9 +79,9 @@ list *word_tokenize(FILE *source) {
  * \param value The word to evaluate.
  * \return The type of the word.
  */
-W_Word_Type word_type(char *value) {
+static W_Word_Type word_type(char *value) {
     if (value[0] == '\"' && value[strlen(value) - 1] == '\"') {
-        return STR;
+        return LITT_STR;
     }
     if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return NUMBER;
@@ -136,7 +138,7 @@ void lexer_print(list *code) { //debug
                 printf("Type: KEYWORD ");
             } else if (w->type == IDENTIFIER) {
                 printf("Type: IDENTIFIER ");
-            } else if (w->type == STR) {
+            } else if (w->type == LITT_STR) {
                 printf("Type: STRING ");
             } else if (w->type == NUMBER) {
                 printf("Type: NUMBER ");

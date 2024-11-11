@@ -27,6 +27,7 @@ void list_append(list *l, void *value);
 void list_remove(list *l, int index);
 void *list_get(list *l, int index);
 void list_insert(list *l, int index, void *value);
+void list_reverse(list *l);
 int list_size(list *l);
 void *list_pop(list *l);
 void list_destroy(list *l);

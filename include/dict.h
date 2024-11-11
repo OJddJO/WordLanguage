@@ -6,6 +6,7 @@
 #ifndef __DICT_H__
 #define __DICT_H__
 
+#include <stdlib.h>
 #include <string.h>
 #include "w_alloc.h"
 #include "list.h"

@@ -6,7 +6,7 @@
 typedef enum _w_word_type {
     KEYWORD,
     IDENTIFIER,
-    STR,
+    LITT_STR,
     NUMBER, 
 } W_Word_Type;
 

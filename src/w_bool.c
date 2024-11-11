@@ -6,7 +6,7 @@
  */
 W_Bool *w_bool_init() {
     W_Bool *b = (W_Bool *)w_malloc(sizeof(W_Bool));
-    b->type = NULL_TYPE;
+    b->type = BOOL;
     b->destroy = &w_bool_destroy;
     b->stringify = &w_bool_stringify;
     b->copy = &w_bool_copy;
@@ -27,9 +27,8 @@ void w_bool_assign(W_Bool *b, char *value) {
     } else if (strcmp(value, "false") == 0) {
         var_value = false;
     }
-    if (b->type == NULL_TYPE) {
+    if (b->value == NULL) {
         v = (bool *)w_malloc(sizeof(bool));
-        b->type = BOOL;
     } else v = b->value;
     *v = var_value;
     b->value = v;
@@ -42,9 +41,8 @@ void w_bool_assign(W_Bool *b, char *value) {
  */
 void w_bool_set(W_Bool *b, bool value) {
     bool *v;
-    if (b->type == NULL_TYPE) {
+    if (b->value == NULL) {
         v = (bool *)w_malloc(sizeof(bool));
-        b->type = BOOL;
     } else v = b->value;
     *v = value;
     b->value = v;

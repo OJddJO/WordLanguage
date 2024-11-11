@@ -135,6 +135,23 @@ void list_insert(list *l, int index, void *value) {
 }
 
 /**
+ * \brief Reverse the list
+ * \param l The list to reverse
+ **/
+void list_reverse(list *l) {
+    list_element *current = l->head;
+    while (current != NULL) {
+        list_element *next = current->next;
+        current->next = current->prev;
+        current->prev = next;
+        current = next;
+    }
+    list_element *temp = l->head;
+    l->head = l->tail;
+    l->tail = temp;
+}
+
+/**
  * \brief Get the size of the list
  * \param l The list to get the size of
  * \return The size of the list
