@@ -1,0 +1,25 @@
+{
+  "name": "word",
+  "displayName": "Word Language",
+  "description": "Syntax highlighting for word language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "w",
+      "aliases": ["Word", "w"],
+      "extensions": [".w"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "w",
+      "scopeName": "source.w",
+      "path": "./syntaxes/w.tmLanguage.json"
+    }]
+  }
+}

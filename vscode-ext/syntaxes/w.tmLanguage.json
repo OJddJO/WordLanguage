@@ -1,0 +1,74 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Word",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#control-statements"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		}
+	],
+	"repository": {
+		"comments": {
+			"begin": "\\#",
+			"end": "\\\n",
+			"name": "comment.line.number-sign.wordlang"
+		},
+		"control-statements": {
+			"patterns": [{
+					"name": "keyword.control.wordlang",
+					"match": "\\b(if|elif|else|infloop|endinf|return)\\b"
+				}]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.math.wordlang",
+					"match": "\\b(plus|minus|time|div|mod|ediv|power|sqrt)\\b"
+				},
+				{
+					"name": "keyword.operator.logical.wordlang",
+					"match": "\\b(and|or|not)\\b"
+				},
+				{
+					"name": "keyword.operator.comparison.wordlang",
+					"match":"\\b(equal|less|greater|lequal|gequal)\\b"
+				}
+			] 
+		},
+		"functions": {
+			"patterns": [{
+				"name": "storage.type.function.wordlang",
+				"match": "def"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.single.wordlang",
+			"begin": "\"",
+			"end": "\""
+		},
+		"numbers": {
+			"patterns": [{
+				"name": "constant.numeric.wordlang",
+				"match": "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))"
+			}] 
+		}
+	},
+	"scopeName": "source.w"
+}
