@@ -12,7 +12,7 @@ typedef struct _w_func {
     char *(*stringify)(struct _w_func *);
     struct _w_func *(*copy)(struct _w_func *);
     Scope *parent_scope;
-    W_Type return_type;
+    // W_Type return_type;
     dict *args; //arguments: dict: key: arg name, value: arg type
     list *parsed_code;
 } W_Func;

@@ -11,7 +11,7 @@ W_Func *w_func_init() {
     f->stringify = &w_func_stringify;
     f->copy = &w_func_copy;
     f->parent_scope = NULL;
-    f->return_type = NULL_TYPE;
+    // f->return_type = NULL_TYPE;
     f->args = dict_init();
     f->parsed_code = list_init();
     return f;

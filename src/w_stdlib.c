@@ -220,7 +220,36 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
     return NULL;
 }
 
+/***********************************************
+ * Functions ***********************************
+ ***********************************************/
 
+/**
+ * \brief Defines a function
+ * \param scope The scope to add the variables in
+ * \param args The arguments to call the function with (a, b)
+ * \param line The line of the code
+ * \param current_line Unused
+ * \return The defined function
+ */
+W_Word *kw_def(Scope *scope, list *args, int line, list_element *current_line) {
+    if (DEBUG) printf("[DEBUG]: kw_def called");
+
+    W_Word *arg_name = (W_Word *)list_get(args, 0); //get the name of the new declared function
+    char *func_name = (char *)w_malloc(strlen(arg_name->value) + 1);
+    strcpy(func_name, arg_name->value);
+
+    if (list_size(args) > 1) {
+        if (strcmp("with", ((W_Word *)list_get(args, 1))->value)) {
+            printf("Error: Expected keyword 'with' after function name, line %d", line);
+            exit(1);
+        }
+        for (int i = 2; i < list_size(args); i++) {
+            
+        }
+    }
+    
+}
 
 /***********************************************
  * Math Operations *****************************
