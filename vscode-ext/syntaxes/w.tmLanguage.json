@@ -22,6 +22,9 @@
 		},
 		{
 			"include": "#numbers"
+		},
+		{
+			"include": "#io"
 		}
 	],
 	"repository": {
@@ -53,17 +56,20 @@
 			] 
 		},
 		"functions": {
-			"patterns": [{
-				"match": "\\b(def)\\s+([a-zA-Z][a-zA-Z0-9_]*)\\b",
-				"captures": {
-					"1": {
-						"name": "meta.function.wordlang"
-					},
-					"2": {
-						"name": "entity.name.function"
-					}
+			"patterns": [
+				{
+					"name": "storage.type.function.wordlang",
+					"match": "def"
+				},
+				{
+					"name": "keyword.operator.function.call.wordlang",
+					"match": "call"
 				}
-			}]
+			]
+		},
+		"variables": {
+			"name": "storage.type.wordlang",
+			"match": "\\b(bool|int|float|str|list|assign)\\b"
 		},
 		"strings": {
 			"name": "string.quoted.single.wordlang",
@@ -73,8 +79,12 @@
 		"numbers": {
 			"patterns": [{
 				"name": "constant.numeric.wordlang",
-				"match": "([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))"
+				"match": "(-?(?:\\d)(?:\\.)?(?:\\d*))"
 			}] 
+		},
+		"io": {
+			"name": "entity.name.function.wordlang",
+			"match": "\\b(print|ask)\\b"
 		}
 	},
 	"scopeName": "source.w"

@@ -9,6 +9,10 @@
   "categories": [
     "Programming Languages"
   ],
+	"activationEvents": [
+		"onLanguage:semanticLanguage"
+	],
+	"main": "./out/extension.js",
   "contributes": {
     "languages": [{
       "id": "w",
