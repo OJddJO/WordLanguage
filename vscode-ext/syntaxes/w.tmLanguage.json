@@ -36,7 +36,7 @@
 		"control-statements": {
 			"patterns": [{
 					"name": "keyword.control.wordlang",
-					"match": "\\b(if|elif|else|infloop|endinf|return)\\b"
+					"match": "\\b(if|elif|else|endif|infloop|endinf|return)\\b"
 				}]
 		},
 		"operators": {
@@ -59,7 +59,7 @@
 			"patterns": [
 				{
 					"name": "storage.type.function.wordlang",
-					"match": "def"
+					"match": "\\b(def|enddef|with)\\b"
 				},
 				{
 					"name": "keyword.operator.function.call.wordlang",
