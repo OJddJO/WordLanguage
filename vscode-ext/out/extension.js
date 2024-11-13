@@ -53,28 +53,30 @@ const provider = {
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
             const line = lines[lineIndex];
             const words = line.split(/\s+/); // splits by any whitespace
-            const whitespaces = line.split(/\b.*\b/);
-            let startChar = 0;
-            let isString = false;
+            const wordIndexes = [];
+            let currentIndex = 0;
+            for (const word of words) { // get indexes of each words
+                const wordIndex = line.indexOf(word, currentIndex);
+                wordIndexes.push(wordIndex);
+                currentIndex = wordIndex + word.length;
+            }
+            let isString = false; // if evaluating string
             for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
                 if (words[wordIndex].startsWith('"')) { //if the word starts with " then it's a string
-                    tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("string"));
+                    tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("string"));
                     isString = true;
                 }
                 else {
                     if (/\bdef\b/.test(words[wordIndex])) { //function def
-                        startChar += words[wordIndex].length + whitespaces[wordIndex].length;
                         wordIndex++;
                         functions.push(words[wordIndex]);
-                        tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("function"));
+                        tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("function"));
                         if (line.length > 2) {
-                            startChar += words[wordIndex].length + whitespaces[wordIndex].length; //skip with keyword
-                            wordIndex++;
+                            wordIndex++; //skip with keyword
                             for (let argIndex = 3; argIndex < words.length; argIndex++) { //args
-                                startChar += words[wordIndex].length + whitespaces[wordIndex].length;
                                 wordIndex++;
                                 funcArgs.push(words[wordIndex]);
-                                tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("parameter"));
+                                tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("parameter"));
                             }
                         }
                         continue;
@@ -83,25 +85,23 @@ const provider = {
                         funcArgs = [];
                     }
                     else if (/\b(bool|int|float|str|list)\b/.test(words[wordIndex])) { //var def
-                        startChar += words[wordIndex].length + whitespaces[wordIndex].length;
                         wordIndex++;
                         vars.push(words[wordIndex]);
-                        tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("variable"));
+                        tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"));
+                    }
+                    else if (funcArgs.includes(words[wordIndex])) { //function args
+                        tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("parameter"));
                     }
                     else if (vars.includes(words[wordIndex])) { //var
-                        tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("variable"));
+                        tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"));
                     }
-                    else if (functions.includes(words[wordIndex])) {
-                        tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("function"));
-                    }
-                    else if (funcArgs.includes(words[wordIndex])) {
-                        tokensBuilder.push(lineIndex, startChar, words[wordIndex].length, getTokenType("parameter"));
+                    else if (functions.includes(words[wordIndex])) { //functions
+                        tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("function"));
                     }
                 }
                 if (words[wordIndex].endsWith('"')) {
                     isString = false;
                 }
-                startChar += words[wordIndex].length + whitespaces[wordIndex].length;
             }
         }
         return tokensBuilder.build();
