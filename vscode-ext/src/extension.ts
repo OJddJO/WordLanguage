@@ -1,4 +1,3 @@
-import { start } from 'repl';
 import * as vscode from 'vscode';
 
 const tokenTypes = new Map<string, number>();
