@@ -35,9 +35,9 @@
 		},
 		"control-statements": {
 			"patterns": [{
-					"name": "keyword.control.wordlang",
-					"match": "\\b(if|elif|else|endif|infloop|endinf|return)\\b"
-				}]
+				"name": "keyword.control.wordlang",
+				"match": "\\b(if|elif|else|endif|infloop|endinf|return)\\b"
+			}]
 		},
 		"operators": {
 			"patterns": [
@@ -59,17 +59,25 @@
 			"patterns": [
 				{
 					"name": "storage.type.function.wordlang",
-					"match": "\\b(def|enddef|with)\\b"
+					"match": "\\b(def|with|enddef)\\b"
 				},
 				{
 					"name": "keyword.operator.function.call.wordlang",
-					"match": "call"
+					"match": "\\bcall\\b"
 				}
 			]
 		},
 		"variables": {
-			"name": "storage.type.wordlang",
-			"match": "\\b(bool|int|float|str|list|assign)\\b"
+			"patterns": [
+				{
+					"name": "storage.type.wordlang",
+					"match": "\\b(bool|int|float|str|list)\\b"
+				},
+				{
+					"name": "keyword.operator.variable.assign",
+					"match": "\\bassign\\b"
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.single.wordlang",
@@ -83,7 +91,7 @@
 			}] 
 		},
 		"io": {
-			"name": "entity.name.function.wordlang",
+			"name": "entity.name.function.io.wordlang",
 			"match": "\\b(print|ask)\\b"
 		}
 	},
