@@ -6,7 +6,7 @@ DBG         = # debug flags
 
 INCLUDE     = -I ./include
 LIB         = -lm
-EXTRA       = -Werror
+EXTRA       = -Werror -O3
 STATIC      = # for static linking
 
 all: link

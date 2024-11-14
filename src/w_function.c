@@ -12,7 +12,7 @@ W_Func *w_func_init() {
     f->copy = &w_func_copy;
     f->parent_scope = NULL;
     // f->return_type = NULL_TYPE;
-    f->args = dict_init();
+    f->args = list_init();
     f->parsed_code = list_init();
     return f;
 }
@@ -22,7 +22,7 @@ W_Func *w_func_init() {
  * \param f The function to destroy.
  */
 void w_func_destroy(W_Func *f) {
-    dict_destroy(f->args);
+    list_destroy(f->args);
     list_destroy_no_free(f->parsed_code);
     w_free(f);
 }
@@ -47,17 +47,13 @@ W_Func *w_func_copy(W_Func *f) {
     W_Func *copy = w_func_init();
     // copy->return_type = f->return_type;
     copy->parent_scope = f->parent_scope;
-    dict *args_copy = dict_init();
-    list_element *current_key = f->args->keys->head;
-    list_element *current_value = f->args->values->head;
-    for (int i = 0; i < f->args->keys->size; i++) {
-        char *key = (char *)current_key->value;
-        W_Type *value = current_value->value;
-        W_Type *value_copy = (W_Type *)w_malloc(sizeof(W_Type));
-        *value_copy = *value;
-        dict_set(args_copy, key, value_copy);
-        current_key = current_key->next;
-        current_value = current_value->next;
+    list *args_copy = list_init();
+    list_element *current_arg = f->args->head;
+    while (current_arg != NULL) {
+        char *arg_name = (char *)current_arg->value;
+        char *arg_name_copy = (char *)w_malloc(strlen(arg_name) + 1);
+        strcpy(arg_name_copy, arg_name);
+        list_append(args_copy, arg_name_copy);
     }
     copy->args = args_copy;
     list *parsed_code_copy = list_init();
