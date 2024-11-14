@@ -1341,9 +1341,18 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
         exit(1);
     }
 
-    for (int i = 0; i < nb_args; i++) {
+    for (int i = 0; i < nb_args; i++) { //get all arguments for function call
         W_Word *arg = (W_Word *)list_get(args, i+2);
-        
+        if (arg->type == IDENTIFIER) {
+            
+        } else if (arg->type == NUMBER) {
+
+        } else if (arg->type == LITT_STR) {
+
+        } else {
+            fprintf("Error: Expected argument for function call, got '%s', line %d", arg->value, line);
+            exit(1);
+        }
     }
 
     if (DEBUG) printf("[DEBUG]: kw_call done");
