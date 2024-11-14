@@ -1244,10 +1244,10 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line) 
 /**
  * \brief Defines a function
  * \param scope The scope to add the variables in
- * \param args The arguments to call the function with (a, b)
+ * \param args The arguments to call the function with
  * \param line The line of the code
  * \param current_line The current line of code that is evaluated
- * \return The defined function
+ * \return NULL
  */
 W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) {
     if (DEBUG) printf("[DEBUG]: kw_def called");
@@ -1312,3 +1312,40 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) 
     return NULL;
 }
 
+/**
+ * \brief Call the function
+ * \param scope The scope to add the variables in
+ * \param args The arguments to call the function with
+ * \param line The line of the code
+ * \param current_line The current line of code that is evaluated
+ */
+W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line) {
+    if (DEBUG) printf("[DEBUG]: kw_call called");
+
+    char *func_name = ((W_Word *)list_get(args, 0))->value; //get the function
+    W_Func *f = (W_Func *)get_var(scope, func_name);
+    if (f == NULL) {
+        fprintf(stderr, "Error: Function '%s' does not exists, line %d", func_name, line);
+        exit(1);
+    } else if (f->type != FUNCTION) {
+        fprintf(stderr, "Error: Expected function, got variable '%s', line: %d\n", func_name, line);
+        exit(1);
+    }
+
+    Scope *fn_scope = init_scope(); //init the scope
+    fn_scope->parent = f->parent_scope;
+
+    int nb_args = list_size(f->args);
+    if (nb_args != list_size(args) - 2) { //-2: not count func name, with keyword
+        fprintf(stderr, "Error: Invalid number of arguments for function '%s', line %d", func_name, line);
+        exit(1);
+    }
+
+    for (int i = 0; i < nb_args; i++) {
+        W_Word *arg = (W_Word *)list_get(args, i+2);
+        
+    }
+
+    if (DEBUG) printf("[DEBUG]: kw_call done");
+    return NULL;
+}

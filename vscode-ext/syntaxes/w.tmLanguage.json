@@ -63,7 +63,7 @@
 				},
 				{
 					"name": "keyword.operator.function.call.wordlang",
-					"match": "\\bcall\\b"
+					"match": "\\b(call|store)\\b"
 				}
 			]
 		},
