@@ -2,7 +2,9 @@
   "name": "wordlanguage",
   "displayName": "WordLanguage",
   "description": "Highlighting for WordLanguage",
-  "version": "0.0.1",
+  "publisher": "wordlang",
+  "repository": "https://github.com/OJddJO/WordLanguage/",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.95.0"
   },

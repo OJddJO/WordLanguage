@@ -45,7 +45,7 @@ char *w_func_stringify(W_Func *f) {
  */
 W_Func *w_func_copy(W_Func *f) {
     W_Func *copy = w_func_init();
-    copy->return_type = f->return_type;
+    // copy->return_type = f->return_type;
     copy->parent_scope = f->parent_scope;
     dict *args_copy = dict_init();
     list_element *current_key = f->args->keys->head;

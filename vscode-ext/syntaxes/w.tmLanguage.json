@@ -87,7 +87,7 @@
 		"numbers": {
 			"patterns": [{
 				"name": "constant.numeric.wordlang",
-				"match": "(-?(?:\\d)(?:\\.)?(?:\\d*))"
+				"match": "\\b(-?(?:\\d)(?:\\.)?(?:\\d*))\\b"
 			}] 
 		},
 		"io": {
