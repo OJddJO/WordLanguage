@@ -194,7 +194,6 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 list_reverse(args); //reverse the args to get them in the right order
-
                 W_Word *result = kw->func(scope, args, word->line, &current_line); //execute the keyword function
                 if (result != NULL) list_append(stack, result); //store the result on the stack if it is not NULL
 
