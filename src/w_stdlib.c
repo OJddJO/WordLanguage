@@ -1325,7 +1325,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the function
     W_Func *f = (W_Func *)get_var(scope, func_name);
     if (f == NULL) {
-        fprintf(stderr, "Error: Function '%s' does not exists, line %d", func_name, line);
+        fprintf(stderr, "Error: Function '%s' does not exist, line %d", func_name, line);
         exit(1);
     } else if (f->type != FUNCTION) {
         fprintf(stderr, "Error: Expected function, got variable '%s', line: %d\n", func_name, line);
@@ -1335,25 +1335,50 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
     Scope *fn_scope = init_scope(); //init the scope
     fn_scope->parent = f->parent_scope;
 
-    int nb_args = list_size(f->args);
-    if (nb_args != list_size(args) - 2) { //-2: not count func name, with keyword
-        fprintf(stderr, "Error: Invalid number of arguments for function '%s', line %d", func_name, line);
-        exit(1);
-    }
-
-    for (int i = 0; i < nb_args; i++) { //get all arguments for function call
-        W_Word *arg = (W_Word *)list_get(args, i+2);
-        if (arg->type == IDENTIFIER) {
-            
-        } else if (arg->type == NUMBER) {
-
-        } else if (arg->type == LITT_STR) {
-
-        } else {
-            fprintf("Error: Expected argument for function call, got '%s', line %d", arg->value, line);
+    if (list_size(args) > 1) { //if there are arguments
+        int nb_args = list_size(f->args);
+        if (nb_args != list_size(args) - 2) { //-2: not count func name, with keyword
+            fprintf(stderr, "Error: Invalid number of arguments for function '%s', line %d", func_name, line);
             exit(1);
         }
+
+        if (strcmp("with", ((W_Word *)list_get(args, 1))->value) != 0) {
+            fprintf(stderr, "Error: Expected keyword 'with' after function name, line %d", line);
+            exit(1);
+        }
+
+        for (int i = 0; i < nb_args; i++) { //get all arguments for function call
+            W_Word *arg = (W_Word *)list_get(args, i+2);
+            if (arg->type == IDENTIFIER) {
+                W_Var *var = get_var(scope, arg->value);
+                if (var == NULL) {
+                    fprintf(stderr, "Error: Variable '%s' does not exist, line %d", arg->value, line);
+                    exit(1);
+                }
+                W_Var *var_copy = var->copy(var);
+                w_dict_set(fn_scope->vars, arg->value, var_copy);
+            } else if (arg->type == NUMBER) {
+                void *var;
+                if (is_float(arg->value)) {
+                    var = w_float_init();
+                    w_float_assign((W_Float *)var, arg->value);
+                } else {
+                    var = w_int_init();
+                    w_int_assign((W_Int *)var, arg->value);
+                }
+                w_dict_set(fn_scope->vars, arg->value, var);
+            } else if (arg->type == LITT_STR) {
+                W_Str *var = w_str_init();
+                w_str_assign(var, arg->value);
+                w_dict_set(fn_scope->vars, arg->value, var);
+            } else {
+                fprintf("Error: Expected argument for function call, got '%s', line %d", arg->value, line);
+                exit(1);
+            }
+        }
     }
+
+    void *result = execute(f->parsed_code, fn_scope, NULL_TYPE, true);
 
     if (DEBUG) printf("[DEBUG]: kw_call done");
     return NULL;
