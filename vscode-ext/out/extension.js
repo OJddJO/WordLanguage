@@ -71,13 +71,13 @@ const provider = {
                 }
                 else {
                     if (/\bdef\b/.test(words[wordIndex])) { //function def
-                        wordIndex++;
+                        wordIndex += 2; //skip function return type
                         functions.push(words[wordIndex]);
                         tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("function"));
-                        if (line.length > 2) {
+                        console.log(wordIndex, words[wordIndex]);
+                        if (line.length > 3) {
                             wordIndex++; //skip with keyword
-                            for (let argIndex = 3; argIndex < words.length; argIndex++) { //args
-                                wordIndex++;
+                            for (wordIndex += 2; wordIndex < words.length; wordIndex += 2) { //args
                                 funcArgs.push(words[wordIndex]);
                                 tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("parameter"));
                             }
