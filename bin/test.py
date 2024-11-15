@@ -1,7 +1,6 @@
-a = 0
 def test():
-    while a < 5:
-        a += 1
+    print(a)
 
-test()
-print(a)
+if (__name__ == '__main__'):
+    a = 10
+    test()

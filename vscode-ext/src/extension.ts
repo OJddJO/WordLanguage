@@ -48,6 +48,9 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 			let isString = false; // if evaluating string
 
 			for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
+				if (!isString && words[wordIndex].startsWith('#')) { //comment
+					break;
+				}
 				if (words[wordIndex].startsWith('"')) { //if the word starts with " then it's a string
 					tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("string"));
 					isString = true;

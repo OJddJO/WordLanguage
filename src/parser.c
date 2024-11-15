@@ -14,6 +14,7 @@ list *parse(list *tokenized_code) {
     for (int i = 0; i < tokenized_code->size; i++) {
         list *line = (list *)current_line->value;
         list_element *current_word = line->head;
+        if (line->size == 0) continue;
         list *current_block = shunting_yard(current_word);
         list_append(parsed_code, current_block);
         current_line = current_line->next;

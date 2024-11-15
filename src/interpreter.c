@@ -99,4 +99,5 @@ static void init_keywords() {
     add_keyword("ask", kw_ask, 1, -1);
 
     add_keyword("def", kw_def, -1, 0);
+    add_keyword("call", kw_call, -1, 1);
 }

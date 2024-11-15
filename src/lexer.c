@@ -24,6 +24,7 @@ list *word_tokenize(FILE *source) {
         fseek(source, i, SEEK_SET);
         char c = fgetc(source);
         if (c == '#' && !eval_str) {
+            eval = 0;
             while (c != '\n' && c != EOF) {
                 c = fgetc(source);
                 i++;
@@ -33,7 +34,7 @@ list *word_tokenize(FILE *source) {
             eval = 1;
             start = i;
         }
-        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_str && eval) {
+        if ((c == ' ' || c == '\t' || c == '\n') && !eval_str && eval && start != i) {
             fseek(source, start, SEEK_SET);
             char *value = (char *)w_malloc(i - start + 1);
             fread(value, 1, i - start, source);
@@ -58,7 +59,7 @@ list *word_tokenize(FILE *source) {
             i++;
         } else if (c == '\n') n_line++;
     }
-    if (eval) {
+    if (eval && start != size) {
         fseek(source, start, SEEK_SET);
         char *value = (char *)w_malloc(size - start + 1);
         fread(value, 1, size - start, source);
