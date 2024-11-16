@@ -16,5 +16,6 @@
 #endif
 
 extern dict *keywords;
+extern dict *reserved_words;
 
 #endif

@@ -98,6 +98,7 @@ static W_Word_Type word_type(char *value) {
     without_dot[strlen(value) - dot] = '\0';
     // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
     if (is_keyword(without_dot)) return KEYWORD;
+    if (is_reserved(value)) return RESERVED;
     return IDENTIFIER;
 }
 
@@ -137,6 +138,8 @@ void lexer_print(list *code) { //debug
             printf("Word: %s | ", w->value);
             if (w->type == KEYWORD) {
                 printf("Type: KEYWORD ");
+            } else if (w->type == RESERVED) {
+                printf("Type: RESERVED ");
             } else if (w->type == IDENTIFIER) {
                 printf("Type: IDENTIFIER ");
             } else if (w->type == LITT_STR) {
@@ -163,4 +166,13 @@ void lexer_print(list *code) { //debug
  */
 bool is_keyword(char *word) {
     return dict_get(keywords, word) != NULL;
+}
+
+/**
+ * \brief Checks if the given word is a reserved word.
+ * \param word The word to check.
+ * \return True if the word is a reserved word, false otherwise.
+ */
+bool is_reserved(char *word) {
+    return dict_get(reserved_words, word) != NULL;
 }

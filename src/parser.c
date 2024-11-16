@@ -14,7 +14,7 @@ list *parse(list *tokenized_code) {
     for (int i = 0; i < tokenized_code->size; i++) {
         list *line = (list *)current_line->value;
         list_element *current_word = line->head;
-        if (line->size == 0) continue;
+        // if (line->size == 0) continue;
         list *current_block = shunting_yard(current_word);
         list_append(parsed_code, current_block);
         current_line = current_line->next;
@@ -49,6 +49,14 @@ static list *shunting_yard(list_element *current_word) {
                 } else break;
             }
             list_append(keywords, word);
+        } else if (word->type == RESERVED) {
+            while (keywords->size > 0) {
+                W_Word *top = (W_Word *)keywords->tail->value;
+                if (get_priority(top->value) >= *(int *)dict_get(reserved_words, word->value)) {
+                    list_append(post_order, list_pop(keywords));
+                } else break;
+            }
+            list_append(post_order, word);
         } else break;
         word->parsed = true;
         current_word = current_word->next;
@@ -102,6 +110,8 @@ void print_parsed_code(list *parsed_code) { //debug
                 printf("NUMBER");
             } else if (word->type == IDENTIFIER) {
                 printf("IDENTIFIER");
+            } else if (word->type == RESERVED) {
+                printf("RESERVED");
             }
             printf(" | line: %d,\n", word->line);
             current_word = current_word->next;

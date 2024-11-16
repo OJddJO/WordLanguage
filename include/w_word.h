@@ -5,6 +5,7 @@
 
 typedef enum _w_word_type {
     KEYWORD,
+    RESERVED,
     IDENTIFIER,
     LITT_STR,
     NUMBER, 

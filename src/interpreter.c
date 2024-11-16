@@ -4,6 +4,7 @@ static void init_keywords();
 
 int main(int argc, char *argv[]) {
     keywords = dict_init();
+    reserved_words = dict_init();
     init_keywords();
 
     if (!DEBUG) { //file name checks
@@ -56,6 +57,7 @@ int main(int argc, char *argv[]) {
     if (DEBUG) printf("Executed !\n");
     parser_destroy(parsed_code);
     dict_destroy(keywords);
+    dict_destroy(reserved_words);
 
     if (DEBUG) printf("Done\n"); //DEBUG
     if (MONITOR_MEMORY) w_alloc_print();
@@ -99,5 +101,7 @@ static void init_keywords() {
     add_keyword("ask", kw_ask, 1, -1);
 
     add_keyword("def", kw_def, -1, 0);
-    add_keyword("call", kw_call, -1, 1);
+    add_keyword("call", kw_call, -1, 0);
+
+    add_reserved_word("with", 1);
 }

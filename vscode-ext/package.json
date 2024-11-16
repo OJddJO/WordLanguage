@@ -4,6 +4,7 @@
   "description": "Highlighting for WordLanguage",
   "publisher": "wordlang",
   "repository": "https://github.com/OJddJO/WordLanguage/",
+  "icon": "../icon/icon.png",
   "version": "0.0.2",
   "engines": {
     "vscode": "^1.95.0"

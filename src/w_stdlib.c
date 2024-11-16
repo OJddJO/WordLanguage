@@ -950,6 +950,7 @@ W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line) 
     }
     W_Int *result = w_int_init();
     w_dict_set(scope->vars, name, result);
+    printf("ok\n");
     W_Word *word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
     word->type = IDENTIFIER;
     char *str = (char *)w_malloc(strlen(name) + 1);
@@ -1269,27 +1270,23 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line) 
  * \return NULL
  */
 W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) {
-    if (DEBUG) printf("[DEBUG]: kw_def called");
+    if (DEBUG) printf("[DEBUG]: kw_def called\n");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the name of the new declared function
-
-    W_Func *new_func;
 
     //add function to scope
     W_Var *var = w_dict_get(scope->vars, func_name);
     if (var == NULL) {
         fprintf(stderr, "Error: Function variable '%s' definition not found, line %d", func_name, line);
         exit(1);
-    } else {
-        int type = var->type;
-        if (type == FUNCTION) {
-            fprintf(stderr, "Error: Expected function variable definition, got function '%s', line %d", func_name, line);
-            exit(1);
-        }
-        new_func = w_func_init(); //init the new function
-        new_func->return_type = type;
-        var->destroy(var);
     }
+    int type = var->type;
+    if (type == FUNCTION) {
+        fprintf(stderr, "Error: Expected function variable definition, got function '%s', line %d", func_name, line);
+        exit(1);
+    }
+    W_Func *new_func = w_func_init(); //init the new function
+    new_func->return_type = type;
     w_dict_set(scope->vars, func_name, new_func);
 
     if (list_size(args) > 1) {
@@ -1304,12 +1301,10 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) 
                 fprintf(stderr, "Error: Function argument '%s' not found, line %d", arg_name, line);
                 exit(1);
             }
-            char *func_arg_name = (char *)w_malloc(strlen(arg_name) + 1);
-            strcpy(func_arg_name, arg_name);
             W_Type *func_arg_type = (W_Type *)w_malloc(sizeof(W_Type));
             *func_arg_type = var->type;
-            dict_set(new_func->args, func_arg_name, func_arg_type);
-            var->destroy(var);
+            w_dict_remove(scope->vars, arg_name);
+            dict_set(new_func->args, arg_name, func_arg_type);
         }
     }
 
@@ -1344,7 +1339,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) 
         exit(1);
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_def done");
+    if (DEBUG) printf("[DEBUG]: kw_def done\n");
     return NULL;
 }
 
@@ -1432,9 +1427,8 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
             }
         }
     }
-
     void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
 
-    if (DEBUG) printf("[DEBUG]: kw_call done");
+    if (DEBUG) printf("[DEBUG]: kw_call done\n");
     return NULL;
 }

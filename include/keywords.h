@@ -17,7 +17,9 @@ typedef struct _keyword {
 } keyword;
 
 extern dict *keywords;
+extern dict *reserved_words;
 
 void add_keyword(char *name, W_Word *(*func)(Scope*, list*, int, list_element**), int argc, int priority);
+void add_reserved_word(char *name, int priority);
 
 #endif

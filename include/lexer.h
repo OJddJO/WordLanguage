@@ -11,11 +11,13 @@
 #include "dict.h"
 
 extern dict *keywords;
+extern dict *reserved_words;
 
 list *word_tokenize(FILE *source);
 // W_Word_Type word_type(char *value);
 void lexer_destroy(list *words);
 void lexer_print(list *words);
 bool is_keyword(char *word);
+bool is_reserved(char *word);
 
 #endif
