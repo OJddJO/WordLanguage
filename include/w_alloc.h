@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define MONITOR_MEMORY true 
+#define MONITOR_MEMORY false 
 
 #if MONITOR_MEMORY
 

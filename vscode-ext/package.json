@@ -4,8 +4,12 @@
   "description": "Highlighting for WordLanguage",
   "publisher": "wordlang",
   "repository": "https://github.com/OJddJO/WordLanguage/",
-  "icon": "../icon/icon.png",
-  "version": "0.0.2",
+  "icon": "icon/icon.png",
+  "version": "0.0.3",
+  "author": {
+    "name": "OJd_dJO"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -35,12 +39,7 @@
         "path": "./syntaxes/w.tmLanguage.json"
       }
     ],
-    "commands": [
-      {
-        "command": "wordlanguage.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

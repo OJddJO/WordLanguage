@@ -12,7 +12,7 @@
 #include "w_stdlib.h"
 
 #ifndef DEBUG
-#define DEBUG true 
+#define DEBUG false 
 #endif
 
 extern dict *keywords;

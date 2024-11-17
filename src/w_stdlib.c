@@ -950,7 +950,6 @@ W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line) 
     }
     W_Int *result = w_int_init();
     w_dict_set(scope->vars, name, result);
-    printf("ok\n");
     W_Word *word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
     word->type = IDENTIFIER;
     char *str = (char *)w_malloc(strlen(name) + 1);
