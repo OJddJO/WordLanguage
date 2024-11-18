@@ -153,6 +153,8 @@ static void destroy_stack(list *stack) {
  * \return The result of the execution
  */
 void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_scope_on_exit) {
+    void *exec_result = NULL;
+
     list_element *current_line = parsed_code->head;
     while (current_line != NULL) { //iterate through each line
         list *line = (list *)current_line->value;
@@ -205,12 +207,14 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 list_destroy_no_free(args);
+                if (exec_result != NULL) break; 
             }
 
             current_word = current_word->next;
         }
 
         destroy_stack(stack);
+        if (exec_result != NULL) break;
         current_line = current_line->next;
     }
 
@@ -849,7 +853,7 @@ W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_lin
 
     char *result = (char *)w_malloc(6); //compare a and b
     a <= b ? strcpy(result, "true") : strcpy(result, "false");
-    
+
     W_Word *result_word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
     result_word->type = IDENTIFIER;
     result_word->value = result;
@@ -1481,10 +1485,6 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
 
     while (true) {
         void *result = execute(infloop_lines, scope, NULL_TYPE, false);
-        if (result != NULL) {
-            if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
-            return result;
-        }
     }
 
     if (DEBUG) pritnf("[DEBUG]: kw_infloop done\n");
