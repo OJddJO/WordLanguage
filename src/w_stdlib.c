@@ -1348,6 +1348,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with
  * \param line The line of the code
  * \param current_line The current line of code that is evaluated
+ * \return NULL
  */
 W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line) {
     if (DEBUG) printf("[DEBUG]: kw_call called");
@@ -1429,5 +1430,63 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
     void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
 
     if (DEBUG) printf("[DEBUG]: kw_call done\n");
+    return NULL;
+}
+
+/***********************************************
+ * Loops ***************************************
+ ***********************************************/
+
+/**
+ * \brief Start an infloop
+ * \param scope The scope to start the loop in
+ * \param args The arguments to call the function with
+ * \param line The line of the code
+ * \param current_line The current line of code that is evaluated
+ * \return NULL
+ */
+W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_line) {
+    if (DEBUG) printf("[DEBUG]: kw_infloop called\n");
+
+    list *infloop_lines = list_init();
+    int infloop_count = 0;
+    bool end = false;
+
+    *current_line = (*current_line)->next;
+    while (current_line != NULL) { //get the lines for the infloop
+        W_Word *word = (W_Word *)((list *)(*current_line)->value)->head->value; //get the first word of the line
+
+        if (word == NULL) { //if it is an empty line
+            *current_line = (*current_line)->next;
+            continue;
+        }
+
+        if (strcmp(word->value, "infloop") == 0) {
+            infloop_count++;
+        } else if (strcmp(word->value, "endinf") == 0) {
+            if (infloop_count == 0) {
+                end = true;
+                break;
+            } else infloop_count--;
+        }
+
+        list_append(infloop_lines, (*current_line)->value);
+        *current_line = (*current_line)->next;
+    }
+
+    if (!end) {
+        fprintf(stderr, "Error: Expected keyword 'endinf' at the end of the infloop, line %d", line);
+        exit(1);
+    }
+
+    while (true) {
+        void *result = execute(infloop_lines, scope, NULL_TYPE, false);
+        if (result != NULL) {
+            if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
+            return result;
+        }
+    }
+
+    if (DEBUG) pritnf("[DEBUG]: kw_infloop done\n");
     return NULL;
 }
