@@ -232,9 +232,11 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the addition
  */
-W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_plus called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -267,9 +269,11 @@ W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the subtraction
  */
-W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_minus called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -302,9 +306,11 @@ W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the multiplication
  */
-W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_time called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -337,9 +343,11 @@ W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the division
  */
-W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_div called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -372,9 +380,11 @@ W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the modulo
  */
-W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_mod called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -411,9 +421,11 @@ W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the integer division
  */
-W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_ediv called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -450,9 +462,11 @@ W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the power operation
  */
-W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_power called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -485,9 +499,11 @@ W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line
  * \param args The arguments to call the function with (a)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the square root operation
  */
-W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_sqrt called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -523,9 +539,11 @@ W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the AND operation
  */
-W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_and called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -555,9 +573,11 @@ W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the OR operation
  */
-W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_or called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -587,9 +607,11 @@ W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line) {
  * \param args The arguments to call the function with (a)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the NOT operation
  */
-W_Word *kw_not(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_not(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_not called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -655,9 +677,11 @@ static bool _equal(W_Var *a, W_Var *b) { //helper function for w_equal
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the comparison
  */
-W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_equal called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -738,9 +762,11 @@ W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the comparison
  */
-W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_greater called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -771,9 +797,11 @@ W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_li
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the comparison
  */
-W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_less called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -804,9 +832,11 @@ W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code 
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the comparison
  */
-W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_gequal called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -837,9 +867,11 @@ W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_lin
  * \param args The arguments to call the function with (a, b)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The result of the comparison
  */
-W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_lequal called\n");
     if (list_size(args) != 2) {
         printf("Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -874,9 +906,11 @@ W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_lin
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The initialized variable
  */
-W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_bool called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -906,10 +940,12 @@ W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The initialized variable
  */
 
-W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_float called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -939,9 +975,11 @@ W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The initialized variable
  */
-W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_int called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -971,9 +1009,11 @@ W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The initialized variable
  */
-W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_str called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -1003,9 +1043,11 @@ W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The initialized variable
  */
-W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_list called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -1035,9 +1077,11 @@ W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with (name, value)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The assigned variable
  */
-W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_assign called\n");
 
     if (list_size(args) != 2) {
@@ -1156,9 +1200,11 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
  * \param args The arguments to call the function with (name)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return NULL
  */
-W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_delete called\n");
     if (list_size(args) != 1) {
         printf("Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
@@ -1185,9 +1231,11 @@ W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_lin
  * \param args The arguments to call the function with (value)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return NULL
  */
-W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_print called\n");
     for (int i = 0; i < args->size; i++) {
         W_Word *word = list_get(args, i);
@@ -1228,9 +1276,11 @@ W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line
  * \param args The arguments to call the function with (prompt)
  * \param line The line of the code
  * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value Unused
  * \return The input variable
  */
-W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_ask called\n");
     char *prompt = ((W_Word *)list_get(args, 0))->value;
     printf("%s", prompt);
@@ -1270,9 +1320,11 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line) 
  * \param args The arguments to call the function with
  * \param line The line of the code
  * \param current_line The current line of code that is evaluated
+ * \param return_type Unused
+ * \param return_value Unused
  * \return NULL
  */
-W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_def called\n");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the name of the new declared function
@@ -1351,10 +1403,12 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line) 
  * \param scope The scope to add the variables in
  * \param args The arguments to call the function with
  * \param line The line of the code
- * \param current_line The current line of code that is evaluated
+ * \param current_line Unused
+ * \param return_type The return type of the execute code
+ * \param return_value The return value of the execute code
  * \return NULL
  */
-W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_call called");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the function
@@ -1437,6 +1491,28 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
     return NULL;
 }
 
+/**
+ * \brief Return a value from a function
+ * \param scope The scope to return the value in
+ * \param args The arguments to call the function with (value)
+ * \param line The line of the code
+ * \param current_line Unused
+ * \param return_type The return type of the execute code
+ * \param return_value The return value of the execute code
+ * \return The return value
+ */
+W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
+    if (DEBUG) printf("[DEBUG]: kw_return called\n");
+
+    if (list_size(args) != 1) {
+        fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d", list_size(args), line);
+        exit(1);
+    }
+
+    W_Word *word = list_get(args, 0);
+    
+}
+
 /***********************************************
  * Loops ***************************************
  ***********************************************/
@@ -1447,9 +1523,11 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line)
  * \param args The arguments to call the function with
  * \param line The line of the code
  * \param current_line The current line of code that is evaluated
+ * \param return_type Unused
+ * \param return_value Unused
  * \return NULL
  */
-W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_line) {
+W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_infloop called\n");
 
     list *infloop_lines = list_init();
