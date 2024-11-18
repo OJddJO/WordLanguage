@@ -196,7 +196,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 list_reverse(args); //reverse the args to get them in the right order
-                W_Word *result = kw->func(scope, args, word->line, &current_line); //execute the keyword function
+                W_Word *result = kw->func(scope, args, word->line, &current_line, return_type, exec_result); //execute the keyword function
                 if (result != NULL) list_append(stack, result); //store the result on the stack if it is not NULL
 
                 for (int i = 0; i < args->size; i++) { //destroy the args
@@ -207,7 +207,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                     }
                 }
                 list_destroy_no_free(args);
-                if (exec_result != NULL) break; 
+                if (exec_result != NULL) break;
             }
 
             current_word = current_word->next;
@@ -219,7 +219,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
     }
 
     if (destroy_scope_on_exit) destroy_scope(scope);
-    return NULL;
+    return exec_result;
 }
 
 /***********************************************
@@ -1499,18 +1499,63 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
  * \param current_line Unused
  * \param return_type The return type of the execute code
  * \param return_value The return value of the execute code
- * \return The return value
+ * \return NULL (return value is set in return_value argument)
  */
 W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
     if (DEBUG) printf("[DEBUG]: kw_return called\n");
 
+    if (return_type == NULL_TYPE) {
+        fprintf(stderr, "Error: Unexpected return value, line %d", line);
+        exit(1);
+    }
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d", list_size(args), line);
         exit(1);
     }
 
     W_Word *word = list_get(args, 0);
-    
+
+    if (word->type == IDENTIFIER) {
+        W_Var *var = get_var(scope, word->value);
+        if (var == NULL) {
+            fprintf(stderr, "Error: Variable '%s' does not exist, line %d", word->value, line);
+            exit(1);
+        }
+        if (var->type != return_type) {
+            fprintf(stderr, "Error: Expected return type '%s', got '%s' (type: %s), line %d", w_get_type_str(return_type), word->value, w_get_type_str(var->type), line);
+            exit(1);
+        }
+        return_value = var->copy(var);
+    } else if (word->type == NUMBER) {
+        if (is_float(word->value)) {
+            if (return_type != FLOAT) {
+                fprintf(stderr, "Error: Expected return type 'float', got '%s', line %d", word->value, line);
+                exit(1);
+            }
+            return_value = w_float_init();
+            w_float_assign((W_Float *)return_value, word->value);
+        } else {
+            if (return_type != INT) {
+                fprintf(stderr, "Error: Expected return type 'int', got '%s', line %d", word->value, line);
+                exit(1);
+            }
+            return_value = w_int_init();
+            w_int_assign((W_Int *)return_value, word->value);
+        }
+    } else if (word->type == LITT_STR) {
+        if (return_type != STRING) {
+            fprintf(stderr, "Error: Expected return type 'string', got '%s', line %d", word->value, line);
+            exit(1);
+        }
+        return_value = w_str_init();
+        w_str_assign((W_Str *)return_value, word->value);
+    } else {
+        fprintf(stderr, "Error: Expected return value, got '%s', line %d", word->value, line);
+        exit(1);
+    }
+
+    if (DEBUG) printf("[DEBUG]: kw_return done\n");
+    return NULL;
 }
 
 /***********************************************
