@@ -64,5 +64,6 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, 
 
 W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value);
 W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value);
+W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value);
 
 #endif

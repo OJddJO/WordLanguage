@@ -355,7 +355,6 @@ W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line, 
     }
     float a, b; //get a and b
     W_Word *a_word = list_get(args, 0), *b_word = list_get(args, 1);
-    
     a = get_number(scope, a_word, line);
     b = get_number(scope, b_word, line);
 
@@ -1409,7 +1408,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, 
  * \return NULL
  */
 W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void *return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_call called");
+    if (DEBUG) printf("[DEBUG]: kw_call called\n");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the function
     W_Func *f = (W_Func *)get_var(scope, func_name);
@@ -1486,9 +1485,22 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
         }
     }
     void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
+    W_Word *word = NULL;
+    if (result != NULL) {
+        w_dict_set(scope->vars, "@return", result);
+        if (DEBUG) printf("[DEBUG]: Stored return value in scope at @return\n");
+
+        word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
+        word->type = IDENTIFIER;
+        char *str = (char *)w_malloc(8);
+        strcpy(str, "@return");
+        word->value = str;
+        word->is_generated = true;
+        word->line = line;
+    }
 
     if (DEBUG) printf("[DEBUG]: kw_call done\n");
-    return NULL;
+    return word;
 }
 
 /**
@@ -1610,6 +1622,6 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
         void *result = execute(infloop_lines, scope, NULL_TYPE, false);
     }
 
-    if (DEBUG) pritnf("[DEBUG]: kw_infloop done\n");
+    if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
     return NULL;
 }
