@@ -9,7 +9,7 @@
  * \param var_type The variable to get the type of
  * \return The type of the variable
  */
-static char *w_get_type_str(W_Type var_type) {
+static char *get_type_str(W_Type var_type) {
     char *type = (char *)w_malloc(9);
     switch (var_type) {
         case INT:
@@ -48,7 +48,7 @@ static char *w_get_type_str(W_Type var_type) {
  * \param var The variable to get the type of
  * \return The type of the variable
  */
-static W_Type w_get_type(char *str) {
+static W_Type get_type(char *str) {
     if (strcmp(str, "int") == 0) {
         return INT;
     } else if (strcmp(str, "float") == 0) {
@@ -92,7 +92,7 @@ static float get_number(Scope *scope, W_Word *word, int line) { //helper functio
             exit(1);
         }
         if (var->type != INT && var->type != FLOAT) {
-            printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", w_get_type_str(var->type), line);
+            printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", get_type_str(var->type), line);
             exit(1);
         }
         res = *(float *)var->value;
@@ -109,7 +109,7 @@ static bool get_bool(Scope *scope, W_Word *word, int line) { //helper function f
             exit(1);
         }
         if (var->type != BOOL) {
-            printf("Error: Unsupported type (Expected bool, got %s), line %d\n", w_get_type_str(var->type), line);
+            printf("Error: Unsupported type (Expected bool, got %s), line %d\n", get_type_str(var->type), line);
             exit(1);
         }
         res = *(bool *)var->value;
@@ -188,7 +188,25 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                             fprintf(stderr, "Error: Not enough arguments for keyword '%s'\n", word->value);
                             exit(1);
                         }
-                        list_append(args, list_pop(stack));
+                        if (strcmp(((W_Word *)list_get(stack, stack->size - 1))->value, "endwith") == 0) { //if the keyword is 'endwith', get the args until 'with' (from last to first)
+                            list_pop(stack);
+                            bool found_with = false;
+                            while (stack->size > 0) {
+                                W_Word *arg = list_pop(stack);
+                                list_append(args, arg);
+                                if (strcmp(arg->value, "with") == 0) {
+                                    found_with = true;
+                                    break;
+                                }
+                            }
+                            if (!found_with) {
+                                fprintf(stderr, "Error: Expected keyword 'with' before 'endwith', line %d\n", word->line);
+                                exit(1);
+                            }
+                        } else {
+                            W_Word *arg = list_pop(stack);
+                            list_append(args, arg);
+                        }
                     }
                 } else {
                     while (stack->size > 0) {
@@ -219,6 +237,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
     }
 
     if (destroy_scope_on_exit) destroy_scope(scope);
+    printf("%d\n", exec_result==NULL);
     return exec_result;
 }
 
@@ -1105,7 +1124,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
                 exit(1);
             }
             if (src_var->type != BOOL) {
-                printf("Error: Unsupported type (Expected bool, got %s), line %d\n", w_get_type_str(src_var->type), line);
+                printf("Error: Unsupported type (Expected bool, got %s), line %d\n", get_type_str(src_var->type), line);
                 exit(1);
             }
             value = *(bool *)src_var->value;
@@ -1125,7 +1144,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
                 exit(1);
             }
             if (src_var->type != INT && src_var->type != FLOAT) {
-                printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", w_get_type_str(src_var->type), line);
+                printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", get_type_str(src_var->type), line);
                 exit(1);
             }
             value = *(float *)src_var->value;
@@ -1145,7 +1164,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
                 exit(1);
             }
             if (src_var->type != INT && src_var->type != FLOAT) {
-                printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", w_get_type_str(src_var->type), line);
+                printf("Error: Unsupported type (Expected int or float, got %s), line %d\n", get_type_str(src_var->type), line);
                 exit(1);
             }
             value = *(float *)src_var->value;
@@ -1167,7 +1186,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
                 exit(1);
             }
             if (src_var->type != STRING) {
-                printf("Error: Unsupported type (Expected string, got %s), line %d\n", w_get_type_str(src_var->type), line);
+                printf("Error: Unsupported type (Expected string, got %s), line %d\n", get_type_str(src_var->type), line);
                 exit(1);
             }
             strcpy(value, (char *)src_var->value);
@@ -1177,7 +1196,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
         }
         w_str_set((W_Str *)var, value);
     } else {
-        printf("Error: Unsupported type (Expected int, float, string, or bool, got %s), line %d\n", w_get_type_str(var->type), line);
+        printf("Error: Unsupported type (Expected int, float, string, or bool, got %s), line %d\n", get_type_str(var->type), line);
         exit(1);
     }
 
@@ -1447,7 +1466,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
                     exit(1);
                 }
                 if (var->type != arg_type) {
-                    fprintf(stderr, "Error: Expected argument type '%s', got '%s' (type: %s), line %d", w_get_type_str(arg_type), arg->value, w_get_type_str(var->type), line);
+                    fprintf(stderr, "Error: Expected argument type '%s', got '%s' (type: %s), line %d", get_type_str(arg_type), arg->value, get_type_str(var->type), line);
                     exit(1);
                 }
                 W_Var *var_copy = var->copy(var);
@@ -1485,6 +1504,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
         }
     }
     void *result = execute(f->parsed_code, fn_scope, f->return_type, true);
+    printf("Result NULL: %d\n", result==NULL);
     W_Word *word = NULL;
     if (result != NULL) {
         w_dict_set(scope->vars, "@return", result);
@@ -1534,7 +1554,7 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
             exit(1);
         }
         if (var->type != return_type) {
-            fprintf(stderr, "Error: Expected return type '%s', got '%s' (type: %s), line %d", w_get_type_str(return_type), word->value, w_get_type_str(var->type), line);
+            fprintf(stderr, "Error: Expected return type '%s', got '%s' (type: %s), line %d", get_type_str(return_type), word->value, get_type_str(var->type), line);
             exit(1);
         }
         return_value = var->copy(var);

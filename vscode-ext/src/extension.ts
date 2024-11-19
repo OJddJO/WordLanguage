@@ -29,8 +29,8 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 		const tokensBuilder = new vscode.SemanticTokensBuilder(legend);
 		const text = document.getText();
 		const lines = text.split("\n");
-		let vars: string[] = [];
-		let functions: string[] = [];
+		const vars: string[] = [];
+		const functions: string[] = [];
 		let funcArgs: string[] = [];
 
 		for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
@@ -58,15 +58,14 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 					if (/\bdef\b/.test(words[wordIndex])) { //function def
 						wordIndex += 2; //skip function return type
 						functions.push(words[wordIndex]);
-						tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("function"));
-						console.log(wordIndex, words[wordIndex]);
+						tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("function"), getTokenModifier("declaration"));
 
 						if (line.length > 3) {
 							wordIndex++; //skip with keyword
 
 							for (wordIndex += 2; wordIndex < words.length; wordIndex += 2) { //args
 								funcArgs.push(words[wordIndex]);
-								tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("parameter"));
+								tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("parameter"), getTokenModifier("declaration"));
 							}
 						}
 						continue;
@@ -79,7 +78,7 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 					else if (/\b(bool|int|float|str|list)\b/.test(words[wordIndex])) { //var def
 						wordIndex++;
 						vars.push(words[wordIndex]);
-						tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"));
+						tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"), getTokenModifier("declaration"));
 					}
 					
 					else if (funcArgs.includes(words[wordIndex])) { //function args
@@ -106,6 +105,14 @@ function getTokenType(tokenType: string): number {
 	let result = 0;
 	if (tokenTypes.has(tokenType)) {
 		result = tokenTypes.get(tokenType)!;
+	}
+	return result;
+}
+
+function getTokenModifier(tokenModifier: string): number {
+	let result = 0;
+	if (tokenModifiers.has(tokenModifier)) {
+		result = tokenModifiers.get(tokenModifier)!;
 	}
 	return result;
 }

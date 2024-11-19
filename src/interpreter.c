@@ -69,14 +69,14 @@ int main(int argc, char *argv[]) {
  * \brief Initializes the keywords.
  */
 static void init_keywords() {
-    add_keyword("plus", kw_plus, 2, 3);
-    add_keyword("minus", kw_minus, 2, 3);
-    add_keyword("time", kw_time, 2, 4);
-    add_keyword("div", kw_div, 2, 4);
-    add_keyword("mod", kw_mod, 2, 4);
-    add_keyword("ediv", kw_ediv, 2, 4);
-    add_keyword("power", kw_power, 2, 5);
-    add_keyword("sqrt", kw_sqrt, 1, 5);
+    add_keyword("plus", kw_plus, 2, 4);
+    add_keyword("minus", kw_minus, 2, 4);
+    add_keyword("time", kw_time, 2, 5);
+    add_keyword("div", kw_div, 2, 5);
+    add_keyword("mod", kw_mod, 2, 5);
+    add_keyword("ediv", kw_ediv, 2, 5);
+    add_keyword("power", kw_power, 2, 6);
+    add_keyword("sqrt", kw_sqrt, 1, 6);
 
     add_keyword("and", kw_and, 2, 3);
     add_keyword("or", kw_or, 2, 3);
@@ -88,11 +88,11 @@ static void init_keywords() {
     add_keyword("gequal", kw_gequal, 2, 3);
     add_keyword("lequal", kw_lequal, 2, 3);
 
-    add_keyword("int", kw_int, 1, 2);
-    add_keyword("float", kw_float, 1, 2);
-    add_keyword("str", kw_str, 1, 2);
-    add_keyword("bool", kw_bool, 1, 2);
-    add_keyword("list", kw_list, 1, 2);
+    add_keyword("int", kw_int, 1, 3);
+    add_keyword("float", kw_float, 1, 3);
+    add_keyword("str", kw_str, 1, 3);
+    add_keyword("bool", kw_bool, 1, 3);
+    add_keyword("list", kw_list, 1, 3);
 
     add_keyword("assign", kw_assign, 2, 0);
     add_keyword("delete", kw_delete, 1, 0);
@@ -100,9 +100,12 @@ static void init_keywords() {
     add_keyword("print", kw_print, -1, -1);
     add_keyword("ask", kw_ask, 1, -1);
 
-    add_keyword("def", kw_def, -1, 1);
-    add_keyword("call", kw_call, -1, 1);
+    add_keyword("def", kw_def, 2, 1);
+    add_keyword("call", kw_call, 2, 1);
     add_keyword("return", kw_return, 1, 0);
 
+    add_reserved_word("enddef", 0);
     add_reserved_word("with", 2);
+    add_reserved_word("endwith", 2);
+    add_reserved_word("@return", 3); //same as var declaration
 }

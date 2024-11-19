@@ -59,11 +59,15 @@
 			"patterns": [
 				{
 					"name": "storage.type.function.wordlang",
-					"match": "\\b(def|with|enddef)\\b"
+					"match": "\\b(def|enddef)\\b"
+				},
+				{
+					"name": "keyword.operator.arguments.wordlang",
+					"match": "\\b(with|endwith)\\b"
 				},
 				{
 					"name": "keyword.operator.function.call.wordlang",
-					"match": "\\b(call|store)\\b"
+					"match": "\\bcall\\b"
 				}
 			]
 		},
