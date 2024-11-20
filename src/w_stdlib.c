@@ -1589,6 +1589,73 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
 }
 
 /***********************************************
+ * Conditions **********************************
+ ***********************************************/
+
+W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
+    if (DEBUG) printf("[DEBUG]: kw_if called\n");
+
+    if (list_size(args) != 1) {
+        fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d", list_size(args), line);
+        exit(1);
+    }
+
+    W_Word *word = list_get(args, 0);
+    if (word->type != IDENTIFIER) {
+        fprintf(stderr, "Error: Expected boolean expression, got '%s', line %d", word->value, line);
+        exit(1);
+    }
+
+    W_Var *var = get_var(scope, word->value);
+    if (var == NULL) {
+        fprintf(stderr, "Error: Variable '%s' does not exist, line %d", word->value, line);
+        exit(1);
+    }
+    if (var->type != BOOL) {
+        fprintf(stderr, "Error: Expected boolean expression, got '%s' (type: %s), line %d", word->value, get_type_str(var->type), line);
+        exit(1);
+    }
+
+    if (*(bool *)var->value) {
+        int if_count = 0;
+        list *if_lines = list_init();
+        bool end = false;
+        
+        *current_line = (*current_line)->next;
+        while (*current_line != NULL) {
+            W_Word *word = (W_Word *)((list *)(*current_line)->value)->head->value; //get the first word of the line
+
+            if (word == NULL) { //if it is an empty line
+                *current_line = (*current_line)->next;
+                continue;
+            }
+
+            if (strcmp(word->value, "if") == 0) {
+                if_count++;
+            } else if (strcmp(word->value, "endif") == 0) {
+                if (if_count == 0) {
+                    end = true;
+                    break;
+                } else if_count--;
+            }
+
+            list_append(if_lines, (*current_line)->value);
+            *current_line = (*current_line)->next;
+        }
+
+        if (!end) {
+            fprintf(stderr, "Error: Expected keyword 'endif' at the end of the if statement, line %d", line);
+            exit(1);
+        }
+
+        void *result = execute(if_lines, scope, NULL_TYPE, false);
+        if (result != NULL) {
+            
+        }
+    }
+}
+
+/***********************************************
  * Loops ***************************************
  ***********************************************/
 
@@ -1638,8 +1705,54 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
 
     while (true) {
         void *result = execute(infloop_lines, scope, NULL_TYPE, false);
+        if (result != NULL) {
+            if (*(int *)result == 1) {
+                free(result);
+                break;
+            } else if (*(int *)result == 2) {
+                free(result);
+                continue;
+            }
+        }
     }
 
     if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
+    return NULL;
+}
+
+/**
+ * \brief Break the execution
+ * \param scope The scope to break in
+ * \param args The arguments to call the function with
+ * \param line The line of the code
+ * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value The return value of the execute code
+ * \return NULL
+ */
+W_Word *kw_break(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
+    if (DEBUG) printf("[DEBUG]: kw_break called\n");
+    int *result = (int *)w_malloc(sizeof(int));
+    *result = 1;
+    *return_value = result;
+    if (DEBUG) printf("[DEBUG]: kw_break done\n");
+    return NULL;
+}
+
+/**
+ * \brief Skip the current iteration
+ * \param scope The scope to continue in
+ * \param args The arguments to call the function with
+ * \param line The line of the code
+ * \param current_line Unused
+ * \param return_type Unused
+ * \param return_value The return value of the execute code
+ */
+W_Word *kw_continue(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
+    if (DEBUG) printf("[DEBUG]: kw_continue called\n");
+    int *result = (int *)w_malloc(sizeof(int));
+    *result = 2;
+    *return_value = result;
+    if (DEBUG) printf("[DEBUG]: kw_continue done\n");
     return NULL;
 }

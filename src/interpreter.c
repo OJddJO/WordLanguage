@@ -104,8 +104,14 @@ static void init_keywords() {
     add_keyword("call", kw_call, 2, 1);
     add_keyword("return", kw_return, 1, 0);
 
+    // add_keyword("infloop", kw_infloop, 0, 1);
+    // add_keyword("break", kw_break, 0, 0);
+    // add_keyword("continue", kw_continue, 0, 0);
+
     add_reserved_word("enddef", 0);
     add_reserved_word("with", 2);
     add_reserved_word("endwith", 2);
     add_reserved_word("@return", 3); //same as var declaration
+
+    add_reserved_word("endinf", 0);
 }
