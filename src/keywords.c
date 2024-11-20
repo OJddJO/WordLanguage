@@ -10,7 +10,7 @@ dict *reserved_words;
  * \param argc The number of arguments the keyword takes
  * \param priority The priority of the keyword
  */
-void add_keyword(char *name, W_Word *(func)(Scope*, list*, int, list_element**, W_Type, void *), int argc, int priority) {
+void add_keyword(char *name, W_Word *(func)(Scope*, list*, int, list_element**, W_Type, void **), int argc, int priority) {
     keyword *kw = w_malloc(sizeof(keyword));
     kw->func = func;
     kw->argc = argc;
