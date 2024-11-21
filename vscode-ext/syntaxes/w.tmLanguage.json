@@ -94,7 +94,7 @@
 		"numbers": {
 			"patterns": [{
 				"name": "constant.numeric.wordlang",
-				"match": "\\b(-?(?:\\d)(?:\\.)?(?:\\d*))\\b"
+				"match": "-?\\b((?:\\d+)(?:\\.)?(?:\\d*))\\b"
 			}] 
 		},
 		"boolean": {
