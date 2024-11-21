@@ -28,6 +28,11 @@ if __name__ == "__main__":
     else:
         nb_iterations = 1000
 
+    #print python version
+    print(f"Python version: {sys.version}")
+    #print word version
+    print("Word version: latest")
+
     #Get list of files
     file_list = [file.split(".")[0] for file in os.listdir("./scripts") if file.endswith(".py")]
 
