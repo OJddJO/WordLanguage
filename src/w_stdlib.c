@@ -1066,8 +1066,8 @@ W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line, 
     w_dict_set(scope->vars, name, result);
     W_Word *word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
     word->type = IDENTIFIER;
-    char *str = (char *)w_malloc(strlen(list_get(args, 0)) + 1);
-    strcpy(str, list_get(args, 0));
+    char *str = (char *)w_malloc(strlen(name) + 1);
+    strcpy(str, name);
     word->value = str;
     word->is_generated = true;
     word->line = line;
@@ -1197,8 +1197,10 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
         char *value;
         if (value_word->type == LITT_STR) {
             //remove quotes
-            char without_quotes[strlen(value_word->value) - 1];
+            char without_quotes[strlen(value_word->value) - 2];
             strncpy(without_quotes, value_word->value + 1, strlen(value_word->value) - 2);
+            without_quotes[strlen(value_word->value) - 2] = '\0';
+            value = without_quotes;
         } else if (value_word->type == IDENTIFIER) {
             W_Var *src_var = get_var(scope, value_word->value);
             if (src_var == NULL) {
@@ -1214,7 +1216,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
             fprintf(stderr, "Error: Unsupported type (Expected string, got %s), line %d\n", value_word->value, line);
             exit(1);
         }
-        w_str_set((W_Str *)var, value);
+        w_str_assign((W_Str *)var, value);
     } else {
         fprintf(stderr, "Error: Unsupported type (Expected int, float, string, or bool, got %s), line %d\n", get_type_str(var->type), line);
         exit(1);
@@ -1321,7 +1323,10 @@ W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line
 W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
     if (DEBUG) printf("[DEBUG]: kw_ask called\n");
     char *prompt = ((W_Word *)list_get(args, 0))->value;
-    printf("%s", prompt);
+    char without_quotes[strlen(prompt) - 1];
+    strncpy(without_quotes, prompt + 1, strlen(prompt) - 2);
+    without_quotes[strlen(prompt) - 2] = '\0';
+    printf("%s", without_quotes);
     int size = 0;
 
     //get input
@@ -1339,9 +1344,17 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, 
         input[size] = '\0';
     }
 
+    //add quotes
+    char *input_with_quotes = (char *)malloc(size + 3);
+    input_with_quotes[0] = '"';
+    strncpy(input_with_quotes + 1, input, size);
+    input_with_quotes[size + 1] = '"';
+    input_with_quotes[size + 2] = '\0';
+    free(input);
+
     W_Word *word = (W_Word *)w_malloc(sizeof(W_Word)); //create input word
     word->type = LITT_STR;
-    word->value = input;
+    word->value = input_with_quotes;
     word->is_generated = true;
     word->line = line;
     if (DEBUG) printf("[DEBUG]: kw_ask done\n");

@@ -11,10 +11,6 @@
 #include "scope.h"
 #include "w_stdlib.h"
 
-#ifndef DEBUG
-#define DEBUG false 
-#endif
-
 extern dict *keywords;
 extern dict *reserved_words;
 

@@ -98,7 +98,7 @@ static void init_keywords() {
     add_keyword("delete", kw_delete, 1, 0);
 
     add_keyword("print", kw_print, -1, -1);
-    add_keyword("ask", kw_ask, 1, -1);
+    add_keyword("ask", kw_ask, 1, 1);
 
     add_keyword("def", kw_def, 2, 1);
     add_keyword("call", kw_call, 2, 1);

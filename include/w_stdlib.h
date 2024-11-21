@@ -12,7 +12,7 @@
 #include "w_function.h"
 
 #ifndef DEBUG
-#define DEBUG false
+#define DEBUG true
 #endif
 
 // Execution

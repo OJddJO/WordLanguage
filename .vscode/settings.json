@@ -9,6 +9,11 @@
             "cwd": "c:\\Users\\Jerem\\Documents\\WordLanguage\\bin",
             "binaryPath": "c:\\Users\\Jerem\\Documents\\WordLanguage\\bin\\word.exe",
             "binaryArgs": []
+        },
+        {
+            "cwd": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage\\bin",
+            "binaryPath": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage\\bin\\word",
+            "binaryArgs": []
         }
     ],
     "files.associations": {
