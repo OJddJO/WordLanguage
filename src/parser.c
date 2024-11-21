@@ -1,6 +1,7 @@
 #include "parser.h"
 
 static list *shunting_yard(list_element *current_word);
+static int get_priority(char *kw);
 
 /**
  * \brief Parses the given list of words into a parsing tree. (w_malloc)
@@ -14,7 +15,10 @@ list *parse(list *tokenized_code) {
     for (int i = 0; i < tokenized_code->size; i++) {
         list *line = (list *)current_line->value;
         list_element *current_word = line->head;
-        // if (line->size == 0) continue;
+        if (line->size == 0) {
+            current_line = current_line->next;
+            continue;
+        }
         list *current_block = shunting_yard(current_word);
         list_append(parsed_code, current_block);
         current_line = current_line->next;
@@ -73,7 +77,7 @@ static list *shunting_yard(list_element *current_word) {
  * \param kw The keyword to parse.
  * \return The priority of the keyword.
  */
-int get_priority(char *kw) {
+static int get_priority(char *kw) {
     int priority = 0;
     for (int i = 0; i < strlen(kw); i++) {
         if (kw[i] == '.') {

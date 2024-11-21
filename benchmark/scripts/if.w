@@ -1,9 +1,9 @@
-def bool isEven with int a
-    return a .mod 2 equal 0
+def bool isEven with int a endwith
+    return a mod 2 equal 0
 enddef
 
 int number assign 4
-call isEven with number store result
+bool result assign call isEven with number endwith
 
 print result
 

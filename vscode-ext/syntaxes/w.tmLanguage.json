@@ -24,6 +24,9 @@
 			"include": "#numbers"
 		},
 		{
+			"include": "#boolean"
+		},
+		{
 			"include": "#io"
 		}
 	],
@@ -93,6 +96,10 @@
 				"name": "constant.numeric.wordlang",
 				"match": "\\b(-?(?:\\d)(?:\\.)?(?:\\d*))\\b"
 			}] 
+		},
+		"boolean": {
+			"name": "constant.language.boolean.wordlang",
+			"match": "\\b(true|false)\\b"
 		},
 		"io": {
 			"name": "entity.name.function.io.wordlang",

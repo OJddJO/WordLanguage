@@ -66,7 +66,13 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, 
 W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
 W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
 
+//Control Flow
+
+W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
+W_Word *kw_else(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
+
 //Loops
+
 W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
 W_Word *kw_break(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);
 W_Word *kw_continue(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value);

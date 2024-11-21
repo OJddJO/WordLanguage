@@ -7,14 +7,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define MONITOR_MEMORY true  
+#define MONITOR_MEMORY false
 
 #if MONITOR_MEMORY
 
 #define DEBUG true
 
 extern int w_alloc_count;
-extern long long int w_alloc_total;
+extern int w_alloc_total;
 
 void *w_malloc(size_t size);
 void w_free(void *ptr);

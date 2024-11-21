@@ -128,7 +128,7 @@ static bool get_bool(Scope *scope, W_Word *word, int line) { //helper function f
  * \param stack The stack to destroy.
  */
 static void destroy_stack(list *stack) {
-    if (DEBUG) printf("Destroying stack...\n");
+    if (DEBUG) printf("[DEBUG] Destroying stack...\n");
     list_element *current = stack->head;
     while (current != NULL) {
         W_Word *word = (W_Word *)current->value;
@@ -141,7 +141,7 @@ static void destroy_stack(list *stack) {
         current = next;
     }
     w_free(stack);
-    if (DEBUG) printf("Stack destroyed\n");
+    if (DEBUG) printf("[DEBUG] Stack destroyed\n");
 }
 
 /**
@@ -166,7 +166,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             if (DEBUG) {
                 for (int i = 0; i < stack->size; i++) {
                     W_Word *word = (W_Word *)list_get(stack, i);
-                    printf("Stack[%d]: %s\n", i, word->value);
+                    printf("[DEBUG] Stack[%d]: %s\n", i, word->value);
                 }
             }
 
@@ -175,9 +175,21 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
             if (word->type != KEYWORD) { //if the word is not a keyword, push it to the stack
                 list_append(stack, word);
             } else {
-                keyword *kw = dict_get(keywords, word->value); //get the keyword struct
+                char *word_val = word->value;
+                
+                int priority = 0; //remove the dots from the keyword
+                for (int i = 0; i < strlen(word_val); i++) {
+                    if (word_val[i] == '.') {
+                        priority++;
+                    } else break;
+                }
+                char without_dot[strlen(word_val) - priority + 1];
+                strncpy(without_dot, word_val + priority, strlen(word_val) - priority);
+                without_dot[strlen(word_val) - priority] = '\0';
+
+                keyword *kw = dict_get(keywords, without_dot); //get the keyword struct
                 if (kw == NULL) {
-                    fprintf(stderr, "Error: Unknown keyword '%s'\n", word->value);
+                    fprintf(stderr, "Error: Unknown keyword '%s'\n", without_dot);
                     exit(1);
                 }
 
@@ -185,7 +197,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
                 if (kw->argc != -1) {
                     for (int i = 0; i < kw->argc; i++) {
                         if (stack->size == 0) {
-                            fprintf(stderr, "Error: Not enough arguments for keyword '%s'\n", word->value);
+                            fprintf(stderr, "Error: Not enough arguments for keyword '%s'\n", without_dot);
                             exit(1);
                         }
                         if (strcmp(((W_Word *)list_get(stack, stack->size - 1))->value, "endwith") == 0) { //if the keyword is 'endwith', get the args until 'with' (from last to first)
@@ -236,7 +248,16 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
         current_line = current_line->next;
     }
 
-    if (destroy_scope_on_exit) destroy_scope(scope);
+    if (destroy_scope_on_exit) {
+        if (DEBUG) {
+            printf("[DEBUG] Destroying scope...\n");
+            char *str = w_dict_stringify(scope->vars);
+            printf("[DEBUG] Scope: %s\n", str);
+            w_free(str);
+        }
+        destroy_scope(scope);
+        if (DEBUG) printf("[DEBUG] Scope destroyed\n");
+    }
     return exec_result;
 }
 
@@ -1358,6 +1379,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, 
         exit(1);
     }
     W_Func *new_func = w_func_init(); //init the new function
+    new_func->parent_scope = scope;
     new_func->return_type = type;
     w_dict_set(scope->vars, func_name, new_func);
 
@@ -1535,7 +1557,7 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
     if (DEBUG) printf("[DEBUG]: kw_return called\n");
 
     if (return_type == NULL_TYPE) {
-        fprintf(stderr, "Error: Unexpected return value, line %d", line);
+        fprintf(stderr, "Error: Cannot return value from null function, line %d", line);
         exit(1);
     }
     if (list_size(args) != 1) {
@@ -1589,11 +1611,11 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
 }
 
 /***********************************************
- * Conditions **********************************
+ * Control Flow ********************************
  ***********************************************/
 
-W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_if called\n");
+W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) { //elif is the same as if
+    if (DEBUG) printf("[DEBUG]: kw_if/kw_elif called\n");
 
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d", list_size(args), line);
@@ -1616,14 +1638,15 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
         exit(1);
     }
 
-    if (*(bool *)var->value) {
+    if (*(bool *)var->value) { //if the condition is true execute the code
+        if (DEBUG) printf("[DEBUG]: Executing if/elif block\n");
         int if_count = 0;
         list *if_lines = list_init();
         bool end = false;
         
         *current_line = (*current_line)->next;
         while (*current_line != NULL) {
-            W_Word *word = (W_Word *)((list *)(*current_line)->value)->head->value; //get the first word of the line
+            W_Word *word = (W_Word *)((list *)(*current_line)->value)->tail->value; //get the first word of the line
 
             if (word == NULL) { //if it is an empty line
                 *current_line = (*current_line)->next;
@@ -1632,11 +1655,13 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
 
             if (strcmp(word->value, "if") == 0) {
                 if_count++;
-            } else if (strcmp(word->value, "endif") == 0) {
-                if (if_count == 0) {
+            } else if (if_count == 0) {
+                if (strcmp(word->value, "elif") == 0 || strcmp(word->value, "else") == 0 || strcmp(word->value, "endif") == 0) {
                     end = true;
                     break;
-                } else if_count--;
+                }
+            } else if (strcmp(word->value, "endif") == 0) {
+                if_count--;
             }
 
             list_append(if_lines, (*current_line)->value);
@@ -1644,15 +1669,103 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
         }
 
         if (!end) {
-            fprintf(stderr, "Error: Expected keyword 'endif' at the end of the if statement, line %d", line);
+            fprintf(stderr, "Error: Expected keyword 'endif' at the end of the if/elif statement, line %d", line);
             exit(1);
         }
 
-        void *result = execute(if_lines, scope, NULL_TYPE, false);
-        if (result != NULL) {
-            
+        //skip line until endif
+        while (strcmp(((W_Word *)((list *)(*current_line)->value)->tail->value)->value, "endif") != 0) {
+            *current_line = (*current_line)->next;
         }
+        void *result = execute(if_lines, scope, return_type, false);
+        list_destroy_no_free(if_lines);
+
+        if (result != NULL) {
+            *return_value = result;
+        }
+    } else { //if the condition is false skip the code until the end of the if/elif statement
+        if (DEBUG) printf("[DEBUG]: Skipping if/elif block\n");
+        int if_count = 0;
+        bool end = false;
+        //skip line until endif or elif or else
+        *current_line = (*current_line)->next;
+        while (current_line != NULL) {
+            W_Word *word = (W_Word *)((list *)(*current_line)->value)->tail->value; //get the first word of the line
+
+            if (strcmp(word->value, "if") == 0) {
+                if_count++;
+            } else if (if_count == 0) {
+                if (strcmp(word->value, "elif") == 0 || strcmp(word->value, "else") == 0 || strcmp(word->value, "endif") == 0) {
+                    end = true;
+                    break;
+                }
+            } else if (strcmp(word->value, "endif") == 0) {
+                if_count--;
+            }
+
+            *current_line = (*current_line)->next;
+        }
+
+        if (!end) {
+            fprintf(stderr, "Error: Expected keyword 'endif' at the end of the if/elif statement, line %d", line);
+            exit(1);
+        }
+
+        *current_line = (*current_line)->prev; //go back the last line to avoid skipping lines
     }
+
+    if (DEBUG) printf("[DEBUG]: kw_if/kw_elif done\n");
+    return NULL;
+}
+
+W_Word *kw_else(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
+    if (DEBUG) printf("[DEBUG]: kw_else called\n");
+
+    if (list_size(args) != 0) {
+        fprintf(stderr, "Error: Invalid number of arguments (Expected 0, got %d), line %d", list_size(args), line);
+        exit(1);
+    }
+
+    int if_count = 0;
+    list *else_lines = list_init();
+    bool end = false;
+
+    *current_line = (*current_line)->next;
+    while (*current_line != NULL) {
+        W_Word *word = (W_Word *)((list *)(*current_line)->value)->tail->value; //get the first word of the line
+
+        if (word == NULL) { //if it is an empty line
+            *current_line = (*current_line)->next;
+            continue;
+        }
+
+        if (strcmp(word->value, "if") == 0) {
+            if_count++;
+        }  else if (strcmp(word->value, "endif") == 0) {
+            if (if_count == 0) {
+                end = true;
+                break;
+            } else if_count--;
+        }
+
+        list_append(else_lines, (*current_line)->value);
+        *current_line = (*current_line)->next;
+    }
+
+    if (!end) {
+        fprintf(stderr, "Error: Expected keyword 'endif' at the end of the else statement, line %d", line);
+        exit(1);
+    }
+
+    void *result = execute(else_lines, scope, return_type, false);
+    list_destroy_no_free(else_lines);
+
+    if (result != NULL) {
+        *return_value = result;
+    }
+
+    if (DEBUG) printf("[DEBUG]: kw_else done\n");
+    return NULL;
 }
 
 /***********************************************
@@ -1704,24 +1817,29 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
     }
 
     while (true) {
-        void *result = execute(infloop_lines, scope, NULL_TYPE, false);
+        void *result = execute(infloop_lines, scope, return_type, false);
         if (result != NULL) {
             if (*(int *)result == 1) {
-                free(result);
+                w_free(result);
                 break;
             } else if (*(int *)result == 2) {
-                free(result);
+                w_free(result);
                 continue;
+            } else {
+                *return_value = result;
+                break;
             }
         }
     }
+
+    list_destroy_no_free(infloop_lines);
 
     if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
     return NULL;
 }
 
 /**
- * \brief Break the execution
+ * \brief Break the execution of a loop
  * \param scope The scope to break in
  * \param args The arguments to call the function with
  * \param line The line of the code
@@ -1740,7 +1858,7 @@ W_Word *kw_break(Scope *scope, list *args, int line, list_element **current_line
 }
 
 /**
- * \brief Skip the current iteration
+ * \brief Skip the current iteration of the loop
  * \param scope The scope to continue in
  * \param args The arguments to call the function with
  * \param line The line of the code

@@ -1,8 +1,18 @@
-def int incr with int a endwith
-    return a plus 1
+def bool isEven with int a endwith
+    return a .mod 2 equal 0
 enddef
 
-int a assign 0
-a assign call incr with a endwith
-a assign call incr with a endwith
-print a
+int number assign 4
+bool result assign call isEven with number endwith
+
+print result
+
+if result
+    print number "is even"
+else
+    print number "is odd"
+endif
+
+# Output:
+# true
+# 4 is even

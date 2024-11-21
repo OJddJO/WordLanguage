@@ -11,8 +11,6 @@
 extern dict *keywords;
 
 list *parse(list *tokenized_code);
-int get_priority(char *operator);
-// list *shunting_yard(list_element *current_word);
 void print_parsed_code(list *parsed_code);
 void parser_destroy(list *parsed_code);
 
