@@ -6,14 +6,11 @@
  */
 W_Float *w_float_init() {
     W_Float *f = (W_Float *)w_malloc(sizeof(W_Float));
-    f->type = NULL_TYPE;
-    f->value = NULL;
+    f->type = FLOAT;
     f->destroy = &w_float_destroy;
     f->stringify = &w_float_stringify;
     f->copy = &w_float_copy;
-    f->assign = &w_float_assign;
-    f->set = &w_float_set;
-    f->get = &w_float_value;
+    f->value = NULL;
     return f;
 }
 
@@ -25,9 +22,8 @@ W_Float *w_float_init() {
 void w_float_assign(W_Float *f, char *value) {
     float *v;
     float var_value = atof(value);
-    if (f->type == NULL_TYPE) {
+    if (f->value == NULL) {
         v = (float *)w_malloc(sizeof(float));
-        f->type = FLOAT;
     } else v = f->value;
     *v = var_value;
     f->value = v;
@@ -40,9 +36,8 @@ void w_float_assign(W_Float *f, char *value) {
  */
 void w_float_set(W_Float *f, float value) {
     float *v;
-    if (f->type == NULL_TYPE) {
+    if (f->value == NULL) {
         v = (float *)w_malloc(sizeof(float));
-        f->type = FLOAT;
     } else v = f->value;
     *v = value;
     f->value = v;

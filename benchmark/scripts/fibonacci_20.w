@@ -1,14 +1,14 @@
-def int fibonacci with int n
+def int fibonacci with int n endwith
     if n equal 0
         return 0
     elif n equal 1
         return 1
     else
-        call fibonacci with n minus 1 store result1
-        call fibonacci with n minus 2 store result2
+        int result1 assign call fibonacci with n minus 1 endwith
+        int result2 assign call fibonacci with n minus 2 endwith
         return result1 plus result2
     endif
 enddef
 
-call fibonacci with 20 store result
-print "Fibonacci of 20 is" result
+int res assign call fibonacci with 20 endwith
+print "Fibonacci of 20 is" res

@@ -3,7 +3,7 @@
 #if MONITOR_MEMORY
 
 int w_alloc_count = 0;
-long long int w_alloc_total = 0;
+int w_alloc_total = 0;
 
 /**
  * \brief Allocates memory for the given size.

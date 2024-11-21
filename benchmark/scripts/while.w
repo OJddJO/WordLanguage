@@ -4,7 +4,7 @@ infloop
     if not i .less 6
         break
     endif
-    change i to i plus 1
+    i assign i plus 1
     if i equal 3
         continue
     endif

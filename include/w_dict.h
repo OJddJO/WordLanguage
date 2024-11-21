@@ -1,17 +1,16 @@
 #ifndef __W_DICT_H__
 #define __W_DICT_H__
 
-#include "w_alloc.h"
 #include "w_type.h"
 #include "w_list.h"
 #include "list.h"
 
 typedef struct _w_dict {
     W_Type type;
-    list *keys;
     void (*destroy)(struct _w_dict *);
     char *(*stringify)(struct _w_dict *);
     struct _w_dict *(*copy)(struct _w_dict *);
+    list *keys;
     W_List *values;
 } W_Dict;
 

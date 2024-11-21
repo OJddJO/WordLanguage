@@ -64,6 +64,7 @@ void list_remove(list *l, int index) {
         l->middle--;
     }
     l->size--;
+    w_free(e->value);
     w_free(e);
 }
 
@@ -132,6 +133,40 @@ void list_insert(list *l, int index, void *value) {
     if (l->size % 2 == 0) {
         l->middle++;
     }
+}
+
+/**
+ * \brief Check if the list contains a value
+ * \param l The list to check
+ * \param value The value to check for
+ * \return The element containing the value, or NULL if the value is not in the list
+ **/
+void *list_contains(list *l, void *value) {
+    list_element *e = l->head;
+    while (e != NULL) {
+        if (e->value == value) {
+            return e;
+        }
+        e = e->next;
+    }
+    return NULL;
+}
+
+/**
+ * \brief Reverse the list
+ * \param l The list to reverse
+ **/
+void list_reverse(list *l) {
+    list_element *current = l->head;
+    while (current != NULL) {
+        list_element *next = current->next;
+        current->next = current->prev;
+        current->prev = next;
+        current = next;
+    }
+    list_element *temp = l->head;
+    l->head = l->tail;
+    l->tail = temp;
 }
 
 /**

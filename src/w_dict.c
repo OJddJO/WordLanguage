@@ -7,10 +7,11 @@
 W_Dict *w_dict_init() {
     W_Dict *d = (W_Dict *)w_malloc(sizeof(W_Dict));
     d->type = DICT;
-    d->keys = list_init(); //list of keys, is a normal list
-    d->values = w_list_init(); //list of values, is a w_list list
     d->destroy = &w_dict_destroy;
     d->stringify = &w_dict_stringify;
+    d->copy = &w_dict_copy;
+    d->keys = list_init(); //list of keys, is a normal list
+    d->values = w_list_init(); //list of values, is a w_list list
     return d;
 }
 

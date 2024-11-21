@@ -6,14 +6,11 @@
  */
 W_Str *w_str_init() {
     W_Str *s = (W_Str *)w_malloc(sizeof(W_Str));
-    s->type = NULL_TYPE;
-    s->value = NULL;
+    s->type = STRING;
     s->destroy = &w_str_destroy;
     s->stringify = &w_str_stringify; //this is so fuc*ing dumb but it is needed
     s->copy = &w_str_copy;
-    s->assign = &w_str_assign;
-    s->set = &w_str_set;
-    s->get = &w_str_value;
+    s->value = NULL;
     return s;
 }
 
@@ -23,14 +20,12 @@ W_Str *w_str_init() {
  * \param value The new value.
  */
 void w_str_assign(W_Str *s, char *value) {
-    if (s->type != NULL_TYPE) { //w_free the previous value
-        w_free(s->value);
-    } else s->type = STRING;
-    //strip quotes
-    int len = strlen(value)-2;
-    char *v = (char *)w_malloc(len + 1);
-    strncpy(v, value+1, len);
-    v[len] = '\0';
+    char *v;
+    if (s->value == NULL) {
+        v = (char *)w_malloc(strlen(value) + 1);
+    } else v = s->value;
+    v = (char *)realloc(v, strlen(value) + 1);
+    strcpy(v, value);
     s->value = v;
 }
 
@@ -40,12 +35,7 @@ void w_str_assign(W_Str *s, char *value) {
  * \param value The new value.
  */
 void w_str_set(W_Str *s, char *value) {
-    if (s->type != NULL_TYPE) {
-        w_free(s->value);
-    } else s->type = STRING;
-    char *v = (char *)w_malloc(strlen(value) + 1);
-    strcpy(v, value);
-    s->value = v;
+    w_str_assign(s, value);
 }
 
 /**

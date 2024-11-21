@@ -1,0 +1,26 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage\\bin",
+            "binaryPath": "c:\\Users\\User\\Documents\\GitHub\\WordLanguage\\bin\\word.exe",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "c:\\Users\\Jerem\\Documents\\WordLanguage\\bin",
+            "binaryPath": "c:\\Users\\Jerem\\Documents\\WordLanguage\\bin\\word.exe",
+            "binaryArgs": []
+        }
+    ],
+    "files.associations": {
+        "*.h": "c",
+        "array": "c",
+        "charconv": "c",
+        "compare": "c",
+        "complex": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "variant": "c"
+    }
+}

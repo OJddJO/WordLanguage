@@ -1,0 +1,110 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Word",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#control-statements"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#boolean"
+		},
+		{
+			"include": "#io"
+		}
+	],
+	"repository": {
+		"comments": {
+			"begin": "\\#",
+			"end": "\\\n",
+			"name": "comment.line.number-sign.wordlang"
+		},
+		"control-statements": {
+			"patterns": [{
+				"name": "keyword.control.wordlang",
+				"match": "\\b(if|elif|else|endif|infloop|endinf|break|continue|return)\\b"
+			}]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.math.wordlang",
+					"match": "\\b(plus|minus|time|div|mod|ediv|power|sqrt)\\b"
+				},
+				{
+					"name": "keyword.operator.logical.wordlang",
+					"match": "\\b(and|or|not)\\b"
+				},
+				{
+					"name": "keyword.operator.comparison.wordlang",
+					"match":"\\b(equal|less|greater|lequal|gequal)\\b"
+				}
+			] 
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "storage.type.function.wordlang",
+					"match": "\\b(def|enddef)\\b"
+				},
+				{
+					"name": "keyword.operator.arguments.wordlang",
+					"match": "\\b(with|endwith)\\b"
+				},
+				{
+					"name": "keyword.operator.function.call.wordlang",
+					"match": "\\bcall\\b"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "storage.type.wordlang",
+					"match": "\\b(bool|int|float|str|list)\\b"
+				},
+				{
+					"name": "keyword.operator.variable.assign",
+					"match": "\\bassign\\b"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.single.wordlang",
+			"begin": "\"",
+			"end": "\""
+		},
+		"numbers": {
+			"patterns": [{
+				"name": "constant.numeric.wordlang",
+				"match": "\\b(-?(?:\\d)(?:\\.)?(?:\\d*))\\b"
+			}] 
+		},
+		"boolean": {
+			"name": "constant.language.boolean.wordlang",
+			"match": "\\b(true|false)\\b"
+		},
+		"io": {
+			"name": "entity.name.function.io.wordlang",
+			"match": "\\b(print|ask)\\b"
+		}
+	},
+	"scopeName": "source.w"
+}

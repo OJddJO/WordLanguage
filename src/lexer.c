@@ -1,29 +1,6 @@
 #include "lexer.h"
 
-char *keywords[] = {
-    //variables
-    "int", "float", "str", "bool", "assign", "change", "to", "delete",
-    //constructed types
-    "list", "create", "append", "get", "set", "search", "index", "remove", "length",
-    //IO expressions
-    "print", "sep", "end", "ask",
-    //control flow
-    //conditional
-    "if", "elif", "else", "endif",
-    //loop
-    "for", "from", "to", "step", "endfor", "infloop", "endinf", "break", "continue",
-    //functions
-    "def", "null", "with", "return", "enddef", "call", "store",
-};
-
-char *operators[] = {
-    //operations
-    "plus", "minus", "times", "div", "mod", "ediv", "power", "sqrt",
-    //comparison
-    "equal", "greater", "less", "gequal", "lequal",
-    //logical
-    "and", "or", "not",
-};
+static W_Word_Type word_type(char *value);
 
 /**
  * \brief Tokenizes the given file into a list of lists of words. (w_malloc)
@@ -47,6 +24,7 @@ list *word_tokenize(FILE *source) {
         fseek(source, i, SEEK_SET);
         char c = fgetc(source);
         if (c == '#' && !eval_str) {
+            eval = 0;
             while (c != '\n' && c != EOF) {
                 c = fgetc(source);
                 i++;
@@ -56,7 +34,7 @@ list *word_tokenize(FILE *source) {
             eval = 1;
             start = i;
         }
-        if ((c == ' ' || c == '\t' || c == '\n' || c == EOF) && !eval_str && eval) {
+        if ((c == ' ' || c == '\t' || c == '\n') && !eval_str && eval && start != i) {
             fseek(source, start, SEEK_SET);
             char *value = (char *)w_malloc(i - start + 1);
             fread(value, 1, i - start, source);
@@ -79,9 +57,9 @@ list *word_tokenize(FILE *source) {
             list_append(code, line);
             n_line++;
             i++;
-        }
+        } else if (c == '\n') n_line++;
     }
-    if (eval) {
+    if (eval && start != size) {
         fseek(source, start, SEEK_SET);
         char *value = (char *)w_malloc(size - start + 1);
         fread(value, 1, size - start, source);
@@ -102,14 +80,13 @@ list *word_tokenize(FILE *source) {
  * \param value The word to evaluate.
  * \return The type of the word.
  */
-W_Word_Type word_type(char *value) {
+static W_Word_Type word_type(char *value) {
     if (value[0] == '\"' && value[strlen(value) - 1] == '\"') {
-        return STR;
+        return LITT_STR;
     }
     if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
         return NUMBER;
     }
-    if (is_keyword(value)) return KEYWORD;
     int dot = 0;
     for (int i = 0; i < strlen(value); i++) {
         if (value[i] == '.') {
@@ -120,7 +97,8 @@ W_Word_Type word_type(char *value) {
     strncpy(without_dot, value + dot, strlen(value) - dot);
     without_dot[strlen(value) - dot] = '\0';
     // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
-    if (is_operator(without_dot)) return OPERATOR;
+    if (is_keyword(without_dot)) return KEYWORD;
+    if (is_reserved(value)) return RESERVED;
     return IDENTIFIER;
 }
 
@@ -160,11 +138,11 @@ void lexer_print(list *code) { //debug
             printf("Word: %s | ", w->value);
             if (w->type == KEYWORD) {
                 printf("Type: KEYWORD ");
-            } else if (w->type == OPERATOR) {
-                printf("Type: OPERATOR ");
+            } else if (w->type == RESERVED) {
+                printf("Type: RESERVED ");
             } else if (w->type == IDENTIFIER) {
                 printf("Type: IDENTIFIER ");
-            } else if (w->type == STR) {
+            } else if (w->type == LITT_STR) {
                 printf("Type: STRING ");
             } else if (w->type == NUMBER) {
                 printf("Type: NUMBER ");
@@ -187,20 +165,14 @@ void lexer_print(list *code) { //debug
  * \return True if the word is a type keyword, false otherwise.
  */
 bool is_keyword(char *word) {
-    for (int i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(word, keywords[i]) == 0) return true;
-    }
-    return false;
+    return dict_get(keywords, word) != NULL;
 }
 
 /**
- * \brief Checks if the given word is an operator.
+ * \brief Checks if the given word is a reserved word.
  * \param word The word to check.
- * \return True if the word is an operator, false otherwise.
+ * \return True if the word is a reserved word, false otherwise.
  */
-bool is_operator(char *word) {
-    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
-        if (strcmp(word, operators[i]) == 0) return true;
-    }
-    return false;
+bool is_reserved(char *word) {
+    return dict_get(reserved_words, word) != NULL;
 }
