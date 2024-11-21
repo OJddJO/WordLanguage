@@ -1,18 +1,17 @@
-def bool isEven with int a endwith
-    return a .mod 2 equal 0
-enddef
+int a assign 0
+int b
+" def int test "
 
-int number assign 4
-bool result assign call isEven with number endwith
+infloop
+    if a gequal 100
+        break
+    endif
 
-print result
+    b assign a plus 1
+    a assign a plus b
 
-if result
-    print number "is even"
-else
-    print number "is odd"
-endif
+    print "a is" a "and b is" b
 
-# Output:
-# true
-# 4 is even
+endinf
+
+print "a is" a

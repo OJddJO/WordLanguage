@@ -69,7 +69,7 @@ const provider = {
                     tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("string"));
                     isString = true;
                 }
-                else {
+                else if (!isString) {
                     if (/\bdef\b/.test(words[wordIndex])) { //function def
                         wordIndex += 2; //skip function return type
                         functions.push(words[wordIndex]);
