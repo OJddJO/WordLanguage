@@ -89,9 +89,17 @@ int w_str_length(W_Str *s) {
  * \return The string representation of the string.
  */
 char *w_str_stringify(W_Str *s) {
-    char *str = (char *)w_malloc(strlen(s->value)+1);
-    strcpy(str, s->value);
-    return str; //bruh just to return the same string but w_malloc...
+    if (s->value != NULL) {
+        //remove the quotes
+        char *str = (char *)w_malloc(strlen(s->value) - 1);
+        strncpy(str, s->value + 1, strlen(s->value) - 2);
+        str[strlen(s->value) - 2] = '\0';
+        return str;
+    } else {
+        char *str = (char *)w_malloc(1);
+        str[0] = '\0';
+        return str;
+    }
 }
 
 /**
@@ -99,7 +107,7 @@ char *w_str_stringify(W_Str *s) {
  * \param s The string.
  */
 void w_str_destroy(W_Str *s) {
-    w_free(s->value);
+    if (s->value != NULL) w_free(s->value);
     w_free(s);
 }
 

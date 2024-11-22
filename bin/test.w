@@ -1,2 +1,1 @@
-str a assign ask "Name: "
-print "Hello" a
+str qsd_qsdqsdjh assign "test.w"

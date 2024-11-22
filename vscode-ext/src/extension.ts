@@ -52,7 +52,6 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 					break;
 				}
 				if (words[wordIndex].startsWith('"')) { //if the word starts with " then it's a string
-					tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("string"));
 					isString = true;
 				} else if (!isString) {
 					if (/\bdef\b/.test(words[wordIndex])) { //function def
@@ -77,8 +76,11 @@ const provider: vscode.DocumentSemanticTokensProvider = {
 
 					else if (/\b(bool|int|float|str|list)\b/.test(words[wordIndex])) { //var def
 						wordIndex++;
-						vars.push(words[wordIndex]);
-						tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"), getTokenModifier("declaration"));
+						const varName = words[wordIndex];
+						if (/\b[a-zA-Z][a-zA-Z0-9_]*\b$/.test(varName)) {
+							vars.push(words[wordIndex]);
+							tokensBuilder.push(lineIndex, wordIndexes[wordIndex], words[wordIndex].length, getTokenType("variable"), getTokenModifier("declaration"));
+						}
 					}
 					
 					else if (funcArgs.includes(words[wordIndex])) { //function args

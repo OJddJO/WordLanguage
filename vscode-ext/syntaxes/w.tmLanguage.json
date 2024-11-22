@@ -88,13 +88,12 @@
 		},
 		"strings": {
 			"name": "string.quoted.single.wordlang",
-			"begin": "\"",
-			"end": "\""
+			"match" : "\"\\b[^\"]*\\b\""
 		},
 		"numbers": {
 			"patterns": [{
 				"name": "constant.numeric.wordlang",
-				"match": "-?\\b((?:\\d+)(?:\\.)?(?:\\d*))\\b"
+				"match": "-?\\b\\d+(\\.\\d+)?\\b"
 			}] 
 		},
 		"boolean": {

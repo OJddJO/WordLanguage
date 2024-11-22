@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-static W_Word_Type word_type(char *value);
+static W_Word_Type word_type(char *value, int line);
 
 /**
  * \brief Tokenizes the given file into a list of lists of words. (w_malloc)
@@ -41,14 +41,14 @@ list *word_tokenize(FILE *source) {
             value[i - start] = '\0';
             W_Word *w = (W_Word *)w_malloc(sizeof(W_Word));
             w->value = value;
-            w->type = word_type(value);
+            w->type = word_type(value, n_line);
             w->line = n_line;
             w->parsed = false;
             w->is_generated = false;
             list_append(line, w);
             eval = 0;
         }
-        if (c == '\"') {
+        if (c == '"') {
             if (eval_str) eval_str = 0;
             else eval_str = 1;
         }
@@ -66,7 +66,7 @@ list *word_tokenize(FILE *source) {
         value[size - start] = '\0';
         W_Word *w = (W_Word *)w_malloc(sizeof(W_Word));
         w->value = value;
-        w->type = word_type(value);
+        w->type = word_type(value, n_line);
         w->line = n_line;
         w->parsed = false;
         w->is_generated = false;
@@ -78,28 +78,64 @@ list *word_tokenize(FILE *source) {
 /**
  * \brief Returns the type of the given word.
  * \param value The word to evaluate.
+ * \param line The line of the word.
  * \return The type of the word.
  */
-static W_Word_Type word_type(char *value) {
-    if (value[0] == '\"' && value[strlen(value) - 1] == '\"') {
+static W_Word_Type word_type(char *value, int line) {
+    char c = value[0];
+    if (c == '"') {
+        bool closed = false;
+        for (int i = 1; i < strlen(value); i++) {
+            c = value[i];
+            if (c == '"' && !closed) {
+                closed = true;
+            } else if (closed) {
+                fprintf(stderr, "Error: Syntax error, line %d\n", line);
+                exit(1);
+            }
+        }
+        if (!closed) {
+            fprintf(stderr, "Error: Syntax error, line %d\n", line);
+            exit(1);
+        }
         return LITT_STR;
-    }
-    if (((value[0] >= '0' && value[0] <= '9') || value[0] == '-') && (value[strlen(value) - 1] >= '0' && value[strlen(value) - 1] <= '9')) {
+    } else if ((c >= '0' && c <= '9') || c == '-') {
+        for (int i = 1; i < strlen(value); i++) {
+            c = value[i];
+            bool is_float = false;
+            if (c == '.' && !is_float) {
+                is_float = true;
+            } else if (c >= '0' || c <= '9') {
+            } else {
+                fprintf(stderr, "Error: Syntax error, line %d\n", line);
+                exit(1);
+            }
+        }
         return NUMBER;
+    } else {
+        int dot = 0;
+        for (int i = 0; i < strlen(value); i++) {
+            if (value[i] == '.') {
+                dot++;
+            } else break;
+        }
+        char without_dot[strlen(value) - dot + 1];
+        strncpy(without_dot, value + dot, strlen(value) - dot);
+        without_dot[strlen(value) - dot] = '\0';
+        // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
+        if (is_keyword(without_dot)) return KEYWORD;
+        else if (is_reserved(value)) return RESERVED;
+        else {
+            for (int i = 0; i < strlen(value); i++) {
+                c = value[i];
+                if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '_') {
+                    fprintf(stderr, "Error: Syntax error, line %d\n", line);
+                    exit(1);
+                }
+            }
+            return IDENTIFIER;
+        }
     }
-    int dot = 0;
-    for (int i = 0; i < strlen(value); i++) {
-        if (value[i] == '.') {
-            dot++;
-        } else break;
-    }
-    char without_dot[strlen(value) - dot + 1];
-    strncpy(without_dot, value + dot, strlen(value) - dot);
-    without_dot[strlen(value) - dot] = '\0';
-    // printf("value: %s, dot: %d, without_dot: %s\n", value, dot, without_dot); //debug
-    if (is_keyword(without_dot)) return KEYWORD;
-    if (is_reserved(value)) return RESERVED;
-    return IDENTIFIER;
 }
 
 /**

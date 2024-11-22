@@ -276,7 +276,7 @@ void *execute(list *parsed_code, Scope *scope, W_Type return_type, bool destroy_
  * \return The result of the addition
  */
 W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_plus called\n");
+    if (DEBUG) printf("[DEBUG] kw_plus called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -298,7 +298,7 @@ W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line,
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_plus done\n");
+    if (DEBUG) printf("[DEBUG] kw_plus done\n");
     return result_word;
 }
 
@@ -313,7 +313,7 @@ W_Word *kw_plus(Scope *scope, list *args, int line, list_element **current_line,
  * \return The result of the subtraction
  */
 W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_minus called\n");
+    if (DEBUG) printf("[DEBUG] kw_minus called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -335,7 +335,7 @@ W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_minus done\n");
+    if (DEBUG) printf("[DEBUG] kw_minus done\n");
     return result_word;
 }
 
@@ -350,7 +350,7 @@ W_Word *kw_minus(Scope *scope, list *args, int line, list_element **current_line
  * \return The result of the multiplication
  */
 W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_time called\n");
+    if (DEBUG) printf("[DEBUG] kw_time called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -372,7 +372,7 @@ W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line,
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_time done\n");
+    if (DEBUG) printf("[DEBUG] kw_time done\n");
     return result_word;
 }
 
@@ -387,7 +387,7 @@ W_Word *kw_time(Scope *scope, list *args, int line, list_element **current_line,
  * \return The result of the division
  */
 W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_div called\n");
+    if (DEBUG) printf("[DEBUG] kw_div called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -408,7 +408,7 @@ W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line, 
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_div done\n");
+    if (DEBUG) printf("[DEBUG] kw_div done\n");
     return result_word;
 }
 
@@ -423,7 +423,7 @@ W_Word *kw_div(Scope *scope, list *args, int line, list_element **current_line, 
  * \return The result of the modulo
  */
 W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_mod called\n");
+    if (DEBUG) printf("[DEBUG] kw_mod called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -449,7 +449,7 @@ W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line, 
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_mod done\n");
+    if (DEBUG) printf("[DEBUG] kw_mod done\n");
     return result_word;
 }
 
@@ -464,7 +464,7 @@ W_Word *kw_mod(Scope *scope, list *args, int line, list_element **current_line, 
  * \return The result of the integer division
  */
 W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_ediv called\n");
+    if (DEBUG) printf("[DEBUG] kw_ediv called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -490,7 +490,7 @@ W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line,
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_ediv done\n");
+    if (DEBUG) printf("[DEBUG] kw_ediv done\n");
     return result_word;
 }
 
@@ -505,7 +505,7 @@ W_Word *kw_ediv(Scope *scope, list *args, int line, list_element **current_line,
  * \return The result of the power operation
  */
 W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_power called\n");
+    if (DEBUG) printf("[DEBUG] kw_power called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -527,7 +527,7 @@ W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_power done\n");
+    if (DEBUG) printf("[DEBUG] kw_power done\n");
     return result_word;
 }
 
@@ -542,7 +542,7 @@ W_Word *kw_power(Scope *scope, list *args, int line, list_element **current_line
  * \return The result of the square root operation
  */
 W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_sqrt called\n");
+    if (DEBUG) printf("[DEBUG] kw_sqrt called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -563,7 +563,7 @@ W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line,
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_sqrt done\n");
+    if (DEBUG) printf("[DEBUG] kw_sqrt done\n");
     return result_word;
 }
 
@@ -582,7 +582,7 @@ W_Word *kw_sqrt(Scope *scope, list *args, int line, list_element **current_line,
  * \return The result of the AND operation
  */
 W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_and called\n");
+    if (DEBUG) printf("[DEBUG] kw_and called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -601,7 +601,7 @@ W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line, 
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_and done\n");
+    if (DEBUG) printf("[DEBUG] kw_and done\n");
     return result_word;
 }
 
@@ -616,7 +616,7 @@ W_Word *kw_and(Scope *scope, list *args, int line, list_element **current_line, 
  * \return The result of the OR operation
  */
 W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_or called\n");
+    if (DEBUG) printf("[DEBUG] kw_or called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -635,7 +635,7 @@ W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line, W
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_or done\n");
+    if (DEBUG) printf("[DEBUG] kw_or done\n");
     return result_word;
 }
 
@@ -650,7 +650,7 @@ W_Word *kw_or(Scope *scope, list *args, int line, list_element **current_line, W
  * \return The result of the NOT operation
  */
 W_Word *kw_not(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_not called\n");
+    if (DEBUG) printf("[DEBUG] kw_not called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -668,7 +668,7 @@ W_Word *kw_not(Scope *scope, list *args, int line, list_element **current_line, 
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_not done\n");
+    if (DEBUG) printf("[DEBUG] kw_not done\n");
     return result_word;
 }
 
@@ -720,7 +720,7 @@ static bool _equal(W_Var *a, W_Var *b) { //helper function for w_equal
  * \return The result of the comparison
  */
 W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_equal called\n");
+    if (DEBUG) printf("[DEBUG] kw_equal called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -790,7 +790,7 @@ W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_equal done\n");
+    if (DEBUG) printf("[DEBUG] kw_equal done\n");
     return result_word;
 }
 
@@ -805,7 +805,7 @@ W_Word *kw_equal(Scope *scope, list *args, int line, list_element **current_line
  * \return The result of the comparison
  */
 W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_greater called\n");
+    if (DEBUG) printf("[DEBUG] kw_greater called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -825,7 +825,7 @@ W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_li
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_greater done\n");
+    if (DEBUG) printf("[DEBUG] kw_greater done\n");
     return result_word;
 }
 
@@ -840,7 +840,7 @@ W_Word *kw_greater(Scope *scope, list *args, int line, list_element **current_li
  * \return The result of the comparison
  */
 W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_less called\n");
+    if (DEBUG) printf("[DEBUG] kw_less called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -860,7 +860,7 @@ W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line,
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_less done\n");
+    if (DEBUG) printf("[DEBUG] kw_less done\n");
     return result_word;
 }
 
@@ -875,7 +875,7 @@ W_Word *kw_less(Scope *scope, list *args, int line, list_element **current_line,
  * \return The result of the comparison
  */
 W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_gequal called\n");
+    if (DEBUG) printf("[DEBUG] kw_gequal called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -895,7 +895,7 @@ W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_lin
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_gequal done\n");
+    if (DEBUG) printf("[DEBUG] kw_gequal done\n");
     return result_word;
 }
 
@@ -910,7 +910,7 @@ W_Word *kw_gequal(Scope *scope, list *args, int line, list_element **current_lin
  * \return The result of the comparison
  */
 W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_lequal called\n");
+    if (DEBUG) printf("[DEBUG] kw_lequal called\n");
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -930,7 +930,7 @@ W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_lin
     result_word->is_generated = true;
     result_word->line = line;
 
-    if (DEBUG) printf("[DEBUG]: kw_lequal done\n");
+    if (DEBUG) printf("[DEBUG] kw_lequal done\n");
     return result_word;
 }
 
@@ -949,7 +949,7 @@ W_Word *kw_lequal(Scope *scope, list *args, int line, list_element **current_lin
  * \return The initialized variable
  */
 W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_bool called\n");
+    if (DEBUG) printf("[DEBUG] kw_bool called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -968,7 +968,7 @@ W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line,
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_bool done\n");
+    if (DEBUG) printf("[DEBUG] kw_bool done\n");
     return word;
 }
 
@@ -984,7 +984,7 @@ W_Word *kw_bool(Scope *scope, list *args, int line, list_element **current_line,
  */
 
 W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_float called\n");
+    if (DEBUG) printf("[DEBUG] kw_float called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -1003,7 +1003,7 @@ W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_float done\n");
+    if (DEBUG) printf("[DEBUG] kw_float done\n");
     return word;
 }
 
@@ -1018,7 +1018,7 @@ W_Word *kw_float(Scope *scope, list *args, int line, list_element **current_line
  * \return The initialized variable
  */
 W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_int called\n");
+    if (DEBUG) printf("[DEBUG] kw_int called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -1037,7 +1037,7 @@ W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line, 
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_int done\n");
+    if (DEBUG) printf("[DEBUG] kw_int done\n");
     return word;
 }
 
@@ -1052,7 +1052,7 @@ W_Word *kw_int(Scope *scope, list *args, int line, list_element **current_line, 
  * \return The initialized variable
  */
 W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_str called\n");
+    if (DEBUG) printf("[DEBUG] kw_str called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -1071,7 +1071,7 @@ W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line, 
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_str done\n");
+    if (DEBUG) printf("[DEBUG] kw_str done\n");
     return word;
 }
 
@@ -1086,7 +1086,7 @@ W_Word *kw_str(Scope *scope, list *args, int line, list_element **current_line, 
  * \return The initialized variable
  */
 W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_list called\n");
+    if (DEBUG) printf("[DEBUG] kw_list called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -1105,7 +1105,7 @@ W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line,
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_list done\n");
+    if (DEBUG) printf("[DEBUG] kw_list done\n");
     return word;
 }
 
@@ -1120,7 +1120,7 @@ W_Word *kw_list(Scope *scope, list *args, int line, list_element **current_line,
  * \return The assigned variable
  */
 W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_assign called\n");
+    if (DEBUG) printf("[DEBUG] kw_assign called\n");
 
     if (list_size(args) != 2) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 2, got %d), line %d\n", list_size(args), line);
@@ -1196,11 +1196,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
     } else if (var->type == STRING) {
         char *value;
         if (value_word->type == LITT_STR) {
-            //remove quotes
-            char without_quotes[strlen(value_word->value) - 2];
-            strncpy(without_quotes, value_word->value + 1, strlen(value_word->value) - 2);
-            without_quotes[strlen(value_word->value) - 2] = '\0';
-            value = without_quotes;
+            value = value_word->value;
         } else if (value_word->type == IDENTIFIER) {
             W_Var *src_var = get_var(scope, value_word->value);
             if (src_var == NULL) {
@@ -1222,7 +1218,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
         exit(1);
     }
 
-    if (DEBUG) printf("[DEBUG]: Create word\n");
+    if (DEBUG) printf("[DEBUG] Create word\n");
     W_Word *word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
     word->type = IDENTIFIER;
     char *str = (char *)w_malloc(strlen(name) + 1);
@@ -1230,7 +1226,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
     word->value = str;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_assign done\n");
+    if (DEBUG) printf("[DEBUG] kw_assign done\n");
     return word;
 }
 
@@ -1245,7 +1241,7 @@ W_Word *kw_assign(Scope *scope, list *args, int line, list_element **current_lin
  * \return NULL
  */
 W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_delete called\n");
+    if (DEBUG) printf("[DEBUG] kw_delete called\n");
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d\n", list_size(args), line);
         exit(1);
@@ -1257,7 +1253,7 @@ W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_lin
         exit(1);
     }
     w_dict_remove(scope->vars, name);
-    if (DEBUG) printf("[DEBUG]: kw_delete done\n");
+    if (DEBUG) printf("[DEBUG] kw_delete done\n");
     return NULL;
 }
 
@@ -1276,7 +1272,7 @@ W_Word *kw_delete(Scope *scope, list *args, int line, list_element **current_lin
  * \return NULL
  */
 W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_print called\n");
+    if (DEBUG) printf("[DEBUG] kw_print called\n");
     for (int i = 0; i < args->size; i++) {
         W_Word *word = list_get(args, i);
         if (word->type == IDENTIFIER) {
@@ -1306,7 +1302,7 @@ W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line
         }
     }
     printf("\n");
-    if (DEBUG) printf("[DEBUG]: kw_print done\n");
+    if (DEBUG) printf("[DEBUG] kw_print done\n");
     return NULL;
 }
 
@@ -1321,7 +1317,7 @@ W_Word *kw_print(Scope *scope, list *args, int line, list_element **current_line
  * \return The input variable
  */
 W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_ask called\n");
+    if (DEBUG) printf("[DEBUG] kw_ask called\n");
     char *prompt = ((W_Word *)list_get(args, 0))->value;
     char without_quotes[strlen(prompt) - 1];
     strncpy(without_quotes, prompt + 1, strlen(prompt) - 2);
@@ -1357,7 +1353,7 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, 
     word->value = input_with_quotes;
     word->is_generated = true;
     word->line = line;
-    if (DEBUG) printf("[DEBUG]: kw_ask done\n");
+    if (DEBUG) printf("[DEBUG] kw_ask done\n");
     return word;
 }
 
@@ -1376,7 +1372,7 @@ W_Word *kw_ask(Scope *scope, list *args, int line, list_element **current_line, 
  * \return NULL
  */
 W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_def called\n");
+    if (DEBUG) printf("[DEBUG] kw_def called\n");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the name of the new declared function
 
@@ -1446,7 +1442,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, 
         exit(1);
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_def done\n");
+    if (DEBUG) printf("[DEBUG] kw_def done\n");
     return NULL;
 }
 
@@ -1461,7 +1457,7 @@ W_Word *kw_def(Scope *scope, list *args, int line, list_element **current_line, 
  * \return NULL
  */
 W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_call called\n");
+    if (DEBUG) printf("[DEBUG] kw_call called\n");
 
     char *func_name = ((W_Word *)list_get(args, 0))->value; //get the function
     W_Func *f = (W_Func *)get_var(scope, func_name);
@@ -1541,7 +1537,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
     W_Word *word = NULL;
     if (result != NULL) {
         w_dict_set(scope->vars, "@return", result);
-        if (DEBUG) printf("[DEBUG]: Stored return value in scope at @return\n");
+        if (DEBUG) printf("[DEBUG] Stored return value in scope at @return\n");
 
         word = (W_Word *)w_malloc(sizeof(W_Word)); //create result word
         word->type = IDENTIFIER;
@@ -1552,7 +1548,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
         word->line = line;
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_call done\n");
+    if (DEBUG) printf("[DEBUG] kw_call done\n");
     return word;
 }
 
@@ -1567,7 +1563,7 @@ W_Word *kw_call(Scope *scope, list *args, int line, list_element **current_line,
  * \return NULL (return value is set in return_value argument)
  */
 W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_return called\n");
+    if (DEBUG) printf("[DEBUG] kw_return called\n");
 
     if (return_type == NULL_TYPE) {
         fprintf(stderr, "Error: Cannot return value from null function, line %d", line);
@@ -1619,7 +1615,7 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
         exit(1);
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_return done\n");
+    if (DEBUG) printf("[DEBUG] kw_return done\n");
     return NULL;
 }
 
@@ -1628,7 +1624,7 @@ W_Word *kw_return(Scope *scope, list *args, int line, list_element **current_lin
  ***********************************************/
 
 W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) { //elif is the same as if
-    if (DEBUG) printf("[DEBUG]: kw_if/kw_elif called\n");
+    if (DEBUG) printf("[DEBUG] kw_if/kw_elif called\n");
 
     if (list_size(args) != 1) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 1, got %d), line %d", list_size(args), line);
@@ -1652,7 +1648,7 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
     }
 
     if (*(bool *)var->value) { //if the condition is true execute the code
-        if (DEBUG) printf("[DEBUG]: Executing if/elif block\n");
+        if (DEBUG) printf("[DEBUG] Executing if/elif block\n");
         int if_count = 0;
         list *if_lines = list_init();
         bool end = false;
@@ -1697,7 +1693,7 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
             *return_value = result;
         }
     } else { //if the condition is false skip the code until the end of the if/elif statement
-        if (DEBUG) printf("[DEBUG]: Skipping if/elif block\n");
+        if (DEBUG) printf("[DEBUG] Skipping if/elif block\n");
         int if_count = 0;
         bool end = false;
         //skip line until endif or elif or else
@@ -1727,12 +1723,12 @@ W_Word *kw_if(Scope *scope, list *args, int line, list_element **current_line, W
         *current_line = (*current_line)->prev; //go back the last line to avoid skipping lines
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_if/kw_elif done\n");
+    if (DEBUG) printf("[DEBUG] kw_if/kw_elif done\n");
     return NULL;
 }
 
 W_Word *kw_else(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_else called\n");
+    if (DEBUG) printf("[DEBUG] kw_else called\n");
 
     if (list_size(args) != 0) {
         fprintf(stderr, "Error: Invalid number of arguments (Expected 0, got %d), line %d", list_size(args), line);
@@ -1777,7 +1773,7 @@ W_Word *kw_else(Scope *scope, list *args, int line, list_element **current_line,
         *return_value = result;
     }
 
-    if (DEBUG) printf("[DEBUG]: kw_else done\n");
+    if (DEBUG) printf("[DEBUG] kw_else done\n");
     return NULL;
 }
 
@@ -1796,7 +1792,7 @@ W_Word *kw_else(Scope *scope, list *args, int line, list_element **current_line,
  * \return NULL
  */
 W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_infloop called\n");
+    if (DEBUG) printf("[DEBUG] kw_infloop called\n");
 
     list *infloop_lines = list_init();
     int infloop_count = 0;
@@ -1847,7 +1843,7 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
 
     list_destroy_no_free(infloop_lines);
 
-    if (DEBUG) printf("[DEBUG]: kw_infloop done\n");
+    if (DEBUG) printf("[DEBUG] kw_infloop done\n");
     return NULL;
 }
 
@@ -1862,11 +1858,11 @@ W_Word *kw_infloop(Scope *scope, list *args, int line, list_element **current_li
  * \return NULL
  */
 W_Word *kw_break(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_break called\n");
+    if (DEBUG) printf("[DEBUG] kw_break called\n");
     int *result = (int *)w_malloc(sizeof(int));
     *result = 1;
     *return_value = result;
-    if (DEBUG) printf("[DEBUG]: kw_break done\n");
+    if (DEBUG) printf("[DEBUG] kw_break done\n");
     return NULL;
 }
 
@@ -1880,10 +1876,10 @@ W_Word *kw_break(Scope *scope, list *args, int line, list_element **current_line
  * \param return_value The return value of the execute code
  */
 W_Word *kw_continue(Scope *scope, list *args, int line, list_element **current_line, W_Type return_type, void **return_value) {
-    if (DEBUG) printf("[DEBUG]: kw_continue called\n");
+    if (DEBUG) printf("[DEBUG] kw_continue called\n");
     int *result = (int *)w_malloc(sizeof(int));
     *result = 2;
     *return_value = result;
-    if (DEBUG) printf("[DEBUG]: kw_continue done\n");
+    if (DEBUG) printf("[DEBUG] kw_continue done\n");
     return NULL;
 }
