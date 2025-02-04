@@ -57,9 +57,9 @@ float *w_int_value(W_Int *i) {
  * \param i The integer to stringify.
  */
 char *w_int_stringify(W_Int *i) {
-    int len = snprintf(NULL, 0, "%g", *i->value);
+    int len = snprintf(NULL, 0, "%.0f", *i->value);
     char *str = (char *)w_malloc(len + 1);
-    sprintf(str, "%g", *i->value);
+    sprintf(str, "%.0f", *i->value);
     return str;
 }
 
