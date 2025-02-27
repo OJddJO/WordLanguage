@@ -2,11 +2,14 @@
 
 [![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg?branch=main)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml?branch=main)
 
+> [!INFO]
+> The developpment of the language is currently paused. 
+
 > [!IMPORTANT]
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
 
 > [!WARNING]
-> The interpreter will be completely changed soon, changing the syntax of many keywords. Thus, all code written with the current interpreter might be broken!
+> The interpreter will be completely changed, changing the syntax of many keywords. Thus, all code written with the current interpreter might be broken!
 
 WordLanguage is a programming language designed to minimize the use of symbols, making it easy to read and write. Its syntax is simple and closely resembles natural language, aiming to be both easy to learn and powerful enough for complex programming tasks.
 
