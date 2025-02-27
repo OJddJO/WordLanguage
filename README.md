@@ -2,7 +2,7 @@
 
 [![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg?branch=main)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml?branch=main)
 
-> [!INFO]
+> [!INFOS]
 > The developpment of the language is currently paused. 
 
 > [!IMPORTANT]
