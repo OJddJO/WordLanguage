@@ -1,3 +1,0 @@
-infloop
-    break
-endinf

@@ -1,23 +1,21 @@
-EXE		    = ./bin/word.exe
+EXE		    = ./bin/word
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
-DBG         = # debug flags
-
-INCLUDE     = -I ./include
-LIB         = # -L
-EXTRA       = -Werror
-STATIC      = # for static linking
+CFLAGS		= -std=c23
 
 all: link
 
 remake: clean all
 
+makeDir:
+	mkdir build
+
 clean:
-	erase $(subst build/, build\, $(OBJ))
+	rm -rf build
 
 build/%.o: src/%.c
 	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
 
 link: $(OBJ)
-	gcc $(OBJ) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)
+	gcc $(OBJ) -o $(EXE) $(CFLAGS)
