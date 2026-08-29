@@ -1,8 +1,7 @@
-#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "hashmap.h"
 #include "siphash24.h"
@@ -13,7 +12,14 @@
 
 #define RAND64() (rand() << 32 | rand())
 
-static int bucketAdd(HashmapBucket *bucket, const char *key, void *value) {
+inline static void bucketAddStruct(HashmapBucket *bucket, HashmapItem *item) {
+    if (*bucket) (*bucket)->prev = &item->next;
+    *bucket = item;
+
+    return 1;
+}
+
+inline static int bucketAddKeyValue(HashmapBucket *bucket, const char *key, void *value) {
     HashmapItem *new = malloc(sizeof(HashmapItem));
     if (!new) return 0;
     *new = (HashmapItem){
@@ -23,14 +29,13 @@ static int bucketAdd(HashmapBucket *bucket, const char *key, void *value) {
         .value = value,
     };
 
-    if (*bucket) (*bucket)->prev = &new->next;
-    *bucket = new;
+    bucketAddStruct(bucket, new);
 
     return 1;
 }
 
 // Pop the first element
-static HashmapItem *bucketPop(HashmapBucket *bucket) {
+inline static HashmapItem *bucketPop(HashmapBucket *bucket) {
     if (!*bucket) return NULL;
     HashmapItem *ret = *bucket;
     *bucket = ret->next;
@@ -38,12 +43,16 @@ static HashmapItem *bucketPop(HashmapBucket *bucket) {
     return ret;
 }
 
-// Only for growing buffers, reducing buffer is UB
-static void *recalloc(void *ptr, size_t prevSize, size_t newSize) {
-    void *new = realloc(ptr, newSize);
-    if (!new) return NULL;
-    memset(((uint8_t *)ptr) + prevSize, 0, newSize - prevSize);
-    return new;
+inline static HashmapItem *bucketRemove(HashmapBucket *bucket, const char *key) {
+    while (*bucket) {
+        if (strcmp((*bucket)->key, key) == 0) {
+            HashmapItem *ret = *bucket;
+            *bucket = ret->next;
+            if (ret->next) ret->next->prev = ret->prev;
+            return ret;
+        }
+    }
+    return NULL;
 }
 
 int hashmapInit(Hashmap *map) {
@@ -60,19 +69,30 @@ int hashmapInit(Hashmap *map) {
     return 1;
 }
 
-int hashmapGrow(Hashmap *map) {
-    HashmapBucket *new = recalloc(
-                            map->buckets, sizeof(HashmapBucket) * map->bucketCount,
-                            sizeof(HashmapBucket) * map->bucketCount * GROWTH_FACTOR);
+inline static int hashmapGrow(Hashmap *map) {
+    uint64_t targetSize = map->bucketCount * GROWTH_FACTOR;
+    HashmapBucket *new = calloc(map->buckets, sizeof(HashmapBucket) * targetSize);
+
     if (!new) return 0;
+
+    for (uint64_t i = 0; i < map->bucketCount; i++) {
+        HashmapItem *item;
+        while (item = bucketPop(&map->buckets[i])) {
+            uint64_t hash = siphash24(item->key, strlen(item->key), map->key);
+            bucketAddStruct(&new[hash % targetSize], item);
+        }
+    }
+
+    free(map->buckets);
     map->buckets = new;
+    map->bucketCount = targetSize;
 
-
+    return 1;
 }
 
 int hashmapAdd(Hashmap *map, const char *key, void *element) {
     if (map->itemCount >= map->bucketCount * CAPACITY_THRESHOLD) {
-        if (hashmapGrow(map)) {
+        if (!hashmapGrow(map)) {
             return 0;
         }
     }
@@ -87,6 +107,6 @@ int hashmapAdd(Hashmap *map, const char *key, void *element) {
     uint64_t hash = siphash24(key, strlen(key), map->key);
     uint64_t idx = hash % map->bucketCount;
 
-
-    return 1;
+    if (bucketAddKeyValue(&map->buckets[idx], key, element)) return 1;
+    return 0;
 }

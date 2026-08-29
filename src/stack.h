@@ -11,6 +11,6 @@ typedef struct _Stack {
 
 int stackInit(Stack *stack);
 int stackPush(Stack *stack, void *element);
-void *arrayPop(Stack *stack);
+void *stackPop(Stack *stack);
 
 #endif
