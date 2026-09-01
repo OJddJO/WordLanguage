@@ -17,4 +17,9 @@ typedef struct _Hashmap {
     HashmapBucket   *buckets;
 } Hashmap;
 
+int hashmapInit(Hashmap *map);
+int hashmapAdd(Hashmap *map, const char *key, void *element);
+void *hashmapRemove(Hashmap *map, const char *key);
+void *hashmapGet(Hashmap *map, const char *key);
+
 #endif

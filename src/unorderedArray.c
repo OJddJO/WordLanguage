@@ -57,14 +57,14 @@ void *uArrayPop(UArray *array) {
 
 int uArrayIndex(UArray *array, void *element, int (*cmp)(void *, void *)) {
     for (uint64_t i = 0; i < array->count; i++) {
-        if (cmp(element, array->buf[i])) return i;
+        if (cmp(element, array->buf[i]) == 0) return i;
     }
     return -1;
 }
 
 void *uArrayFind(UArray *array, void *element, int (*cmp)(void *, void *)) {
     for (uint64_t i = 0; i < array->count; i++) {
-        if (cmp(element, array->buf[i])) return array->buf[i];
+        if (cmp(element, array->buf[i]) == 0) return array->buf[i];
     }
     return NULL;
 }

@@ -2,7 +2,7 @@ EXE		    = ./bin/word
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
-CFLAGS		= -std=c23
+CFLAGS		= -std=c23 -Wall -Werror -flto=auto -fanalyzer -O2
 
 all: link
 
