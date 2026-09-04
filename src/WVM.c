@@ -135,7 +135,12 @@ do_F2I: {
 
 #define BUILD_BINOP_STACK(label, typeid, op)\
     do_STACK_##label: {\
-        context->acc.as.typeid = context->acc.as.typeid op context->stack.buf[arg.i].as.typeid;\
+        WVM_Value sval;\
+        if (!WStackPop(&context->stack, &sval)) {\
+            PRINT_ERR("error");\
+            goto end;\
+        }\
+        context->acc.as.typeid = context->acc.as.typeid op sval.as.typeid;\
         FETCH_DISPATCH();\
     }
 
