@@ -1,14 +1,14 @@
-#ifndef __WVMSTATE_H__
-#define __WVMSTATE_H__
+#ifndef __WVM_STATE_H__
+#define __WVM_STATE_H__
 
-#include "hashmap.h"
+#include "WVM_Types.h"
 
 typedef struct _WVMState {
     const uint16_t  *bytecode;      // Raw bytecode
     const uint16_t  *entrypoint;    // Main function
 
-    WValue          *consts;
-    Hashmap         globals;
+    WVM_Value          *consts;
+    WVM_Value          *globals;
 } WVMState;
 
 #endif
