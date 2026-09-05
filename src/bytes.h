@@ -4,8 +4,11 @@
 #include <stdint.h>
 #include <string.h>
 
-static inline int16_t fetch_i16_le(const uint8_t **ip) {
-    int16_t val;
+#define bit_cast(T, X) \
+    ((union{T a; typeof(X) b;}) {.b=(X)}.a)
+
+static inline uint16_t fetch_u16_le(const uint8_t **ip) {
+    uint16_t val;
     memcpy(&val, *ip, sizeof(val));
     *ip += sizeof(val);
 
@@ -16,8 +19,8 @@ static inline int16_t fetch_i16_le(const uint8_t **ip) {
     #endif
 }
 
-static inline int32_t fetch_i32_le(const uint8_t **ip) {
-    int32_t val;
+static inline uint32_t fetch_u32_le(const uint8_t **ip) {
+    uint32_t val;
     memcpy(&val, *ip, sizeof(val));
     *ip += sizeof(val);
 
@@ -28,8 +31,8 @@ static inline int32_t fetch_i32_le(const uint8_t **ip) {
     #endif
 }
 
-static inline int64_t fetch_i64_le(const uint8_t **ip) {
-    int64_t val;
+static inline uint64_t fetch_u64_le(const uint8_t **ip) {
+    uint64_t val;
     memcpy(&val, *ip, sizeof(val));
     *ip += sizeof(val);
 

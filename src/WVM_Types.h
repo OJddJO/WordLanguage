@@ -43,6 +43,6 @@ typedef struct _WVM_Function {
         CNativeFn   cFunc;
         uint64_t    bytecodeOffset;
     };
-} WFunction;
+} WVM_Function;
 
 #endif

@@ -23,16 +23,13 @@ int WVM_run(WVMState *state, WVMContext *context) {
             uint8_t byte2;
         };
     } packet;
-    register uint8_t opcode = 0;
-    register union {
-        int64_t     i;
-        double      f;
-    } arg;
+    register WVM_Opcode opcode = 0;
+    register int64_t arg = 0;
 
     #define FETCH() do {\
-        packet.whole = fetch_i16_le((const uint8_t **)&context->ip);\
+        packet.whole = fetch_u16_le((const uint8_t **)&context->ip);\
         opcode = packet.byte1;\
-        arg.i = packet.byte2;\
+        arg = (int64_t)bit_cast(int8_t, packet.byte2);\
     } while (0)
     #define DISPATCH() goto *dispatchTable[(opcode)];
     #define FETCH_DISPATCH() FETCH(); DISPATCH()
@@ -48,45 +45,45 @@ do_HALT: {
 }
 
 do_WORD: {
-    opcode = arg.i;
-    arg.i = fetch_i16_le((const uint8_t **)&context->ip);
+    opcode = arg;
+    arg = (int64_t)bit_cast(int16_t, fetch_u16_le((const uint8_t **)&context->ip));
     DISPATCH();
 }
 
 do_DWORD: {
-    opcode = arg.i;
-    arg.i = fetch_i32_le((const uint8_t **)&context->ip);
+    opcode = arg;
+    arg = (int64_t)bit_cast(int32_t, fetch_u32_le((const uint8_t **)&context->ip));
     DISPATCH();
 }
 
 do_QWORD: {
-    opcode = arg.i;
-    arg.i = fetch_i64_le((const uint8_t **)&context->ip);
+    opcode = arg;
+    arg = (int64_t)bit_cast(int64_t, fetch_u64_le((const uint8_t **)&context->ip));
     DISPATCH();
 }
 
 do_LOAD_CONST: {
-    context->acc = state->consts[arg.i];
+    context->acc = state->consts[arg];
     FETCH_DISPATCH();
 }
 
 do_LOAD_LOCAL: {
-    context->acc = context->locals[arg.i];
+    context->acc = context->locals[arg];
     FETCH_DISPATCH();
 }
 
 do_STOR_LOCAL: {
-    context->locals[arg.i] = context->acc;
+    context->locals[arg] = context->acc;
     FETCH_DISPATCH();
 }
 
 do_LOAD_GLOBL: {
-    context->acc = state->globals[arg.i];
+    context->acc = state->globals[arg];
     FETCH_DISPATCH();
 }
 
 do_STOR_GLOBL: {
-    state->globals[arg.i] = context->acc;
+    state->globals[arg] = context->acc;
     FETCH_DISPATCH();
 }
 
@@ -129,7 +126,7 @@ do_F2I: {
 
 #define BUILD_BINOP(label, typeid, op)\
     do_##label: {\
-        context->acc.as.typeid = context->acc.as.typeid op arg.typeid;\
+        context->acc.as.typeid = context->acc.as.typeid op ((union{typeof(arg) x;int64_t i;double f}){.x=arg}).typeid;\
         FETCH_DISPATCH();\
     }
 
@@ -146,7 +143,7 @@ do_F2I: {
 
 #define BUILD_BINOP_LOCAL(label, typeid, op)\
     do_LOCAL_##label: {\
-        context->acc.as.typeid = context->acc.as.typeid op context->locals[arg.i].as.typeid;\
+        context->acc.as.typeid = context->acc.as.typeid op context->locals[arg].as.typeid;\
         FETCH_DISPATCH();\
     }
 
@@ -206,17 +203,17 @@ BUILD_BINOP_LOCAL(OR, i, ||)
 #undef BUILD_BINOP
 
 do_JMP: {
-    context->ip += arg.i;
+    context->ip += arg;
     FETCH_DISPATCH();
 }
 
 do_JZ: {
-    if (context->acc.as.i == 0) context->ip += arg.i;
+    if (context->acc.as.i == 0) context->ip += arg;
     FETCH_DISPATCH();
 }
 
 do_JNZ: {
-    if (context->acc.as.i != 0) context->ip += arg.i;
+    if (context->acc.as.i != 0) context->ip += arg;
     FETCH_DISPATCH();
 }
 

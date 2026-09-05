@@ -15,7 +15,7 @@ clean:
 	rm -rf build
 
 build/%.o: src/%.c
-	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
+	gcc -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
 
 link: $(OBJ)
 	gcc $(OBJ) -o $(EXE) $(CFLAGS)

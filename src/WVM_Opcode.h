@@ -115,10 +115,10 @@
     X(STACK_AND)\
     X(STACK_OR)
 
-typedef enum _WOpcode : uint8_t {
+typedef enum _WVM_Opcode : uint8_t {
     #define BUILD_ENUM(opcode) OP_##opcode,
         OPCODES(BUILD_ENUM)
     #undef BUILD_ENUM
-} WOpcode;
+} WVM_Opcode;
 
 #endif
