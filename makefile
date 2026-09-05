@@ -3,6 +3,7 @@ SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
 CFLAGS		= -std=c23 -Wall -Werror -flto=auto -fanalyzer -O2
+INCLUDES	= -I shared/
 
 all: link
 
@@ -15,7 +16,7 @@ clean:
 	rm -rf build
 
 build/%.o: src/%.c
-	gcc -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
+	gcc $(INCLUDES) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
 
 link: $(OBJ)
 	gcc $(OBJ) -o $(EXE) $(CFLAGS)

@@ -9,6 +9,6 @@ typedef struct _WVMState {
 
     WVM_Value          *consts;
     WVM_Value          *globals;
-} WVMState;
+} WVM_State;
 
 #endif

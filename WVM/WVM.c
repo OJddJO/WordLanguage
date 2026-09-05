@@ -1,15 +1,15 @@
 #include <stdio.h>
 
-#include "bytes.h"
+#include <bytes.h>
 #include "WVM.h"
 #include "WVM_Opcode.h"
 #include "WVM_Error.h"
 
-int WVM_init(WVMState *state, WVMContext *mainContext) {
+int WVM_init(WVM_State *state, WVM_Context *mainContext) {
     return 1;
 }
 
-int WVM_run(WVMState *state, WVMContext *context) {
+int WVM_run(WVM_State *state, WVM_Context *context) {
     static const void *dispatchTable [] = {
         #define BUILD_DISPATCH_TABLE(opcode) [OP_##opcode] = &&do_##opcode,
             OPCODES(BUILD_DISPATCH_TABLE)
@@ -227,6 +227,16 @@ do_RET: {
 
 do_PUSH: {
     WStackPush(&context->stack, &context->acc);
+    FETCH_DISPATCH();
+}
+
+do_PUSH_LOCAL: {
+    WStackPush(&context->stack, &context->locals[arg]);
+    FETCH_DISPATCH();
+}
+
+do_PUSH_GLOBL: {
+    WStackPush(&context->stack, &state->globals[arg]);
     FETCH_DISPATCH();
 }
 

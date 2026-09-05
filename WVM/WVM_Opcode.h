@@ -85,6 +85,8 @@
     X(LOCAL_AND)\
     X(LOCAL_OR)\
     X(PUSH)\
+    X(PUSH_LOCAL)\
+    X(PUSH_GLOBL)\
     X(POP)\
     X(STACK_IADD)\
     X(STACK_ISUB)\
