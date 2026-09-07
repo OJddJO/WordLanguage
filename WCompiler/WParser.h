@@ -1,21 +1,21 @@
-#ifndef __WP_H__
-#define __WP_H__
+#ifndef __WPARSER_H__
+#define __WPARSER_H__
 
 #include <stdint.h>
 
 typedef enum _WP_ASTNodeType {
-    NODE_PROGRAM,
-    NODE_CLASS_DEF,
-    NODE_FUNC_DEF,
-    NODE_VAR_DECL,
-    NODE_IF,
-    NODE_WHILE,
-    NODE_RETURN,
-    NODE_BINARY_OP,
-    NODE_MEMBER_ACCESS,
-    NODE_CALL,
-    NODE_IDENTIFIER,
-    NODE_LITERAL,
+    WPNODE_PROGRAM,
+    WPNODE_CLASS_DEF,
+    WPNODE_FUNC_DEF,
+    WPNODE_VAR_DECL,
+    WPNODE_IF,
+    WPNODE_WHILE,
+    WPNODE_RETURN,
+    WPNODE_BINARY_OP,
+    WPNODE_MEMBER_ACCESS,
+    WPNODE_CALL,
+    WPNODE_IDENTIFIER,
+    WPNODE_LITERAL,
 } WP_ASTNodeType;
 
 typedef struct _WP_ASTNode WP_ASTNode;
@@ -23,8 +23,8 @@ struct _WP_ASTNode {
     WP_ASTNodeType type;
     union {
         struct {
-            WP_ASTNode **items;
-            size_t  count;
+            WP_ASTNode  **items;
+            size_t      count;
         } block;
         struct {
             char        *op;
@@ -52,8 +52,8 @@ struct _WP_ASTNode {
             WP_ASTNode  *body;
         } funcDef;
 
-        char    *stringVal;
         int64_t *intVal;
+        double  *floatVal;
     } as;
 };
 
