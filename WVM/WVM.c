@@ -3,7 +3,7 @@
 #include <bytes.h>
 #include <WVM_Opcode.h>
 #include "WVM.h"
-#include "WVM_Error.h"
+#include "werror.h"
 
 int WVM_init(WVM_State *state, WVM_Context *mainContext) {
     return 1;

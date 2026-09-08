@@ -23,27 +23,37 @@ typedef enum _WTokOp {
     WTOKOP_BAND, WTOKOP_BXOR, WTOKOP_BOR,
     WTOKOP_AND, WTOKOP_OR,
     WTOKOP_IS,
+
+    OP_NB
 } WTokOp;
 
 typedef enum _WTokKw {
     WTOKKW_IF, WTOKKW_ELSE,
     WTOKKW_WHILE, WTOKKW_CONTINUE, WTOKKW_BREAK,
-    WTOKKW_CLASS,
+    WTOKKW_CLASS, WTOKKW_NAMESPACE,
     WTOKKW_RETURN,
+    WTOKKW_VOID, WTOKKW_INT, WTOKKW_FLOAT, WTOKKW_BOOL, WTOKKW_STRING,
+    WTOKKW_TRUE, WTOKKW_FALSE,
+
+    KW_NB
 } WTokKw;
 
 typedef struct _WToken {
     WTokType    type;
     union {
-        char    *tok;
-        WTokOp  op;
-        WTokKw  kw;
+        const char  *tok;
+        WTokOp      op;
+        WTokKw      kw;
     } as;
 } WToken;
 
 typedef struct _WLexer {
-    const FILE  *file;
-    fpos_t      cur;
+    const char  *src;
+    size_t      cur;
 } WLexer;
+
+int lexerInit(const char *filepath, WLexer *lexer);
+void lexerDestroy(WLexer *lexer);
+WToken *lexerNext(WLexer *lexer);
 
 #endif
