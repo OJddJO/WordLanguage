@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "WLexer.h"
+
 typedef enum _WP_ASTNodeType {
     WPNODE_PROGRAM,
     WPNODE_CLASS_DEF,
@@ -19,7 +21,7 @@ typedef enum _WP_ASTNodeType {
 } WP_ASTNodeType;
 
 typedef struct _WP_ASTNode WP_ASTNode;
-struct _WP_ASTNode {
+typedef struct _WP_ASTNode {
     WP_ASTNodeType type;
     union {
         struct {
@@ -55,6 +57,11 @@ struct _WP_ASTNode {
         int64_t *intVal;
         double  *floatVal;
     } as;
-};
+} WP_ASTNode;
+
+typedef struct _WParser {
+    WLexer      lexer;
+    WP_ASTNode  *program;
+} WParser;
 
 #endif

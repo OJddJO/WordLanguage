@@ -55,11 +55,32 @@ static void consumeWhitespaces(WLexer *lexer) {
     lexer->cur = n;
 }
 
+static bool isPunctuator(int c) {
+    return c == ',' || c == '(' || c == ')';
+}
+
+static bool isSymbolOperator(int c) {
+    return c == '.' || c == '+' || c == '-';
+}
+
 static long getTokenLen(WLexer *lexer) {
     fseek(lexer->src, lexer->cur, SEEK_SET);
-    long len = 0;
-    int c;
-    while ((c = fgetc(lexer->src)) != EOF && !isspace(c) && ++len);
+    int c = fgetc(lexer->src);
+    if (c == EOF) return 0;
+
+    if (isPunctuator(c) || isSymbolOperator(c)) {
+        return 1;
+    }
+
+    long len = 1;
+    while ((c = fgetc(lexer->src)) != EOF &&
+            !isspace(c) &&
+            !isPunctuator(c) && // float are not handled correctly !
+            !isSymbolOperator(c)) {
+        ++len;
+    }
+
+    fseek(lexer->src, lexer->cur, SEEK_SET);
     return len;
 }
 
@@ -85,12 +106,15 @@ static WLitType isLiteral(const char *str, int64_t *iout, double *fout) {
 static int buildToken(WLexer *lexer, WToken *out) {
     long tokLen = getTokenLen(lexer);
 
-    char *token = malloc(tokLen);
+    if (!tokLen) return 0;
+
+    char *token = malloc(tokLen + 1);
     if (!token) {
         PRINT_ERR("Failed to alloc memory for token\n");
         return 0;
     }
     fread(token, 1, (size_t)tokLen, lexer->src);
+    token[tokLen] = '\0';
     lexer->cur += tokLen;
 
     for (WTokOp i = 0; i < OP_NB; i++) {
@@ -105,7 +129,7 @@ static int buildToken(WLexer *lexer, WToken *out) {
     for (WTokKw i = 0; i < KW_NB; i++) {
         if (strcmp(token, keywords[i]) == 0) {
             free(token);
-            out->type = WTOK_OPERATOR;
+            out->type = WTOK_KEYWORD;
             out->as.kw = i;
             return 1;
         }
@@ -126,12 +150,14 @@ static int buildToken(WLexer *lexer, WToken *out) {
                 out->as.punc = WTOKPUNC_COMMA;
             }
         }
+        free(token);
         return 1;
     }
 
     WLitType litType = isLiteral(token, &out->as.lit.i, &out->as.lit.f);
     if (litType) {
         if (litType != LIT_STR) free(token);
+        else out->as.lit.s = token;
         out->type = WTOK_LITERAL;
         out->as.lit.type = litType;
         return 1;
