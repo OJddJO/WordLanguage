@@ -37,13 +37,14 @@ int lexerInit(const char *filepath, WLexer *lexer) {
     if (!file) return 0;
 
     lexer->src = file;
-    size_t cur = 0;
+    lexer->cur = 0;
 
     return 1;
 }
 
 void lexerDestroy(WLexer *lexer) {
-    free(lexer->src);
+    fclose(lexer->src);
+    lexer->cur = 0;
 }
 
 static void consumeWhitespaces(WLexer *lexer) {
