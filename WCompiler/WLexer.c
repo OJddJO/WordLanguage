@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include <werror.h>
 #include "WLexer.h"
@@ -29,7 +30,6 @@ static const char *keywords[] = {
     "true", "false",
 };
 
-static const char *whitespaces = " \n\t\r";
 static const char *punctuator = ",()";
 
 int lexerInit(const char *filepath, WLexer *lexer) {
@@ -62,15 +62,55 @@ void lexerDestroy(WLexer *lexer) {
     free(lexer->src);
 }
 
-static size_t consumeWhitespaces(WLexer *lexer) {
-    size_t n = lexer->cur;
-    while (lexer->src[n] != '\0' && strchr(whitespaces, lexer->src[n]) && ++n);
-    return n;
+static void consumeWhitespaces(WLexer *lexer) {
+    long n = lexer->cur;
+    fseek(lexer->src, n, SEEK_SET);
+    int c;
+    while ((c = fgetc(lexer->src)) != EOF && isspace(c) && ++n);
+    lexer->cur = n;
 }
 
-static int buildToken(const char *token, WToken *out) {
+static long getTokenLen(WLexer *lexer) {
+    fseek(lexer->src, lexer->cur, SEEK_SET);
+    long len = 0;
+    int c;
+    while ((c = fgetc(lexer->src)) != EOF && !isspace(c) && ++len);
+    return len;
+}
+
+static bool isInteger(const char *str, int64_t *out) {
+    char *end;
+    *out = strtoll(str, &end, 0);
+    return end != str && *end == '\0';
+}
+
+static bool isFloat(const char *str, double *out) {
+    char *end;
+    *out = strtod(str, &end);
+    return end != str && *end == '\0';
+}
+
+static WLitType isLiteral(const char *str, int64_t *iout, double *fout) {
+    if (strchr("\"'", str[0])) return LIT_STR;
+    if (isInteger(str, iout)) return LIT_INT;
+    if (isFloat(str, fout)) return LIT_FLOAT;
+    return NOT_LIT;
+}
+
+static int buildToken(WLexer *lexer, WToken *out) {
+    long tokLen = getTokenLen(lexer);
+
+    char *token = malloc(tokLen);
+    if (!token) {
+        PRINT_ERR("Failed to alloc memory for token\n");
+        return 0;
+    }
+    fread(token, 1, (size_t)tokLen, lexer->src);
+    lexer->cur += tokLen;
+
     for (WTokOp i = 0; i < OP_NB; i++) {
         if (strcmp(token, operators[i]) == 0) {
+            free(token);
             out->type = WTOK_OPERATOR;
             out->as.op = i;
             return 1;
@@ -79,6 +119,7 @@ static int buildToken(const char *token, WToken *out) {
 
     for (WTokKw i = 0; i < KW_NB; i++) {
         if (strcmp(token, keywords[i]) == 0) {
+            free(token);
             out->type = WTOK_OPERATOR;
             out->as.kw = i;
             return 1;
@@ -87,14 +128,33 @@ static int buildToken(const char *token, WToken *out) {
 
     if (strchr(punctuator, *token)) {
         out->type = WTOK_PUNCTUATOR;
-        char *tok = malloc(2);
-        if (!tok) return 0;
-
-        strncpy(out->as.tok, token, 1);
-        out->as.tok = tok;
+        switch (*token) {
+            case '(': {
+                out->as.punc = WTOKPUNC_OPEN;
+                break;
+            }
+            case ')': {
+                out->as.punc = WTOKPUNC_CLOSE;
+                break;
+            }
+            case ',': {
+                out->as.punc = WTOKPUNC_COMMA;
+            }
+        }
         return 1;
     }
 
+    WLitType litType = isLiteral(token, &out->as.lit.i, &out->as.lit.f);
+    if (litType) {
+        if (litType != LIT_STR) free(token);
+        out->type = WTOK_LITERAL;
+        out->as.lit.type = litType;
+        return 1;
+    }
+
+    out->type = WTOK_IDENTIFIER;
+    out->as.id = token;
+    return 1;
 }
 
 inline WToken *lexerNext(WLexer *lexer) {
@@ -104,8 +164,11 @@ inline WToken *lexerNext(WLexer *lexer) {
         return NULL;
     }
 
-    size_t n = consumeWhitespaces(lexer);
-    while (strchr(whitespaces, lexer->src[n++]));
+    consumeWhitespaces(lexer);
+    if (!buildToken(lexer, ret)) {
+        free(ret);
+        return NULL;
+    }
 
-
+    return ret;
 }

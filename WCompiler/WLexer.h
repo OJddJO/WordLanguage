@@ -2,6 +2,7 @@
 #define __WLEXER_H__
 
 #include <stdio.h>
+#include <stdint.h>
 
 typedef enum _WTokType {
     WTOK_KEYWORD,
@@ -38,18 +39,40 @@ typedef enum _WTokKw {
     KW_NB
 } WTokKw;
 
+typedef enum _WLitType {
+    NOT_LIT = 0,
+    LIT_INT = 1,
+    LIT_FLOAT,
+    LIT_STR,
+} WLitType;
+
+typedef enum _WTokPunc {
+    WTOKPUNC_COMMA,
+    WTOKPUNC_OPEN,
+    WTOKPUNC_CLOSE,
+} WTokPunc;
+
 typedef struct _WToken {
     WTokType    type;
     union {
-        const char  *tok;
+        const char  *id;
         WTokOp      op;
         WTokKw      kw;
+        WTokPunc    punc;
+        struct {
+            WLitType type;
+            union {
+                const char  *s;
+                int64_t     i;
+                double      f;
+            };
+        } lit;
     } as;
 } WToken;
 
 typedef struct _WLexer {
-    const char  *src;
-    size_t      cur;
+    FILE    *src;
+    long    cur;
 } WLexer;
 
 int lexerInit(const char *filepath, WLexer *lexer);
