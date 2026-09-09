@@ -36,23 +36,7 @@ int lexerInit(const char *filepath, WLexer *lexer) {
     FILE *file = fopen(filepath, "r");
     if (!file) return 0;
 
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    char *buf = (char *)malloc(size + 1);
-    if (!buf) {
-        fclose(file);
-        return 0;
-    }
-
-    if (fread(buf, 1, size, file) != (size_t)size) {
-        PRINT_WARN("File content size differ from probed size\n");
-    }
-    buf[size] = '\0';
-    fclose(file);
-
-    lexer->src = buf;
+    lexer->src = file;
     size_t cur = 0;
 
     return 1;
