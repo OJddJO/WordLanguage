@@ -71,7 +71,7 @@ typedef struct _WToken {
 } WToken;
 
 typedef struct _WLexer {
-    FILE    *src;
+    char    *buf;
     long    cur;
 } WLexer;
 
