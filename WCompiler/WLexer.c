@@ -211,7 +211,7 @@ static int buildToken(WLexer *lexer, WToken *out) {
     return 1;
 }
 
-inline WToken *lexerNext(WLexer *lexer) {
+WToken *lexerNext(WLexer *lexer) {
     consumeWhitespaces(lexer);
     if (lexer->buf[lexer->cur] == '\0') return NULL;
 
