@@ -8,7 +8,7 @@
 typedef struct _Stack {
     uint64_t    size;
     uint64_t    count;
-    WVM_Value      *buf;
+    WVM_Value   *buf;
 } WVM_Stack;
 
 int WStackInit(WVM_Stack *stack);

@@ -49,6 +49,7 @@ int lexerInit(const char *filepath, WLexer *lexer) {
     fread(lexer->buf, 1, size, file);
     lexer->buf[size] = '\0';
     lexer->cur = 0;
+    lexer->line = 0;
     fclose(file);
     return 1;
 }
@@ -57,10 +58,14 @@ void lexerDestroy(WLexer *lexer) {
     if (lexer->buf) free(lexer->buf);
     lexer->buf = NULL;
     lexer->cur = 0;
+    lexer->line = 0;
 }
 
 static void consumeWhitespaces(WLexer *lexer) {
     while (lexer->buf[lexer->cur] != '\0' && isspace(lexer->buf[lexer->cur])) {
+        if (lexer->buf[lexer->cur] == '\n') {
+            lexer->line++;
+        }
         lexer->cur++;
     }
 }
@@ -76,9 +81,15 @@ static bool isSymbolOperator(char c) {
 static long getNumberLen(const char *src) {
     long len = 0;
 
+    if (*src == '0' && src[1] != '\0') {
+        if (src[1] == 'x' || src[1] == 'o' || src[1] == 'b') {
+            len += 2;
+        }
+    }
+
     while (isdigit(src[len])) len++;
 
-    if (src[len] == '.' && isdigit(src[len - 1]) && isdigit(src[len + 1])) {
+    if (src[len] == '.' && isdigit(src[len - 1])) {
         len++;
         while (isdigit(src[len])) len++;
     }
@@ -159,6 +170,7 @@ static int buildToken(WLexer *lexer, WToken *out) {
     token[tokLen] = '\0';
     lexer->cur += tokLen;
 
+
     for (int i = 0; i < OP_NB; i++) {
         if (strcmp(token, operators[i]) == 0) {
             free(token);
@@ -227,4 +239,14 @@ WToken *lexerNext(WLexer *lexer) {
     }
 
     return ret;
+}
+
+void tokenFree(WToken *token) {
+    if (token->type == WTOK_IDENTIFIER)
+        free(token->as.id);
+
+    if (token->type == WTOK_LITERAL && token->as.lit.type == LIT_STR)
+        free(token->as.lit.s);
+
+    free(token);
 }
