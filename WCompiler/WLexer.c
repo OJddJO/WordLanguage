@@ -9,8 +9,8 @@
 // operators precedence is defined by the order of each operators in this array
 static const char *operators[] = {
     ".", // member access
-    "not", "bitnot", // logical/bitwise not
     "+", "-", // unary sign
+    "not", "bitnot", // logical/bitwise not
     "time", "div", "mod", // multiplicative operators
     "plus", "minus", // additive operators
     "lsh", "rsh", // bitshift
