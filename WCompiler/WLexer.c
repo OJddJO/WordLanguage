@@ -24,7 +24,7 @@ static const char *operators[] = {
 static const char *keywords[] = {
     "if", "else",
     "while", "continue", "break",
-    "class", "namespace",
+    "var", "def", "class",
     "return",
     "Void", "Int", "Float", "Bool", "String",
     "true", "false",
@@ -241,6 +241,7 @@ WToken *lexerNext(WLexer *lexer) {
     return ret;
 }
 
+// Also free any allocated strings !
 void tokenFree(WToken *token) {
     if (token->type == WTOK_IDENTIFIER)
         free(token->as.id);

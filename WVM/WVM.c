@@ -11,7 +11,7 @@ int WVM_init(WVM_State *state, WVM_Context *mainContext) {
 
 int WVM_run(WVM_State *state, WVM_Context *context) {
     static const void *dispatchTable [] = {
-        #define BUILD_DISPATCH_TABLE(opcode) [OP_##opcode] = &&do_##opcode,
+        #define BUILD_DISPATCH_TABLE(opcode) [OP_##opcode] = &&##do_##opcode,
             OPCODES(BUILD_DISPATCH_TABLE)
         #undef BUILD_DISPATCH_TABLE
     };
@@ -133,7 +133,7 @@ do_F2I: {
 #define BUILD_BINOP_STACK(label, typeid, op)\
     do_STACK_##label: {\
         WVM_Value sval;\
-        if (!WStackPop(&context->stack, &sval)) {\
+        if (!StackPop(&context->stack, &sval)) {\
             PRINT_ERR("error");\
             goto end;\
         }\
@@ -226,22 +226,22 @@ do_RET: {
 }
 
 do_PUSH: {
-    WStackPush(&context->stack, &context->acc);
+    StackPush(&context->stack, &context->acc);
     FETCH_DISPATCH();
 }
 
 do_PUSH_LOCAL: {
-    WStackPush(&context->stack, &context->locals[arg]);
+    StackPush(&context->stack, &context->locals[arg]);
     FETCH_DISPATCH();
 }
 
 do_PUSH_GLOBL: {
-    WStackPush(&context->stack, &state->globals[arg]);
+    StackPush(&context->stack, &state->globals[arg]);
     FETCH_DISPATCH();
 }
 
 do_POP: {
-    if (!WStackPop(&context->stack, &context->acc)) {
+    if (!StackPop(&context->stack, &context->acc)) {
         PRINT_ERR("error");
         goto end;
     }

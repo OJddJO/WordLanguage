@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
+#include <stack.h>
 #include "WVM_Types.h"
-#include "WVM_Stack.h"
 
 typedef struct WVM_Context {
-    WVM_Stack   stack;
+    Stack       stack;
 
     WVM_Value   acc;
     WVM_Value   *locals;

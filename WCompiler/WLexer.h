@@ -31,7 +31,7 @@ typedef enum _WTokOp {
 typedef enum _WTokKw {
     WTOKKW_IF, WTOKKW_ELSE,
     WTOKKW_WHILE, WTOKKW_CONTINUE, WTOKKW_BREAK,
-    WTOKKW_CLASS, WTOKKW_NAMESPACE,
+    WTOKKW_VAR, WTOKKW_DEF, WTOKKW_CLASS,
     WTOKKW_RETURN,
     WTOKKW_VOID, WTOKKW_INT, WTOKKW_FLOAT, WTOKKW_BOOL, WTOKKW_STRING,
     WTOKKW_TRUE, WTOKKW_FALSE,
@@ -52,6 +52,15 @@ typedef enum _WTokPunc {
     WTOKPUNC_CLOSE,
 } WTokPunc;
 
+typedef struct _WLit {
+    WLitType    type;
+    union {
+        const char  *s;
+        int64_t     i;
+        double      f;
+    };
+} WLiteral;
+
 typedef struct _WToken {
     WTokType    type;
     union {
@@ -59,14 +68,7 @@ typedef struct _WToken {
         WTokOp      op;
         WTokKw      kw;
         WTokPunc    punc;
-        struct {
-            WLitType type;
-            union {
-                const char  *s;
-                int64_t     i;
-                double      f;
-            };
-        } lit;
+        WLiteral    lit;
     } as;
 } WToken;
 
