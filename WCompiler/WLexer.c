@@ -26,11 +26,11 @@ static const char *keywords[] = {
     "while", "continue", "break",
     "var", "def", "class",
     "return",
-    "Void", "Int", "Float", "Bool", "String",
     "true", "false",
+    "memory", "sizeof",
 };
 
-static const char *punctuator = ",()";
+static const char *punctuator = ",()[]";
 
 int lexerInit(const char *filepath, WLexer *lexer) {
     FILE *file = fopen(filepath, "rb");

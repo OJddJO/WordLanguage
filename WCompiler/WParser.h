@@ -37,7 +37,7 @@ struct _WP_ASTNode {
         char        *id;
 
         struct {
-            WP_ASTNode  **items;
+            WP_ASTNode  **stmt;
             size_t      count;
         } block;
         struct {
