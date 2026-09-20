@@ -90,7 +90,7 @@ struct _WP_ASTNode {
 
 typedef struct _WParser {
     WLexer      lexer;
-    Stack       tokens;
+    Stack       nodes;
     UArray      program;
 } WParser;
 
