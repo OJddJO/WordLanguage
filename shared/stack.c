@@ -49,6 +49,11 @@ int stackPop(Stack *stack, void *ret) {
     return 1;
 }
 
+void *stackTop(Stack *stack) {
+    if (stack->count == 0) return NULL;
+    return stack->buf + (stack->elemSize * stack->count);
+}
+
 void stackDestroy(Stack *stack) {
     free(stack->buf);
 }

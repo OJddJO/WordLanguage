@@ -8,9 +8,15 @@
 
 #define IS_ERR(X) (X <= 0)
 
-#define ERR_IF              0
-#define ERR_PARSE_IF_COND   -1
-#define ERR_PARSE_IF_THEN   -2
+#define ERR_GENERIC             0
 
+#define ERR_PARSE_IF_COND       -1
+#define ERR_PARSE_IF_THEN       -2
+
+#define ERR_PARSE_ELSE_NO_IF    -1
+#define ERR_PARSE_ELSE_THEN     -2
+
+#define ERR_PARSE_WHILE_COND    -1
+#define ERR_PARSE_WHILE_THEN    -2
 
 #endif

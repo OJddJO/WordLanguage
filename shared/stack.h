@@ -13,6 +13,7 @@ typedef struct _Stack {
 int stackInit(Stack *stack, size_t elementSize);
 int stackPush(Stack *stack, void *element);
 int stackPop(Stack *stack, void *ret);
+void *stackTop(Stack *stack);
 void stackDestroy(Stack *stack);
 
 #endif
