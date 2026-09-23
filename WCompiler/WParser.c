@@ -15,7 +15,7 @@ int parserInit(const char *src, WParser *parser) {
         return 0;
     }
 
-    if (!uArrayInit(&ret.program, sizeof(WP_ASTNode))) {
+    if (!uArrayInit(&ret.program, sizeof(ASTNode))) {
         lexerDestroy(&ret.lexer);
         stackDestroy(&ret.nodes);
         return 0;
@@ -60,14 +60,14 @@ static int consumeKeyword(WParser *parser, WToken *token) {
 }
 
 static int consumeIf(WParser *parser) {
-    WP_ASTNode node;
+    ASTNode node;
     node.type = WPNODE_IF;
-    node.as.ifStmt.condition = malloc(sizeof(WP_ASTNode));
+    node.as.ifStmt.condition = malloc(sizeof(ASTNode));
     if (!node.as.ifStmt.condition) {
         PRINT_ERR("if cond block malloc error\n");
         return ERR_PARSE_IF_COND;
     }
-    node.as.ifStmt.thenBlock = malloc(sizeof(WP_ASTNode));
+    node.as.ifStmt.thenBlock = malloc(sizeof(ASTNode));
     if (!node.as.ifStmt.thenBlock) {
         PRINT_ERR("if then block malloc error\n");
         return ERR_PARSE_IF_THEN;
@@ -101,12 +101,12 @@ static int consumeIf(WParser *parser) {
 }
 
 static int consumeElse(WParser *parser) {
-    WP_ASTNode *node = stackTop(&parser->nodes);
+    ASTNode *node = stackTop(&parser->nodes);
     if (!node || node->type != WPNODE_IF) {
         PRINT_ERR("else statement should match a if statement\n");
         return ERR_PARSE_ELSE_NO_IF;
     }
-    node->as.ifStmt.elseBlock = malloc(sizeof(WP_ASTNode));
+    node->as.ifStmt.elseBlock = malloc(sizeof(ASTNode));
     if (!node->as.ifStmt.elseBlock) {
         PRINT_ERR("else then block malloc error\n");
         return ERR_PARSE_ELSE_THEN;
@@ -125,14 +125,14 @@ static int consumeElse(WParser *parser) {
 }
 
 static int consumeWhile(WParser *parser) {
-    WP_ASTNode node;
+    ASTNode node;
     node.type = WPNODE_WHILE;
-    node.as.whileStmt.condition = malloc(sizeof(WP_ASTNode));
+    node.as.whileStmt.condition = malloc(sizeof(ASTNode));
     if (!node.as.whileStmt.condition) {
         PRINT_ERR("while cond block malloc failed\n");
         return ERR_PARSE_WHILE_COND;
     }
-    node.as.whileStmt.block = malloc(sizeof(WP_ASTNode));
+    node.as.whileStmt.block = malloc(sizeof(ASTNode));
     if (!node.as.whileStmt.block) {
         PRINT_ERR("while then block malloc failed\n");
         return ERR_PARSE_WHILE_THEN;
@@ -158,6 +158,28 @@ static int consumeWhile(WParser *parser) {
 
     if (!stackPush(&parser->nodes, &node)) {
         PRINT_ERR("failed to push while statement to stack\n");
+        return ERR_GENERIC;
+    }
+
+    return 1;
+}
+
+static int consumeContinue(WParser *parser) {
+    ASTNode node;
+    node.type = WPNODE_CONTINUE;
+    if (!stackPush(&parser->nodes, &node)) {
+        PRINT_ERR("failed to push continue node to stack\n");
+        return ERR_GENERIC;
+    }
+
+    return 1;
+}
+
+static int consumeBreak(WParser *parser) {
+    ASTNode node;
+    node.type = WPNODE_BREAK;
+    if (!stackPush(&parser->nodes, &node)) {
+        PRINT_ERR("failed to push break node to stack\n");
         return ERR_GENERIC;
     }
 

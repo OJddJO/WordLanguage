@@ -24,12 +24,14 @@ typedef enum _WP_ASTNodeType {
 
     WPNODE_IF,
     WPNODE_WHILE,
+    WPNODE_CONTINUE,
+    WPNODE_BREAK,
 
     WPNODE_CALL,
     WPNODE_RETURN,
 } WP_ASTNodeType;
 
-typedef struct _WP_ASTNode WP_ASTNode;
+typedef struct _WP_ASTNode ASTNode;
 struct _WP_ASTNode {
     WP_ASTNodeType type;
     union {
@@ -37,53 +39,53 @@ struct _WP_ASTNode {
         char        *id;
 
         struct {
-            WP_ASTNode  **stmt;
-            size_t      count;
+            ASTNode **stmt;
+            size_t  count;
         } block;
         struct {
-            WTokOp      unary;
-            WP_ASTNode  *operand;
+            WTokOp  unary;
+            ASTNode *operand;
         } unaryOp;
         struct {
-            WTokOp      op;
-            WP_ASTNode  *left;
-            WP_ASTNode  *right;
+            WTokOp  op;
+            ASTNode *left;
+            ASTNode *right;
         } binaryOp;
         struct {
-            WP_ASTNode  **fields;
-            WP_ASTNode  **methods;
+            ASTNode **fields;
+            ASTNode **methods;
         } classDef;
         struct {
-            WP_ASTNode  *object;
-            char        *member;
+            ASTNode *object;
+            char    *member;
         } member;
         struct {
-            char        *retType;
-            char        *name;
-            WP_ASTNode  *params;
-            WP_ASTNode  *body;
+            char    *retType;
+            char    *name;
+            ASTNode *params;
+            ASTNode *body;
         } funcDef;
         struct {
-            char        *typeName;
-            char        *varName;
-            WP_ASTNode  *init;
+            char    *typeName;
+            char    *varName;
+            ASTNode *init;
         } varDecl;
         struct {
-            WP_ASTNode  *condition;
-            WP_ASTNode  *thenBlock;
-            WP_ASTNode  *elseBlock;
+            ASTNode *condition;
+            ASTNode *thenBlock;
+            ASTNode *elseBlock;
         } ifStmt;
         struct {
-            WP_ASTNode  *condition;
-            WP_ASTNode  *block;
+            ASTNode *condition;
+            ASTNode *block;
         } whileStmt;
         struct {
-            WP_ASTNode  *callee;
-            WP_ASTNode  *args;
-            uint64_t    argc;
+            ASTNode *callee;
+            ASTNode *args;
+            uint64_t argc;
         } call;
         struct {
-            WP_ASTNode  *value;
+            ASTNode *value;
         } retStmt;
     } as;
 };
