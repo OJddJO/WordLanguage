@@ -7,7 +7,7 @@
 #include <unorderedArray.h>
 #include "WLexer.h"
 
-typedef enum _WP_ASTNodeType {
+typedef enum _ASTNodeType {
     WPNODE_LITERAL,
     WPNODE_IDENTIFIER,
 
@@ -29,11 +29,11 @@ typedef enum _WP_ASTNodeType {
 
     WPNODE_CALL,
     WPNODE_RETURN,
-} WP_ASTNodeType;
+} ASTNodeType;
 
-typedef struct _WP_ASTNode ASTNode;
-struct _WP_ASTNode {
-    WP_ASTNodeType type;
+typedef struct _ASTNode ASTNode;
+struct _ASTNode {
+    ASTNodeType type;
     union {
         WLiteral    lit;
         char        *id;

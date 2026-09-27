@@ -19,4 +19,6 @@
 #define ERR_PARSE_WHILE_COND    -1
 #define ERR_PARSE_WHILE_THEN    -2
 
+#define ERR_PARSE_VAR_NOTYPE    -1
+
 #endif

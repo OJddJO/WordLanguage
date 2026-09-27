@@ -25,6 +25,14 @@ int parserInit(const char *src, WParser *parser) {
     return 1;
 }
 
+int ASTDestroy(ASTNode *ast) {
+    switch (ast->type) {
+        case (WPNODE_LITERAL): {
+
+        }
+    }
+}
+
 static int parserConsume(WParser *parser);
 
 static int consumeBlock(WParser *parser);
@@ -60,44 +68,61 @@ static int consumeKeyword(WParser *parser, WToken *token) {
 }
 
 static int consumeIf(WParser *parser) {
-    ASTNode node;
+    int status = 1;
+
+    ASTNode node = {0};
     node.type = WPNODE_IF;
     node.as.ifStmt.condition = malloc(sizeof(ASTNode));
     if (!node.as.ifStmt.condition) {
         PRINT_ERR("if cond block malloc error\n");
-        return ERR_PARSE_IF_COND;
+        status = ERR_PARSE_IF_COND;
+        goto ret;
     }
     node.as.ifStmt.thenBlock = malloc(sizeof(ASTNode));
     if (!node.as.ifStmt.thenBlock) {
         PRINT_ERR("if then block malloc error\n");
-        return ERR_PARSE_IF_THEN;
+        free(node.as.ifStmt.condition);
+        status = ERR_PARSE_IF_THEN;
+        goto ret;
     }
 
     if (IS_ERR(consumeBlock(parser))) {
         PRINT_ERR("if condition syntax error\n");
-        return ERR_PARSE_IF_COND;
+        status = ERR_PARSE_IF_COND;
+        goto ret;
     }
     if (!stackPop(&parser->nodes, node.as.ifStmt.condition)) {
         PRINT_ERR("failed to retrieve if cond block\n");
-        return ERR_PARSE_IF_COND;
+        status = ERR_PARSE_IF_COND;
+        goto ret;
     }
 
     if (IS_ERR(consumeBlock(parser))) {
         PRINT_ERR("if then syntax error\n");
-        return ERR_PARSE_IF_THEN;
+        status = ERR_PARSE_IF_THEN;
+        goto ret;
     }
     if (!stackPop(&parser->nodes, node.as.ifStmt.thenBlock)) {
         PRINT_ERR("failed to retrieve if then block\n");
-        return ERR_PARSE_IF_THEN;
+        status = ERR_PARSE_IF_THEN;
+        goto ret;
     }
 
     node.as.ifStmt.elseBlock = NULL;
+
     if (!stackPush(&parser->nodes, &node)) {
-        PRINT_ERR("failed to push if statement to stack\n");
-        return ERR_GENERIC;
+        PRINT_ERR("failed to push while statement to stack\n");
+        status = ERR_GENERIC;
+        goto ret;
     }
 
-    return 1;
+ret:
+    if (IS_ERR(status)) {
+        if (node.as.ifStmt.condition) ;
+        if (node.as.ifStmt.elseBlock) ;
+        if (node.as.ifStmt.thenBlock) ;
+    }
+    return status;
 }
 
 static int consumeElse(WParser *parser) {
@@ -184,6 +209,19 @@ static int consumeBreak(WParser *parser) {
     }
 
     return 1;
+}
+
+static consumeVar(WParser *parser) {
+    ASTNode node;
+    node.type = WPNODE_VAR_DECL;
+    WToken *type = lexerNext(&parser->lexer);
+    if (!type || type->type != WTOK_IDENTIFIER) {
+        PRINT_ERR("var syntax error\n");
+        return ERR_PARSE_VAR_NOTYPE;
+    }
+    node.as.varDecl.typeName = type->as.id;
+
+    WToken *id = lexerNext(&parser->lexer);
 }
 
 // Parser tries to consume a block, if can't find a block NULL is returned

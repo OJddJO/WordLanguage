@@ -34,6 +34,19 @@ int stackPush(Stack *stack, void *value) {
     return 1;
 }
 
+void *stackBump(Stack *stack) {
+    if (stack->size == stack->count) {
+        size_t targetSize = stack->size * GROWTH_FACTOR;
+        void *new = realloc(stack->buf, stack->elemSize * targetSize);
+        if (!new) return NULL;
+
+        stack->buf = new;
+        stack->size = targetSize;
+    }
+
+    return stack->buf + stack->count++ * stack->elemSize;
+}
+
 int stackPop(Stack *stack, void *ret) {
     if (stack->count == 0) return 0;
 
