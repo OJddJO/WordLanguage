@@ -53,7 +53,9 @@ struct _ASTNode {
         } binaryOp;
         struct {
             ASTNode **fields;
+            size_t  fieldsCount;
             ASTNode **methods;
+            size_t  methodsCount;
         } classDef;
         struct {
             ASTNode *object;
@@ -81,8 +83,8 @@ struct _ASTNode {
         } whileStmt;
         struct {
             ASTNode *callee;
-            ASTNode *args;
-            uint64_t argc;
+            ASTNode **args;
+            size_t  argc;
         } call;
         struct {
             ASTNode *value;

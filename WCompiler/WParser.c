@@ -25,12 +25,87 @@ int parserInit(const char *src, WParser *parser) {
     return 1;
 }
 
-int ASTDestroy(ASTNode *ast) {
+void ASTDestroy(ASTNode *ast, bool freeNode) {
+    if (!ast) return;
     switch (ast->type) {
         case (WPNODE_LITERAL): {
-
+            if (ast->as.lit.type == LIT_STR) {
+                free(ast->as.lit.s);
+            }
+            break;
+        }
+        case (WPNODE_IDENTIFIER): {
+            free(ast->as.id);
+            break;
+        }
+        case (WPNODE_BLOCK): {
+            for (size_t i = 0; i < ast->as.block.count; i++) {
+                ASTDestroy(ast->as.block.stmt[i], true);
+            }
+            free(ast->as.block.stmt);
+            break;
+        }
+        case (WPNODE_UNARY_OP): {
+            ASTDestroy(ast->as.unaryOp.operand, true);
+            break;
+        }
+        case (WPNODE_BINARY_OP): {
+            ASTDestroy(ast->as.binaryOp.left, true);
+            ASTDestroy(ast->as.binaryOp.right, true);
+            break;
+        }
+        case (WPNODE_CLASS_DEF): {
+            for (size_t i = 0; i < ast->as.classDef.fieldsCount; i++) {
+                ASTDestroy(ast->as.classDef.fields[i], true);
+            }
+            for (size_t i = 0; i < ast->as.classDef.methodsCount; i++) {
+                ASTDestroy(ast->as.classDef.methods[i], true);
+            }
+            break;
+        }
+        case (WPNODE_MEMBER_ACCESS): {
+            free(ast->as.member.member);
+            ASTDestroy(ast->as.member.object, true);
+            break;
+        }
+        case (WPNODE_FUNC_DEF): {
+            free(ast->as.funcDef.retType);
+            free(ast->as.funcDef.name);
+            ASTDestroy(ast->as.funcDef.params, true);
+            ASTDestroy(ast->as.funcDef.body, true);
+            break;
+        }
+        case (WPNODE_VAR_DECL): {
+            free(ast->as.varDecl.typeName);
+            free(ast->as.varDecl.varName);
+            ASTDestroy(ast->as.varDecl.init, true);
+            break;
+        }
+        case (WPNODE_IF): {
+            ASTDestroy(ast->as.ifStmt.condition, true);
+            ASTDestroy(ast->as.ifStmt.thenBlock, true);
+            if (ast->as.ifStmt.elseBlock) ASTDestroy(ast->as.ifStmt.elseBlock, true);
+            break;
+        }
+        case (WPNODE_WHILE): {
+            ASTDestroy(ast->as.whileStmt.condition, true);
+            ASTDestroy(ast->as.whileStmt.block, true);
+            break;
+        }
+        case (WPNODE_CALL): {
+            ASTDestroy(ast->as.call.callee, true);
+            for (size_t i = 0; i < ast->as.call.argc; i++) {
+                ASTDestroy(ast->as.call.args[i], true);
+            }
+            break;
+        }
+        case (WPNODE_RETURN): {
+            ASTDestroy(ast->as.retStmt.value, true);
+            break;
         }
     }
+
+    if (freeNode) free(ast);
 }
 
 static int parserConsume(WParser *parser);
