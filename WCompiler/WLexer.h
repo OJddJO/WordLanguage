@@ -34,7 +34,6 @@ typedef enum _WTokKw {
     WTOKKW_VAR, WTOKKW_DEF, WTOKKW_CLASS,
     WTOKKW_RETURN,
     WTOKKW_TRUE, WTOKKW_FALSE,
-    WTOKKW_MEMORY, WTOKKW_SIZEOF,
 
     KW_NB
 } WTokKw;
@@ -82,7 +81,7 @@ typedef struct _WLexer {
 
 int lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
-WToken *lexerNext(WLexer *lexer);
+int lexerNext(WLexer *lexer, WToken *out);
 void tokenFree(WToken *token);
 
 #endif

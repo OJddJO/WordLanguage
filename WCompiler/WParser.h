@@ -8,27 +8,29 @@
 #include "WLexer.h"
 
 typedef enum _ASTNodeType {
-    WPNODE_LITERAL,
-    WPNODE_IDENTIFIER,
+    ASTNODE_NOT_INIT,
 
-    WPNODE_BLOCK,
+    ASTNODE_LITERAL,
+    ASTNODE_IDENTIFIER,
 
-    WPNODE_UNARY_OP,
-    WPNODE_BINARY_OP,
+    ASTNODE_BLOCK,
 
-    WPNODE_CLASS_DEF,
-    WPNODE_MEMBER_ACCESS,
+    ASTNODE_UNARY_OP,
+    ASTNODE_BINARY_OP,
 
-    WPNODE_FUNC_DEF,
-    WPNODE_VAR_DECL,
+    ASTNODE_CLASS_DEF,
+    ASTNODE_MEMBER_ACCESS,
 
-    WPNODE_IF,
-    WPNODE_WHILE,
-    WPNODE_CONTINUE,
-    WPNODE_BREAK,
+    ASTNODE_FUNC_DEF,
+    ASTNODE_VAR_DECL,
 
-    WPNODE_CALL,
-    WPNODE_RETURN,
+    ASTNODE_IF,
+    ASTNODE_WHILE,
+    ASTNODE_CONTINUE,
+    ASTNODE_BREAK,
+
+    ASTNODE_CALL,
+    ASTNODE_RETURN,
 } ASTNodeType;
 
 typedef struct _ASTNode ASTNode;
@@ -39,55 +41,53 @@ struct _ASTNode {
         char        *id;
 
         struct {
-            ASTNode **stmt;
+            ASTNode **stmt;     // array of ASTNode
             size_t  count;
         } block;
         struct {
             WTokOp  unary;
-            ASTNode *operand;
+            ASTNode *operand;   // single operand ASTNode
         } unaryOp;
         struct {
             WTokOp  op;
-            ASTNode *left;
-            ASTNode *right;
+            ASTNode *left;      // single operand ASTNode
+            ASTNode *right;     // single operand ASTNode
         } binaryOp;
         struct {
-            ASTNode **fields;
+            ASTNode **fields;   // array of varDecl ASTNode
             size_t  fieldsCount;
-            ASTNode **methods;
+            ASTNode **methods;  // array of funcDef ASTNode
             size_t  methodsCount;
         } classDef;
         struct {
-            ASTNode *object;
-            char    *member;
+            ASTNode *object;    // single left operand (object) ASTNode
+            ASTNode *memName;   // single right operand (member name) ASTNode
         } member;
         struct {
-            char    *retType;
-            char    *name;
-            ASTNode *params;
-            ASTNode *body;
+            ASTNode *retType;   // single identifier (type name) ASTNode
+            ASTNode *name;      // single identifier ASTNode
+            ASTNode *params;    // single block ASTNode of varDecl ASTNode
+            ASTNode *body;      // single block ASTNode
         } funcDef;
         struct {
-            char    *typeName;
-            char    *varName;
-            ASTNode *init;
+            ASTNode *typeName;  // single identifier (type name) ASTNode
+            ASTNode *varName;   // single identifier ASTNode
         } varDecl;
         struct {
-            ASTNode *condition;
-            ASTNode *thenBlock;
-            ASTNode *elseBlock;
+            ASTNode *condition; // single block ASTNode
+            ASTNode *thenBlock; // single block ASTNode
+            ASTNode *elseBlock; // NULL by default, single block ASTNode
         } ifStmt;
         struct {
-            ASTNode *condition;
-            ASTNode *block;
+            ASTNode *condition; // single block ASTNode
+            ASTNode *body;      // single block ASTNode
         } whileStmt;
         struct {
-            ASTNode *callee;
-            ASTNode **args;
+            ASTNode *args;      // single block ASTNode of identifier ASTNode
             size_t  argc;
         } call;
         struct {
-            ASTNode *value;
+            ASTNode *value;     // single identifier ASTNode
         } retStmt;
     } as;
 };

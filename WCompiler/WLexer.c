@@ -27,7 +27,6 @@ static const char *keywords[] = {
     "var", "def", "class",
     "return",
     "true", "false",
-    "memory", "sizeof",
 };
 
 static const char *punctuator = ",()[]";
@@ -223,22 +222,12 @@ static int buildToken(WLexer *lexer, WToken *out) {
     return 1;
 }
 
-WToken *lexerNext(WLexer *lexer) {
+int lexerNext(WLexer *lexer, WToken *out) {
     consumeWhitespaces(lexer);
     if (lexer->buf[lexer->cur] == '\0') return NULL;
 
-    WToken *ret = malloc(sizeof(WToken));
-    if (!ret) {
-        PRINT_ERR("Failed to allocate memory for token\n");
-        return NULL;
-    }
-
-    if (!buildToken(lexer, ret)) {
-        free(ret);
-        return NULL;
-    }
-
-    return ret;
+    if (!buildToken(lexer, out)) return 0;
+    return 1;
 }
 
 // Also free any allocated strings !
