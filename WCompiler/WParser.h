@@ -84,7 +84,6 @@ struct _ASTNode {
         } whileStmt;
         struct {
             ASTNode *args;      // single block ASTNode of identifier ASTNode
-            size_t  argc;
         } call;
         struct {
             ASTNode *value;     // single identifier ASTNode
