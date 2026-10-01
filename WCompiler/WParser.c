@@ -149,7 +149,7 @@ static int consumeClass(WParser *parser);
 static int consumeReturn(WParser *parser);
 static int consumeTrue(WParser *parser);
 static int consumeFalse(WParser *parser);
-static int consumeBlock(WParser *parser);
+static int consumeBlock(WParser *parser, WToken *token);
 
 /**
  * @brief Consume a keyword
@@ -187,7 +187,8 @@ static int consumeIf(WParser *parser) {
         goto ret;
     }
 
-    if (IS_ERR(consumeBlock(parser))) {
+    WToken tok;
+    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("if condition syntax error\n");
         status = ERR_PARSE_IF_COND;
         goto ret;
@@ -205,7 +206,7 @@ static int consumeIf(WParser *parser) {
         goto ret;
     }
 
-    if (IS_ERR(consumeBlock(parser))) {
+    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("if then syntax error\n");
         status = ERR_PARSE_IF_THEN;
         goto ret;
@@ -241,7 +242,8 @@ static int consumeElse(WParser *parser) {
         return ERR_PARSE_ELSE_THEN;
     }
 
-    if (IS_ERR(consumeBlock(parser))) {
+    WToken tok;
+    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("else syntax error\n");
         return ERR_PARSE_ELSE_THEN;
     }
@@ -266,7 +268,8 @@ static int consumeWhile(WParser *parser) {
         goto ret;
     }
 
-    if (IS_ERR(consumeBlock(parser))) {
+    WToken tok;
+    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("while syntax error\n");
         status = ERR_PARSE_WHILE_COND;
         goto ret;
@@ -284,7 +287,7 @@ static int consumeWhile(WParser *parser) {
         goto ret;
     }
 
-    if (IS_ERR(consumeBlock(parser))) {
+    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("while syntax error\n");
         status = ERR_PARSE_WHILE_THEN;
         goto ret;
@@ -369,8 +372,7 @@ ret:
 }
 
 // Parser tries to consume a block, if can't find a block NULL is returned
-static int consumeBlock(WParser *parser) {
-
+static int consumeBlock(WParser *parser, WToken *token) {
 }
 
 int parserConsume(WParser *parser) {
