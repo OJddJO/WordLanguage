@@ -19,8 +19,6 @@ typedef enum _ASTNodeType {
     ASTNODE_BINARY_OP,
 
     ASTNODE_CLASS_DEF,
-    ASTNODE_MEMBER_ACCESS,
-
     ASTNODE_FUNC_DEF,
     ASTNODE_VAR_DECL,
 
@@ -40,53 +38,49 @@ struct _ASTNode {
         WLiteral    lit;
         char        *id;
 
-        struct {
-            ASTNode **stmt;     // array of ASTNode
+        struct _ASTBlock {
+            ASTNode *stmt;      // array of ASTNode
             size_t  count;
         } block;
-        struct {
+        struct _ASTUnary {
             WTokOp  unary;
             ASTNode *operand;   // single operand ASTNode
         } unaryOp;
-        struct {
+        struct _ASTBinary {
             WTokOp  op;
             ASTNode *left;      // single operand ASTNode
             ASTNode *right;     // single operand ASTNode
         } binaryOp;
-        struct {
-            ASTNode **fields;   // array of varDecl ASTNode
+        struct _ASTClass {
+            ASTNode *fields;    // single block of varDecl ASTNode
             size_t  fieldsCount;
-            ASTNode **methods;  // array of funcDef ASTNode
+            ASTNode *methods;   // single block of funcDef ASTNode
             size_t  methodsCount;
         } classDef;
-        struct {
-            ASTNode *object;    // single left operand (object) ASTNode
-            ASTNode *memName;   // single right operand (member name) ASTNode
-        } member;
-        struct {
+        struct _ASTFunc {
             ASTNode *retType;   // single identifier (type name) ASTNode
             ASTNode *name;      // single identifier ASTNode
             ASTNode *params;    // single block ASTNode of varDecl ASTNode
             ASTNode *body;      // single block ASTNode
         } funcDef;
-        struct {
+        struct _ASTVar {
             ASTNode *typeName;  // single identifier (type name) ASTNode
             ASTNode *varName;   // single identifier ASTNode
         } varDecl;
-        struct {
+        struct _ASTIf {
             ASTNode *condition; // single block ASTNode
             ASTNode *thenBlock; // single block ASTNode
             ASTNode *elseBlock; // NULL by default, single block ASTNode
         } ifStmt;
-        struct {
+        struct _ASTWhile {
             ASTNode *condition; // single block ASTNode
             ASTNode *body;      // single block ASTNode
         } whileStmt;
-        struct {
+        struct _ASTCall {
             ASTNode *args;      // single block ASTNode of identifier ASTNode
         } call;
-        struct {
-            ASTNode *value;     // single identifier ASTNode
+        struct _ASTRet {
+            ASTNode *value;     // NULL by default, single identifier ASTNode
         } retStmt;
     } as;
 };
