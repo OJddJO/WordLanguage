@@ -24,7 +24,7 @@ static const char *operators[] = {
 static const char *keywords[] = {
     "if", "else",
     "while", "continue", "break",
-    "var", "def", "class",
+    "var", "func", "class",
     "return",
     "true", "false",
 };

@@ -24,4 +24,7 @@
 #define ERR_PARSE_VAR_TYPE      -1
 #define ERR_PARSE_VAR_ID        -2
 
+#define ERR_PARSE_DEF_RETTYPE   -1
+#define ERR_PARSE_DEF_ID        -2
+
 #endif

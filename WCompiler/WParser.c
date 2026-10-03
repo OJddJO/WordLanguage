@@ -166,7 +166,7 @@ static int consumeKeyword(WParser *parser, WToken *token) {
         case (WTOKKW_CONTINUE): return consumeContinue(parser);
         case (WTOKKW_BREAK): return consumeBreak(parser);
         case (WTOKKW_VAR): return consumeVar(parser);
-        case (WTOKKW_DEF): return consumeDef(parser);
+        case (WTOKKW_FUNC): return consumeDef(parser);
         case (WTOKKW_CLASS): return consumeClass(parser);
         case (WTOKKW_TRUE): return consumeTrue(parser);
         case (WTOKKW_FALSE): return consumeFalse(parser);
@@ -269,7 +269,7 @@ static int consumeWhile(WParser *parser) {
     }
 
     WToken tok;
-    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
+    if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("while syntax error\n");
         status = ERR_PARSE_WHILE_COND;
         goto ret;
@@ -287,7 +287,7 @@ static int consumeWhile(WParser *parser) {
         goto ret;
     }
 
-    if (lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
+    if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok))) {
         PRINT_ERR("while syntax error\n");
         status = ERR_PARSE_WHILE_THEN;
         goto ret;
@@ -337,31 +337,79 @@ static consumeVar(WParser *parser) {
     ASTNode node = {0};
     node.type = ASTNODE_VAR_DECL;
     WToken token;
-    if (lexerNext(&parser->lexer, &token) || !consumeIdentifier(parser, &token)) {
+    if (!lexerNext(&parser->lexer, &token) || IS_ERR(consumeIdentifier(parser, &token))) {
         PRINT_ERR("var syntax error\n");
         status = ERR_PARSE_VAR_TYPE;
         goto ret;
     }
-    ASTNode *typeName = calloc(sizeof(ASTNode), 1);
-    if (!typeName) {
-        PRINT_ERR("var typename alloc failed\n");
+    node.as.varDecl.typeName = calloc(sizeof(ASTNode), 1);
+    if (!node.as.varDecl.typeName) {
+        PRINT_ERR("var type alloc failed\n");
         status = ERR_INTERNAL;
         goto ret;
     }
-    if (!stackPop(&parser->nodes, typeName)) {
+    if (!stackPop(&parser->nodes, node.as.varDecl.typeName)) {
         PRINT_ERR("failed to retrieve var type\n");
         status = ERR_INTERNAL;
         goto ret;
     }
-    if (typeName->type != ASTNODE_IDENTIFIER) {
-        PRINT_ERR("expected identifier\n");
-        status = ERR_PARSE_VAR_TYPE;
+
+    if (!lexerNext(&parser->lexer, &token) || IS_ERR(consumeIdentifier(parser, &token))) {
+        PRINT_ERR("var syntax error\n");
+        status = ERR_PARSE_VAR_ID;
+        goto ret;
+    }
+    node.as.varDecl.varName = calloc(sizeof(ASTNode), 1);
+    if (!node.as.varDecl.varName) {
+        PRINT_ERR("var name alloc failed\n");
+        status = ERR_INTERNAL;
+        goto ret;
+    }
+    if (!stackPop(&parser->nodes, node.as.varDecl.varName)) {
+        PRINT_ERR("failed to retrieve var name\n");
+        status = ERR_INTERNAL;
         goto ret;
     }
 
-    ASTNode *varName = calloc(sizeof(ASTNode), 1);
-    if (!varName) {
-        PRINT_ERR("var varname alloc failed\n");
+ret:
+    if (IS_ERR(status)) ASTDestroy(&node, false);
+    return status;
+}
+
+static int consumeDef(WParser *parser) {
+    int32_t status = 1;
+
+    ASTNode node = {0};
+    node.type = ASTNODE_FUNC_DEF;
+    WToken tok;
+    if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeIdentifier(parser, &tok))) {
+        PRINT_ERR("func syntax error\n");
+        status = ERR_PARSE_DEF_RETTYPE;
+        goto ret;
+    }
+    if (!(node.as.funcDef.retType = calloc(1, sizeof(ASTNode)))) {
+        PRINT_ERR("func type alloc failed\n");
+        status = ERR_INTERNAL;
+        goto ret;
+    }
+    if (!stackPop(&parser->nodes, node.as.funcDef.retType)) {
+        PRINT_ERR("failed to retrieve func type\n");
+        status = ERR_INTERNAL;
+        goto ret;
+    }
+
+    if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeIdentifier(parser, &tok))) {
+        PRINT_ERR("func syntax error\n");
+        status = ERR_PARSE_DEF_ID;
+        goto ret;
+    }
+    if (!(node.as.funcDef.name = calloc(1, sizeof(ASTNode)))) {
+        PRINT_ERR("func name alloc failed\n");
+        status = ERR_INTERNAL;
+        goto ret;
+    }
+    if (!stackPop(&parser->nodes, node.as.funcDef.retType)) {
+        PRINT_ERR("failed to retrieve func name\n");
         status = ERR_INTERNAL;
         goto ret;
     }
