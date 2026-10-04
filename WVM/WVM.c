@@ -133,7 +133,7 @@ do_F2I: {
 #define BUILD_BINOP_STACK(label, typeid, op)\
     do_STACK_##label: {\
         WVM_Value sval;\
-        if (!StackPop(&context->stack, &sval)) {\
+        if (!stackPop(&context->stack, &sval)) {\
             PRINT_ERR("error");\
             goto end;\
         }\
@@ -226,22 +226,22 @@ do_RET: {
 }
 
 do_PUSH: {
-    StackPush(&context->stack, &context->acc);
+    stackPush(&context->stack, &context->acc);
     FETCH_DISPATCH();
 }
 
 do_PUSH_LOCAL: {
-    StackPush(&context->stack, &context->locals[arg]);
+    stackPush(&context->stack, &context->locals[arg]);
     FETCH_DISPATCH();
 }
 
 do_PUSH_GLOBL: {
-    StackPush(&context->stack, &state->globals[arg]);
+    stackPush(&context->stack, &state->globals[arg]);
     FETCH_DISPATCH();
 }
 
 do_POP: {
-    if (!StackPop(&context->stack, &context->acc)) {
+    if (!stackPop(&context->stack, &context->acc)) {
         PRINT_ERR("error");
         goto end;
     }
