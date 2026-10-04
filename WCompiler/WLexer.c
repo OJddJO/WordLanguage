@@ -199,6 +199,14 @@ static int buildToken(WLexer *lexer, WToken *out) {
                 out->as.punc = WTOKPUNC_CLOSE;
                 break;
             }
+            case '[': {
+                out->as.punc = WTOKPUNC_CALLOPEN;
+                break;
+            }
+            case ']': {
+                out->as.punc = WTOKPUNC_CALLCLOSE;
+                break;
+            }
             case ',': {
                 out->as.punc = WTOKPUNC_COMMA;
                 break;

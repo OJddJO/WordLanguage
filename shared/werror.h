@@ -24,9 +24,15 @@
 #define ERR_PARSE_VAR_TYPE      -1
 #define ERR_PARSE_VAR_ID        -2
 
-#define ERR_PARSE_DEF_TYPE      -1
-#define ERR_PARSE_DEF_ID        -2
-#define ERR_PARSE_DEF_ARGS      -3
-#define ERR_PARSE_DEF_BODY      -4
+#define ERR_PARSE_FUNC_TYPE     -1
+#define ERR_PARSE_FUNC_ID       -2
+#define ERR_PARSE_FUNC_ARGS     -3
+#define ERR_PARSE_FUNC_BODY     -4
+
+#define ERR_PARSE_CLASS_ID      -1
+#define ERR_PARSE_CLASS_FIELDS  -2
+#define ERR_PARSE_CLASS_METHODS -3
+
+#define ERR_PARSE_RETURN_VALUE  -1
 
 #endif

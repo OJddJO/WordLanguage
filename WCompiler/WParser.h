@@ -52,6 +52,7 @@ struct _ASTNode {
             ASTNode *right;     // single operand ASTNode
         } binaryOp;
         struct _ASTClass {
+            ASTNode *name;
             ASTNode *fields;    // single block of varDecl ASTNode
             size_t  fieldsCount;
             ASTNode *methods;   // single block of funcDef ASTNode
