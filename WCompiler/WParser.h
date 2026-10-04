@@ -7,7 +7,7 @@
 #include <unorderedArray.h>
 #include "WLexer.h"
 
-typedef enum _ASTNodeType {
+typedef enum _ASTNodeType : uint8_t {
     ASTNODE_NOT_INIT,
 
     ASTNODE_LITERAL,

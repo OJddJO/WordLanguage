@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef enum _WTokType {
+typedef enum _WTokType : uint8_t {
     WTOK_KEYWORD,
     WTOK_OPERATOR,
     WTOK_PUNCTUATOR,
@@ -12,7 +12,7 @@ typedef enum _WTokType {
     WTOK_LITERAL,
 } WTokType;
 
-typedef enum _WTokOp {
+typedef enum _WTokOp : uint8_t {
     WTOKOP_MEMBER_ACCESS,
     WTOKOP_POS, WTOKOP_NEG,
     WTOKOP_NOT, WTOKOP_BNOT,
@@ -28,7 +28,7 @@ typedef enum _WTokOp {
     OP_NB
 } WTokOp;
 
-typedef enum _WTokKw {
+typedef enum _WTokKw : uint8_t {
     WTOKKW_IF, WTOKKW_ELSE,
     WTOKKW_WHILE, WTOKKW_CONTINUE, WTOKKW_BREAK,
     WTOKKW_VAR, WTOKKW_FUNC, WTOKKW_CLASS,
@@ -38,14 +38,14 @@ typedef enum _WTokKw {
     KW_NB
 } WTokKw;
 
-typedef enum _WLitType {
+typedef enum _WLitType : uint8_t {
     NOT_LIT = 0,
     LIT_INT = 1,
     LIT_FLOAT,
     LIT_STR,
 } WLitType;
 
-typedef enum _WTokPunc {
+typedef enum _WTokPunc : uint8_t{
     WTOKPUNC_COMMA,
     WTOKPUNC_OPEN,
     WTOKPUNC_CLOSE,
