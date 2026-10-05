@@ -75,13 +75,16 @@ typedef struct _WToken {
 
 typedef struct _WLexer {
     char    *buf;
+    size_t  size;
     long    cur;
     size_t  line;
+    long    tokLen;
 } WLexer;
 
 int lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
 int lexerNext(WLexer *lexer, WToken *out);
+int lexerForward(WLexer *lexer);
 void tokenFree(WToken *token);
 
 #endif

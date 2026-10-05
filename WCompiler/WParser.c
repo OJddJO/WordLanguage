@@ -227,6 +227,9 @@ inline static int ASTNodeInit(ASTNodeType type, ASTNode *out) {
 }
 
 static int parserConsume(WParser *parser);
+
+#define TOK_IS_COMMA(tok) ((tok).type == WTOK_PUNCTUATOR && (tok).as.punc == WTOKPUNC_COMMA)
+
 /**
  * @brief Consume an identifier
  * @param parser The parser which should consume the identifier
@@ -236,6 +239,10 @@ static int parserConsume(WParser *parser);
  */
 static int consumeIdentifier(WParser *parser, WToken *tok, ASTNode *node) {
     if (tok->type != WTOK_IDENTIFIER) return ERR_GENERIC;
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
 
     node->type = ASTNODE_IDENTIFIER;
     node->as.id = tok->as.id;
@@ -245,11 +252,55 @@ static int consumeIdentifier(WParser *parser, WToken *tok, ASTNode *node) {
 
 static int consumeLitteral(WParser *parser, WToken *tok, ASTNode *node) {
     if (tok->type != WTOK_LITERAL) return ERR_GENERIC;
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
 
     node->type = ASTNODE_LITERAL;
     node->as.lit = tok->as.lit;
 
     return 1;
+}
+
+static int consumeTrue(WParser *parser, WToken *tok, ASTNode *node) {
+    if (tok->type != WTOK_KEYWORD && tok->as.kw != WTOKKW_TRUE) return ERR_GENERIC;
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
+    node->type = ASTNODE_LITERAL;
+    node->as.lit.i = 1;
+
+    return 1;
+}
+
+static int consumeFalse(WParser *parser, WToken *tok, ASTNode *node) {
+    if (tok->type != WTOK_KEYWORD && tok->as.kw != WTOKKW_FALSE) return ERR_GENERIC;
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
+    node->type = ASTNODE_LITERAL;
+    node->as.lit.i = 0;
+
+    return 1;
+}
+
+static int consumeValue(WParser *parser, WToken *tok, ASTNode *node) {
+    if (!IS_ERR(consumeIdentifier(parser, tok, node))) {
+        return 1;
+    }
+    if (!IS_ERR(consumeLitteral(parser, tok, node))) {
+        return 1;
+    }
+    if (!IS_ERR(consumeTrue(parser, tok, node))) {
+        return 1;
+    }
+    if (!IS_ERR(consumeFalse(parser, tok, node))) {
+        return 1;
+    }
+    return ERR_GENERIC;
 }
 
 static int consumeIf(WParser *parser, ASTNode *node);
@@ -261,8 +312,6 @@ static int consumeVar(WParser *parser, ASTNode *node);
 static int consumeFunc(WParser *parser, ASTNode *node);
 static int consumeClass(WParser *parser, ASTNode *node);
 static int consumeReturn(WParser *parser, ASTNode *node);
-static int consumeTrue(WParser *parser, ASTNode *node);
-static int consumeFalse(WParser *parser, ASTNode *node);
 static int consumeBlock(WParser *parser, WToken *token, ASTNode *node);
 
 /**
@@ -283,20 +332,24 @@ static int consumeKeyword(WParser *parser, WToken *token, ASTNode *node) {
         case (WTOKKW_VAR): return consumeVar(parser, node);
         case (WTOKKW_FUNC): return consumeFunc(parser, node);
         case (WTOKKW_CLASS): return consumeClass(parser, node);
-        case (WTOKKW_TRUE): return consumeTrue(parser, node);
-        case (WTOKKW_FALSE): return consumeFalse(parser, node);
+        case (WTOKKW_TRUE): return consumeTrue(parser, token, node);
+        case (WTOKKW_FALSE): return consumeFalse(parser, token, node);
         default: return 0;
     }
 }
 
 static int consumeIf(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
+
     if (!ASTNodeInit(ASTNODE_IF, node)) {
         PRINT_ERR("if node initialization failed\n");
         return ERR_INTERNAL;
     }
 
     int32_t status = 1;
-
     WToken tok;
     if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok, node->as.ifStmt.condition))) {
         PRINT_ERR("if condition syntax error\n");
@@ -316,6 +369,11 @@ ret:
 }
 
 static int consumeElse(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
+
     if (node->type != ASTNODE_IF) {
         PRINT_ERR("else statement should match a if statement\n");
         return ERR_PARSE_ELSE_NO_IF;
@@ -336,13 +394,16 @@ static int consumeElse(WParser *parser, ASTNode *node) {
 }
 
 static int consumeWhile(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     if (!ASTNodeInit(ASTNODE_WHILE, node)) {
         PRINT_ERR("while node initialization failed\n");
         return ERR_INTERNAL;
     }
 
     int32_t status = 1;
-
     WToken tok;
     if (!lexerNext(&parser->lexer, &tok) || IS_ERR(consumeBlock(parser, &tok, node->as.whileStmt.condition))) {
         status = ERR_PARSE_WHILE_COND;
@@ -363,16 +424,28 @@ ret:
 }
 
 static int consumeContinue(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     node->type = ASTNODE_CONTINUE;
     return 1;
 }
 
 static int consumeBreak(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     node->type = ASTNODE_BREAK;
     return 1;
 }
 
 static int consumeVar(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     if (!ASTNodeInit(ASTNODE_VAR_DECL, node)) {
         PRINT_ERR("var node init failed\n");
         return ERR_INTERNAL;
@@ -399,6 +472,10 @@ ret:
 }
 
 static int consumeFunc(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     if (!ASTNodeInit(ASTNODE_FUNC_DEF, node)) {
         PRINT_ERR("func node init failed\n");
         return ERR_INTERNAL;
@@ -434,6 +511,10 @@ ret:
 }
 
 static int consumeClass(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     if (!ASTNodeInit(ASTNODE_CLASS_DEF, node)) {
         PRINT_ERR("class node init failed\n");
         return ERR_INTERNAL;
@@ -463,6 +544,10 @@ ret:
 }
 
 static int consumeReturn(WParser *parser, ASTNode *node) {
+    if (!lexerForward(&parser->lexer)) {
+        PRINT_ERR("lexer error\n");
+        return ERR_INTERNAL;
+    }
     if (!ASTNodeInit(ASTNODE_RETURN, node)) {
         PRINT_ERR("return node init failed\n");
         return ERR_INTERNAL;
@@ -474,7 +559,7 @@ static int consumeReturn(WParser *parser, ASTNode *node) {
         status = ERR_GENERIC;
         goto ret;
     }
-    if (!(tok.type == WTOK_PUNCTUATOR && tok.as.punc == WTOKPUNC_COMMA) && IS_ERR(consumeIdentifier(parser, &tok, node))) {
+    if (!TOK_IS_COMMA(tok) && IS_ERR(consumeValue(parser, &tok, node))) {
         status = ERR_PARSE_RETURN_VALUE;
         goto ret;
     }
@@ -493,6 +578,7 @@ static int consumeBlock(WParser *parser, WToken *token, ASTNode *out) {
 }
 
 int parserConsume(WParser *parser) {
+
 }
 
 int parserBuildAST(WParser *parser) {

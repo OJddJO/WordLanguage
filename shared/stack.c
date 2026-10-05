@@ -4,8 +4,8 @@
 
 #include "stack.h"
 
-#define DEFAULT_SIZE  (1 << 5)
-#define GROWTH_FACTOR 1.5
+#define DEFAULT_SIZE    (1 << 3)
+#define GROWTH_FACTOR   1.5
 
 int stackInit(Stack *stack, size_t elemSize) {
     Stack ret = {

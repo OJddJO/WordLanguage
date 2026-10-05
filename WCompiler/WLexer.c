@@ -36,20 +36,22 @@ int lexerInit(const char *filepath, WLexer *lexer) {
     if (!file) return 0;
 
     fseek(file, 0, SEEK_END);
-    long size = ftell(file);
+    lexer->size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    lexer->buf = malloc(size + 1);
+    lexer->buf = malloc(lexer->size + 1);
     if (!lexer->buf) {
         fclose(file);
         return 0;
     }
 
-    fread(lexer->buf, 1, size, file);
-    lexer->buf[size] = '\0';
+    fread(lexer->buf, 1, lexer->size, file);
+    lexer->buf[lexer->size] = '\0';
+    fclose(file);
+
     lexer->cur = 0;
     lexer->line = 0;
-    fclose(file);
+    lexer->tokLen = 0;
     return 1;
 }
 
@@ -159,15 +161,15 @@ static WLitType isLiteral(const char *str, int64_t *iout, double *fout) {
 }
 
 static int buildToken(WLexer *lexer, WToken *out) {
-    long tokLen = getTokenLen(lexer);
-    if (!tokLen) return 0;
+    lexer->tokLen = getTokenLen(lexer);
+    if (!lexer->tokLen) return 0;
 
-    char *token = malloc(tokLen + 1);
+    char *token = malloc(lexer->tokLen + 1);
     if (!token) return 0;
 
-    memcpy(token, &lexer->buf[lexer->cur], tokLen);
-    token[tokLen] = '\0';
-    lexer->cur += tokLen;
+    memcpy(token, &lexer->buf[lexer->cur], lexer->tokLen);
+    token[lexer->tokLen] = '\0';
+    lexer->cur += lexer->tokLen;
 
 
     for (int i = 0; i < OP_NB; i++) {
@@ -235,6 +237,14 @@ int lexerNext(WLexer *lexer, WToken *out) {
     if (lexer->buf[lexer->cur] == '\0') return 0;
 
     if (!buildToken(lexer, out)) return 0;
+    return 1;
+}
+
+int lexerForward(WLexer *lexer) {
+    if (!lexer->tokLen) return 0;
+    if (lexer->cur + lexer->tokLen >= )
+    lexer->cur += lexer->tokLen;
+    lexer->tokLen = 0;
     return 1;
 }
 

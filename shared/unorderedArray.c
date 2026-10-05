@@ -4,8 +4,8 @@
 
 #include "unorderedArray.h"
 
-#define DEFAULT_SIZE (1<<3)
-#define GROWTH_FACTOR 1.5
+#define DEFAULT_SIZE    (1 << 3)
+#define GROWTH_FACTOR   1.5
 
 int uArrayInit(UArray *array, size_t elementSize) {
     UArray ret = {
