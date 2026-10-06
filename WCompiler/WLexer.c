@@ -72,7 +72,8 @@ static void consumeWhitespaces(WLexer *lexer) {
 }
 
 static bool isPunctuator(char c) {
-    return c == ',' || c == '(' || c == ')';
+    // return c == ',' || c == '(' || c == ')' || c == '[' || c == ']';
+    return strchr(punctuator, c);
 }
 
 static bool isSymbolOperator(char c) {
@@ -251,10 +252,10 @@ int lexerForward(WLexer *lexer) {
 // Also free any allocated strings !
 void tokenFree(WToken *token) {
     if (token->type == WTOK_IDENTIFIER)
-        free(token->as.id);
+        free((char *)token->as.id);
 
     if (token->type == WTOK_LITERAL && token->as.lit.type == LIT_STR)
-        free(token->as.lit.s);
+        free((char *)token->as.lit.s);
 
     free(token);
 }
