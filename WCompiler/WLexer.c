@@ -242,7 +242,7 @@ int lexerNext(WLexer *lexer, WToken *out) {
 
 int lexerForward(WLexer *lexer) {
     if (!lexer->tokLen) return 0;
-    if (lexer->cur + lexer->tokLen >= )
+    if (lexer->cur + lexer->tokLen >= lexer->size) return 0;
     lexer->cur += lexer->tokLen;
     lexer->tokLen = 0;
     return 1;
