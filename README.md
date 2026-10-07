@@ -3,7 +3,7 @@
 [![Build/Test Check](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml/badge.svg?branch=main)](https://github.com/OJddJO/WordLanguage/actions/workflows/build_test_check.yml?branch=main)
 
 > [!NOTE]
-> The developpment of the language is currently paused. 
+> The developpment of the language is currently paused.
 
 > [!IMPORTANT]
 > Word is still in development, some functionalities may not work as expected or may be missing. Please report any issues you encounter.
@@ -26,7 +26,7 @@ To install WordLanguage, just download the latest release [here](https://github.
 
 ### Usage
 
-To run a WordLanguage program, simply run the `word` executable with the path to the program file as an argument. Like this: 
+To run a WordLanguage program, simply run the `word` executable with the path to the program file as an argument. Like this:
 
 ```bash
 ./word.exe path/to/program.w

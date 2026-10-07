@@ -170,7 +170,7 @@ static int buildToken(WLexer *lexer, WToken *out) {
 
     memcpy(token, &lexer->buf[lexer->cur], lexer->tokLen);
     token[lexer->tokLen] = '\0';
-    lexer->cur += lexer->tokLen;
+    // lexer->cur += lexer->tokLen;
 
 
     for (int i = 0; i < OP_NB; i++) {

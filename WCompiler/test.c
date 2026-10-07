@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-        // lexerForward(&lex);
+        lexerForward(&lex);
     }
 
     return 0;
