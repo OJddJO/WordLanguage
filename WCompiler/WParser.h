@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <array.h>
 #include <stack.h>
 #include <unorderedArray.h>
 #include "WLexer.h"
@@ -39,7 +40,7 @@ struct _ASTNode {
         char        *id;
 
         struct _ASTBlock {
-            ASTNode *stmt;      // array of ASTNode
+            Array   *stmt;      // array of ASTNode
             size_t  count;
         } block;
         struct _ASTUnary {

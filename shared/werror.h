@@ -7,7 +7,11 @@
 #define PRINT_ERR(format, ...)  fprintf(stderr, "[ ERROR ][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
 #define PRINT_WARN(format, ...) fprintf(stderr, "[WARNING][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
 
-#define IS_ERR(X) (X <= 0)
+#define THROW_ERR(code, label, format, ...) {status = code; PRINT_ERR(format, ##__VA_ARGS__); goto label;}
+
+typedef int32_t Wstatus;
+
+#define IS_ERR(X) ((X) <= 0)
 
 #define ERR_GENERIC             0
 #define ERR_INTERNAL            INT32_MIN

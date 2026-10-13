@@ -81,10 +81,11 @@ typedef struct _WLexer {
     long    tokLen;
 } WLexer;
 
-int lexerInit(const char *filepath, WLexer *lexer);
+bool lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
-int lexerNext(WLexer *lexer, WToken *out);
-int lexerForward(WLexer *lexer);
+bool lexerToken(WLexer *lexer, WToken *out);
+bool lexerForward(WLexer *lexer);
+bool lexerHasNext(WLexer *lexer);
 void tokenFree(WToken *token);
 
 #endif

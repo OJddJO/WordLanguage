@@ -31,7 +31,7 @@ static const char *keywords[] = {
 
 static const char *punctuator = ",()[]";
 
-int lexerInit(const char *filepath, WLexer *lexer) {
+bool lexerInit(const char *filepath, WLexer *lexer) {
     FILE *file = fopen(filepath, "rb");
     if (!file) return 0;
 
@@ -161,7 +161,7 @@ static WLitType isLiteral(const char *str, int64_t *iout, double *fout) {
     return NOT_LIT;
 }
 
-static int buildToken(WLexer *lexer, WToken *out) {
+static bool buildToken(WLexer *lexer, WToken *out) {
     lexer->tokLen = getTokenLen(lexer);
     if (!lexer->tokLen) return 0;
 
@@ -233,7 +233,7 @@ static int buildToken(WLexer *lexer, WToken *out) {
     return 1;
 }
 
-int lexerNext(WLexer *lexer, WToken *out) {
+bool lexerToken(WLexer *lexer, WToken *out) {
     consumeWhitespaces(lexer);
     if (lexer->buf[lexer->cur] == '\0') return 0;
 
@@ -241,12 +241,16 @@ int lexerNext(WLexer *lexer, WToken *out) {
     return 1;
 }
 
-int lexerForward(WLexer *lexer) {
+bool lexerForward(WLexer *lexer) {
     if (!lexer->tokLen) return 0;
     if (lexer->cur + lexer->tokLen >= lexer->size) return 0;
     lexer->cur += lexer->tokLen;
     lexer->tokLen = 0;
     return 1;
+}
+
+bool lexerHasNext(WLexer *lexer) {
+    return lexer->cur != lexer->size;
 }
 
 // Also free any allocated strings !
