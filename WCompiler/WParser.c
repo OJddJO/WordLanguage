@@ -573,6 +573,15 @@ ret:
     return status;
 }
 
+static bool opIsUnary(WTokOp op) {
+    return (
+        op == WTOKOP_POS
+        || op == WTOKOP_NEG
+        || op == WTOKOP_NOT
+        || op == WTOKOP_BNOT
+    );
+}
+
 static Wstatus consumeStatement(WParser *parser) {
     Wstatus status = 1;
 
@@ -590,7 +599,10 @@ static Wstatus consumeStatement(WParser *parser) {
         if (!lexerToken(&parser->lexer, &token)) {
             return ERR_GENERIC;
         }
-        if (TOK_IS_COMMA(token)) break;
+        if (TOK_IS_COMMA(token)) {
+            // resolve operations
+            goto ret;
+        }
 
         switch (token.type) {
             case (WTOK_KEYWORD): {
@@ -605,6 +617,11 @@ static Wstatus consumeStatement(WParser *parser) {
                 ASTNode *buf = stackBump(&operators);
                 if (!buf) {
                     THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+                }
+                if (opIsUnary(token.as.op)) {
+
+                } else {
+
                 }
                 break;
             }
