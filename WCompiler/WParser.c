@@ -599,49 +599,72 @@ static Wstatus consumeStatement(WParser *parser) {
         if (!lexerToken(&parser->lexer, &token)) {
             return ERR_GENERIC;
         }
-        if (TOK_IS_COMMA(token)) {
-            // resolve operations
+        if (token.type == WTOK_PUNCTUATOR
+            && ( token.as.punc == WTOKPUNC_COMMA
+            || token.as.punc == WTOKPUNC_CLOSE
+            || token.as.punc == WTOKPUNC_CALLCLOSE
+        )) {
+            if (token.as.punc == WTOKPUNC_COMMA) {
+                if (!lexerForward(&parser->lexer)) {
+                    THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
+                }
+            }
             goto ret;
         }
 
-        switch (token.type) {
-            case (WTOK_KEYWORD): {
-                ASTNode *buf = stackBump(&operands);
-                if (!buf) {
-                    THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+        if (token.type == WTOK_OPERATOR) {
+            ASTNode *buf = stackBump(&operators);
+            if (!buf) {
+                THROW_ERR(ERR_INTERNAL, ret, "failed to bump operator stack\n");
+            }
+            if (opIsUnary(token.as.op)) {
+                buf->type = ASTNODE_UNARY_OP;
+                buf->as.unaryOp.unary = token.as.op;
+            } else {
+                buf->type = ASTNODE_BINARY_OP;
+                buf->as.binaryOp.op = token.as.op;
+            }
+            break;
+        } else {
+            ASTNode *buf = stackBump(&operands);
+            if (!buf) {
+                THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+            }
+            switch (token.type) {
+                case (WTOK_KEYWORD): {
+                    status = consumeKeyword(parser, &token, buf);
+                    break;
                 }
-                status = consumeKeyword(parser, &token, buf);
-                break;
-            }
-            case (WTOK_OPERATOR): {
-                ASTNode *buf = stackBump(&operators);
-                if (!buf) {
-                    THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+                case (WTOK_PUNCTUATOR): {
+                    break;
                 }
-                if (opIsUnary(token.as.op)) {
-
-                } else {
-
+                case (WTOK_IDENTIFIER): {
+                    buf->type = ASTNODE_IDENTIFIER;
+                    buf->as.id = token.as.id;
+                    break;
                 }
-                break;
-            }
-            case (WTOK_PUNCTUATOR): {
-                ASTNode *buf = stackBump(&operands);
-                if (!buf) {
-                    THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+                case (WTOK_LITERAL): {
+                    buf->type = ASTNODE_LITERAL;
+                    switch (buf->as.lit.type) {
+                        case (LIT_INT): {
+                            buf->as.lit.i = token.as.lit.i;
+                            break;
+                        }
+                        case (LIT_FLOAT): {
+                            buf->as.lit.f = token.as.lit.f;
+                            break;
+                        }
+                        case (LIT_STR): {
+                            buf->as.lit.s = token.as.lit.s;
+                            break;
+                        }
+                    }
+                    break;
                 }
-
-                break;
-            }
-            case (WTOK_IDENTIFIER): {
-                break;
-            }
-            case (WTOK_LITERAL): {
-                break;
-            }
-            default: {
-                THROW_ERR(ERR_INTERNAL, ret, "unidentified token\n");
-                break;
+                default: {
+                    THROW_ERR(ERR_INTERNAL, ret, "unidentified token\n");
+                    break;
+                }
             }
         }
         if (IS_ERR(status)) goto ret;

@@ -45,7 +45,7 @@ typedef enum _WLitType : uint8_t {
     LIT_STR,
 } WLitType;
 
-typedef enum _WTokPunc : uint8_t{
+typedef enum _WTokPunc : uint8_t {
     WTOKPUNC_COMMA,
     WTOKPUNC_OPEN,
     WTOKPUNC_CLOSE,

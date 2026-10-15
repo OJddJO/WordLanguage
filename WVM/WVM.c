@@ -23,8 +23,8 @@ int WVM_run(WVM_State *state, WVM_Context *context) {
             uint8_t byte2;
         };
     } packet;
-    register WVM_Opcode opcode = 0;
-    register int64_t arg = 0;
+    register WVM_Opcode opcode  = 0;
+    register int64_t    arg     = 0;
 
     #define FETCH() do {\
         packet.whole = fetch_u16_le((const uint8_t **)&context->ip);\
@@ -99,8 +99,6 @@ do_LOAD_IZERO: BUILD_LOAD_ZERO_ONE(WVM_TYPE_INT, i, 0);
 do_LOAD_IONE: BUILD_LOAD_ZERO_ONE(WVM_TYPE_INT, i, 1);
 do_LOAD_FZERO: BUILD_LOAD_ZERO_ONE(WVM_TYPE_FLOAT, f, 0);
 do_LOAD_FONE: BUILD_LOAD_ZERO_ONE(WVM_TYPE_FLOAT, f, 1);
-do_LOAD_BZERO: BUILD_LOAD_ZERO_ONE(WVM_TYPE_BOOL, b, 0);
-do_LOAD_BONE: BUILD_LOAD_ZERO_ONE(WVM_TYPE_BOOL, b, 1);
 do_LOAD_NULL: {
     context->acc.as.ptr = NULL;
     FETCH_DISPATCH();
@@ -187,8 +185,8 @@ BUILD_BINOP_FAMILY(FGE, f, >=)
 BUILD_BINOP_FAMILY(FNEQ, f, !=)
 
 do_NOT: {
-    context->acc.as.b = !context->acc.as.i;
-    context->acc.type = WVM_TYPE_BOOL;
+    context->acc.as.i = !context->acc.as.i;
+    context->acc.type = WVM_TYPE_INT;
     FETCH_DISPATCH();
 }
 
