@@ -4,10 +4,16 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define PRINT_ERR(format, ...)  fprintf(stderr, "[ ERROR ][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
-#define PRINT_WARN(format, ...) fprintf(stderr, "[WARNING][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
+#ifdef DEBUG
+    #define PRINT_ERR(format, ...)  fprintf(stderr, "[ ERROR ][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
+    #define PRINT_WARN(format, ...) fprintf(stderr, "[WARNING][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
 
-#define THROW_ERR(code, label, format, ...) {status = code; PRINT_ERR(format, ##__VA_ARGS__); goto label;}
+    #define THROW_ERR(code, label, format, ...) {status = code; PRINT_ERR(format, ##__VA_ARGS__); goto label;}
+#else
+    #define PRINT_ERR(format, ...)
+    #define PRINT_WARN(format, ...)
+    #define THROW_ERR(code, label, format, ...) {status = code; goto label;}
+#endif
 
 typedef int32_t Wstatus;
 
