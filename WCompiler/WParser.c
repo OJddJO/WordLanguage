@@ -636,6 +636,9 @@ static Wstatus consumeStatement(WParser *parser) {
                     break;
                 }
                 case (WTOK_PUNCTUATOR): {
+                    if (IS_ERR(consumeBlock(parser, &token, buf))) {
+                        THROW_ERR(ERR_GENERIC, ret, "unexpected punc token\n");
+                    }
                     break;
                 }
                 case (WTOK_IDENTIFIER): {
@@ -668,6 +671,9 @@ static Wstatus consumeStatement(WParser *parser) {
             }
         }
         if (IS_ERR(status)) goto ret;
+        if (!lexerForward(&parser->lexer)) {
+            THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
+        }
     }
 
 ret:
@@ -678,7 +684,6 @@ ret:
     return status;
 }
 
-// Parser tries to consume a block, if can't find a block NULL is returned
 static Wstatus consumeBlock(WParser *parser, WToken *token, ASTNode *out) {
 
 }
