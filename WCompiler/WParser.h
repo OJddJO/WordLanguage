@@ -34,7 +34,6 @@ typedef enum _ASTNodeType : uint8_t {
 
 typedef struct _ASTNode ASTNode;
 struct _ASTNode {
-    ASTNodeType type;
     union {
         WLiteral    lit;
         char        *id;
@@ -84,6 +83,7 @@ struct _ASTNode {
             ASTNode *value;     // NULL by default, single identifier ASTNode
         } retStmt;
     } as;
+    ASTNodeType type;
 };
 
 typedef struct _WParser {

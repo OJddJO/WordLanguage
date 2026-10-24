@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <werror.h>
 #include "WParser.h"
 #include "WLexer.h"
@@ -237,45 +238,59 @@ static Wstatus parserConsume(WParser *parser);
  * @return 1 if success, non-positive else
  */
 static Wstatus consumeIdentifier(WParser *parser, ASTNode *node) {
-    WToken tok;
+    WToken *tok;
     if (lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }
-    if (tok.type != WTOK_IDENTIFIER) return ERR_GENERIC;
+    if (tok->type != WTOK_IDENTIFIER) return ERR_GENERIC;
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
         return ERR_INTERNAL;
     }
 
     node->type = ASTNODE_IDENTIFIER;
-    node->as.id = tok.as.id;
+    node->as.id = malloc(parser->lexer.tokLen + 1);
+    if (!node->as.id) {
+        PRINT_ERR("failed to alloc buffer for id\n");
+        return ERR_INTERNAL;
+    }
+    strcpy(node->as.id, tok->type);
 
     return 1;
 }
 
 static Wstatus consumeLitteral(WParser *parser, ASTNode *node) {
-    WToken tok;
+    WToken *tok;
     if (lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }
-    if (tok.type != WTOK_LITERAL) return ERR_GENERIC;
+    if (tok->type != WTOK_LITERAL) return ERR_GENERIC;
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
         return ERR_INTERNAL;
     }
 
     node->type = ASTNODE_LITERAL;
-    node->as.lit = tok.as.lit;
+    if (tok->as.lit.type == LIT_STR) {
+        node->as.lit.type = LIT_STR;
+        node->as.lit.s = malloc(parser->lexer.tokLen - 1); // removing the quotes
+        if (!node->as.lit.s) {
+            PRINT_ERR("failed to alloc buffer for string\n");
+            return ERR_INTERNAL;
+        }
+        strncpy(node->as.lit.s, tok->as.lit.s, parser->lexer.tokLen - 2); // removing the quotes
+
+    } else node->as.lit = tok->as.lit;
 
     return 1;
 }
 
 static Wstatus consumeTrue(WParser *parser, ASTNode *node) {
-    WToken tok;
+    WToken *tok;
     if (lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }
-    if (tok.type != WTOK_KEYWORD && tok.as.kw != WTOKKW_TRUE) return ERR_GENERIC;
+    if (tok->type != WTOK_KEYWORD && tok->as.kw != WTOKKW_TRUE) return ERR_GENERIC;
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
         return ERR_INTERNAL;
@@ -287,11 +302,11 @@ static Wstatus consumeTrue(WParser *parser, ASTNode *node) {
 }
 
 static Wstatus consumeFalse(WParser *parser, ASTNode *node) {
-    WToken tok;
+    WToken *tok;
     if (lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }
-    if (tok.type != WTOK_KEYWORD && tok.as.kw != WTOKKW_FALSE) return ERR_GENERIC;
+    if (tok->type != WTOK_KEYWORD && tok->as.kw != WTOKKW_FALSE) return ERR_GENERIC;
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
         return ERR_INTERNAL;
@@ -347,8 +362,8 @@ static inline Wstatus consumeIf(WParser *parser, ASTNode *node) {
         THROW_ERR(ERR_PARSE_IF_THEN, ret, "if then parser error\n");
     }
 
-    WToken tok;
-    if (lexerToken(&parser->lexer, &tok) && tok.type == WTOK_KEYWORD && tok.as.kw == WTOKKW_ELSE) {
+    WToken *tok;
+    if (lexerToken(&parser->lexer, &tok) && tok->type == WTOK_KEYWORD && tok->as.kw == WTOKKW_ELSE) {
         if (!lexerForward(&parser->lexer)) {
             THROW_ERR(ERR_INTERNAL, ret, "lexer error\n");
         }
@@ -471,19 +486,14 @@ static inline Wstatus consumeReturn(WParser *parser, ASTNode *node) {
     Wstatus status = 1;
     WToken tok;
     if (!lexerToken(&parser->lexer, &tok)) {
-        status = ERR_GENERIC;
-        goto ret;
+        THROW_ERR(ERR_GENERIC, ret, "failed to get token after return\n");
     }
     if (!TOK_IS_COMMA(tok) && IS_ERR(consumeValue(parser, node))) {
-        status = ERR_PARSE_RETURN_VALUE;
-        goto ret;
+        THROW_ERR(ERR_PARSE_RETURN_VALUE, ret, "return value parser error\n");
     }
 
 ret:
-    if (IS_ERR(status)) {
-        PRINT_ERR("return parser error\n");
-        ASTDestroy(node, false);
-    }
+    if (IS_ERR(status)) ASTDestroy(node, false);
     return status;
 }
 
@@ -577,8 +587,9 @@ static Wstatus consumeStatement(WParser *parser) {
             }
             switch (token.type) {
                 case (WTOK_KEYWORD): {
-                    status = consumeKeyword(parser, buf);
-                    break;
+                    if (IS_ERR(consumeKeyword(parser, buf))) {
+                        THROW_ERR(ERR_GENERIC, ret, "failed to parse keyword\n");
+                    }
                 }
                 case (WTOK_PUNCTUATOR): {
                     if (IS_ERR(consumeBlock(parser, buf))) {
@@ -587,29 +598,11 @@ static Wstatus consumeStatement(WParser *parser) {
                     break;
                 }
                 case (WTOK_IDENTIFIER): {
-                    buf->type = ASTNODE_IDENTIFIER;
-                    buf->as.id = token.as.id;
+                    consumeIdentifier(parser, buf);
                     break;
                 }
                 case (WTOK_LITERAL): {
-                    buf->type = ASTNODE_LITERAL;
-                    switch (buf->as.lit.type) {
-                        case (LIT_INT): {
-                            buf->as.lit.i = token.as.lit.i;
-                            break;
-                        }
-                        case (LIT_FLOAT): {
-                            buf->as.lit.f = token.as.lit.f;
-                            break;
-                        }
-                        case (LIT_STR): {
-                            buf->as.lit.s = token.as.lit.s;
-                            break;
-                        }
-                    }
-                    if (!lexerForward(&parser->lexer)) {
-                        THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
-                    }
+                    consumeLitteral(parser, buf);
                     break;
                 }
                 default: {
@@ -618,7 +611,6 @@ static Wstatus consumeStatement(WParser *parser) {
                 }
             }
         }
-        if (IS_ERR(status)) goto ret;
         if (token.type != WTOK_PUNCTUATOR
             && !lexerForward(&parser->lexer)
         ) {
@@ -635,14 +627,14 @@ ret:
 }
 
 static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
-    WToken tok;
+    WToken *tok;
     if (!lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }
     Wstatus status = 1;
-    if (tok.type != WTOK_PUNCTUATOR) return ERR_GENERIC;
+    if (tok->type != WTOK_PUNCTUATOR) return ERR_GENERIC;
 
-    WTokPunc closing = tok.as.punc + 1;
+    WTokPunc closing = tok->as.punc + 1;
     if (ASTNodeInit(ASTNODE_BLOCK, out)) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init block\n");
     }

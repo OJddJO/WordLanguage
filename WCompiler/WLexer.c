@@ -52,14 +52,21 @@ bool lexerInit(const char *filepath, WLexer *lexer) {
     lexer->cur = 0;
     lexer->line = 0;
     lexer->tokLen = 0;
+    lexer->tokStr = malloc(100);
+    lexer->tokStrSize = 100;
+    lexer->token = (WToken){0};
     return 1;
 }
 
 void lexerDestroy(WLexer *lexer) {
     if (lexer->buf) free(lexer->buf);
+    if (lexer->tokStr) free(lexer->tokStr);
     lexer->buf = NULL;
     lexer->cur = 0;
     lexer->line = 0;
+    lexer->tokLen = 0;
+    lexer->tokStr = NULL;
+    lexer->tokStrSize = 0;
 }
 
 static void consumeWhitespaces(WLexer *lexer) {
@@ -79,8 +86,8 @@ static bool isSymbolOperator(char c) {
     return c == '.' || c == '+' || c == '-';
 }
 
-static long getNumberLen(const char *src) {
-    long len = 0;
+static size_t getNumberLen(const char *src) {
+    size_t len = 0;
 
     if (*src == '0' && src[1] != '\0') {
         if (src[1] == 'x' || src[1] == 'o' || src[1] == 'b') {
@@ -96,8 +103,8 @@ static long getNumberLen(const char *src) {
     }
 
     if (src[len] == 'e' || src[len] == 'E') {
-        long expStart = len;
-        long expLen = 1;
+        size_t expStart = len;
+        size_t expLen = 1;
 
         if (src[expStart + expLen] == '+' || src[expStart + expLen] == '-') {
             expLen++;
@@ -111,9 +118,9 @@ static long getNumberLen(const char *src) {
     return len;
 }
 
-static long getStringLen(const char *src) {
+static size_t getStringLen(const char *src) {
     char quote = *src;
-    long len = 1;
+    size_t len = 1;
     while (src[len] != '\0' && src[len] != quote) {
         if (src[len] == '\\' && src[len + 1] != '\0') len++;
         len++;
@@ -122,7 +129,7 @@ static long getStringLen(const char *src) {
     return len;
 }
 
-static long getTokenLen(WLexer *lexer) {
+static size_t getTokenLen(WLexer *lexer) {
     const char *src = &lexer->buf[lexer->cur];
     if (*src == '\0') return 0;
 
@@ -132,7 +139,7 @@ static long getTokenLen(WLexer *lexer) {
 
     if (isdigit(*src)) return getNumberLen(src);
 
-    long len = 0;
+    size_t len = 0;
     while (src[len] != '\0' && !isspace(src[len]) && !isPunctuator(src[len])
             && !isSymbolOperator(src[len])) {
         len++;
@@ -164,17 +171,19 @@ static bool buildToken(WLexer *lexer, WToken *out) {
     lexer->tokLen = getTokenLen(lexer);
     if (!lexer->tokLen) return 0;
 
-    char *token = malloc(lexer->tokLen + 1);
-    if (!token) return 0;
+    if (lexer->tokLen + 1 > lexer->tokStrSize) {
+        char *new = realloc(lexer->tokStr, lexer->tokLen + 1);
+        if (!new) return 0;
+        lexer->tokStr = new;
+    }
 
-    memcpy(token, &lexer->buf[lexer->cur], lexer->tokLen);
-    token[lexer->tokLen] = '\0';
+    memcpy(lexer->tokStr, &lexer->buf[lexer->cur], lexer->tokLen);
+    lexer->tokStr[lexer->tokLen] = '\0';
     // lexer->cur += lexer->tokLen;
 
 
     for (int i = 0; i < OP_NB; i++) {
-        if (strcmp(token, operators[i]) == 0) {
-            free(token);
+        if (strcmp(lexer->tokStr, operators[i]) == 0) {
             out->type = WTOK_OPERATOR;
             out->as.op = i;
             return 1;
@@ -182,17 +191,16 @@ static bool buildToken(WLexer *lexer, WToken *out) {
     }
 
     for (int i = 0; i < KW_NB; i++) {
-        if (strcmp(token, keywords[i]) == 0) {
-            free(token);
+        if (strcmp(lexer->tokStr, keywords[i]) == 0) {
             out->type = WTOK_KEYWORD;
             out->as.kw = i;
             return 1;
         }
     }
 
-    if (isPunctuator(*token)) {
+    if (isPunctuator(*lexer->tokStr)) {
         out->type = WTOK_PUNCTUATOR;
-        switch (*token) {
+        switch (*lexer->tokStr) {
             case '(': {
                 out->as.punc = WTOKPUNC_OPEN;
                 break;
@@ -214,29 +222,28 @@ static bool buildToken(WLexer *lexer, WToken *out) {
                 break;
             }
         }
-        free(token);
         return 1;
     }
 
-    WLitType litType = isLiteral(token, &out->as.lit.i, &out->as.lit.f);
+    WLitType litType = isLiteral(lexer->tokStr, &out->as.lit.i, &out->as.lit.f);
     if (litType) {
-        if (litType != LIT_STR) free(token);
-        else out->as.lit.s = token;
         out->type = WTOK_LITERAL;
         out->as.lit.type = litType;
+        if (litType == LIT_STR) out->as.lit.s = lexer->tokStr;
         return 1;
     }
 
     out->type = WTOK_IDENTIFIER;
-    out->as.id = token;
+    out->as.id = lexer->tokStr;
     return 1;
 }
 
-bool lexerToken(WLexer *lexer, WToken *out) {
-    if (!lexerHasNext(lexer)) {
-        return 0;
+//readonly
+bool lexerToken(WLexer *lexer, WToken **out) {
+    if (lexer->tokLen) {
+        *out = &lexer->token;
+        return 1;
     }
-
     if (!buildToken(lexer, out)) return 0;
     return 1;
 }
@@ -254,6 +261,7 @@ bool lexerHasNext(WLexer *lexer) {
     return lexer->cur != lexer->size;
 }
 
+// DO NOT USE ON RESULT OF `lexerToken`
 void tokenDestroy(WToken *token) {
     if (token->type == WTOK_IDENTIFIER)
         free((char *)token->as.id);

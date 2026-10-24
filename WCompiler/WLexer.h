@@ -54,16 +54,15 @@ typedef enum _WTokPunc : uint8_t {
 } WTokPunc;
 
 typedef struct _WLit {
-    WLitType    type;
     union {
         const char  *s;
         int64_t     i;
         double      f;
     };
+    WLitType    type;
 } WLiteral;
 
 typedef struct _WToken {
-    WTokType    type;
     union {
         const char  *id;
         WTokOp      op;
@@ -71,19 +70,25 @@ typedef struct _WToken {
         WTokPunc    punc;
         WLiteral    lit;
     } as;
+    WTokType    type;
 } WToken;
 
 typedef struct _WLexer {
-    char    *buf;
-    size_t  size;
-    long    cur;
-    size_t  line;
-    long    tokLen;
+    char    *buf;   // Whole code
+    size_t  size;   // .buf size
+
+    int64_t cur;    // cursor on the buffer
+    size_t  line;   // current line in the code
+
+    size_t  tokLen; // cached tokLen
+    char    *tokStr;// string of current token
+    size_t  tokStrSize; // tokStr buffer size (NOT STRING LENGTH)
+    WToken  token;  // current token
 } WLexer;
 
 bool lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
-bool lexerToken(WLexer *lexer, WToken *out);
+bool lexerToken(WLexer *lexer, WToken **out);
 bool lexerForward(WLexer *lexer);
 bool lexerHasNext(WLexer *lexer);
 void tokenDestroy(WToken *token);
