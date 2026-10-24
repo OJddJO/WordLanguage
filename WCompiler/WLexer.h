@@ -86,6 +86,6 @@ void lexerDestroy(WLexer *lexer);
 bool lexerToken(WLexer *lexer, WToken *out);
 bool lexerForward(WLexer *lexer);
 bool lexerHasNext(WLexer *lexer);
-void tokenFree(WToken *token);
+void tokenDestroy(WToken *token);
 
 #endif

@@ -40,8 +40,7 @@ struct _ASTNode {
         char        *id;
 
         struct _ASTBlock {
-            Array   *stmt;      // array of ASTNode
-            size_t  count;
+            Array   *stmts;      // array of ASTNode
         } block;
         struct _ASTUnary {
             WTokOp  unary;

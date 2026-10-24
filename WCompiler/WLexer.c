@@ -72,7 +72,6 @@ static void consumeWhitespaces(WLexer *lexer) {
 }
 
 static bool isPunctuator(char c) {
-    // return c == ',' || c == '(' || c == ')' || c == '[' || c == ']';
     return strchr(punctuator, c);
 }
 
@@ -234,8 +233,9 @@ static bool buildToken(WLexer *lexer, WToken *out) {
 }
 
 bool lexerToken(WLexer *lexer, WToken *out) {
-    consumeWhitespaces(lexer);
-    if (lexer->buf[lexer->cur] == '\0') return 0;
+    if (!lexerHasNext(lexer)) {
+        return 0;
+    }
 
     if (!buildToken(lexer, out)) return 0;
     return 1;
@@ -250,16 +250,14 @@ bool lexerForward(WLexer *lexer) {
 }
 
 bool lexerHasNext(WLexer *lexer) {
+    consumeWhitespaces(lexer);
     return lexer->cur != lexer->size;
 }
 
-// Also free any allocated strings !
-void tokenFree(WToken *token) {
+void tokenDestroy(WToken *token) {
     if (token->type == WTOK_IDENTIFIER)
         free((char *)token->as.id);
 
     if (token->type == WTOK_LITERAL && token->as.lit.type == LIT_STR)
         free((char *)token->as.lit.s);
-
-    free(token);
 }

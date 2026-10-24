@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
     printf("%s", lex.buf);
 
     WToken tok;
-    while (lexerNext(&lex, &tok)) {
+    while (lexerHasNext(&lex)) {
+        lexerToken(&lex, &tok);
         switch (tok.type) {
             case (WTOK_IDENTIFIER): {
                 printf("{ID, %s} | ", tok.as.id);
