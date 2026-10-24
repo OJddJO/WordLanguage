@@ -627,7 +627,7 @@ ret:
 }
 
 static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
-    WToken *tok;
+    WToken tok;
     if (!lexerToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
     }

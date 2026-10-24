@@ -20,20 +20,6 @@ int stackInit(Stack *stack, size_t elemSize) {
     return 1;
 }
 
-int stackPush(Stack *stack, void *value) {
-    if (stack->size == stack->count) {
-        size_t targetSize = stack->size * GROWTH_FACTOR;
-        void *new = realloc(stack->buf, stack->elemSize * targetSize);
-        if (!new) return 0;
-
-        stack->buf = new;
-        stack->size = targetSize;
-    }
-
-    memcpy(stack->buf + stack->count++ * stack->elemSize, value, stack->elemSize);
-    return 1;
-}
-
 void *stackBump(Stack *stack) {
     if (stack->size == stack->count) {
         size_t targetSize = stack->size * GROWTH_FACTOR;
@@ -45,6 +31,14 @@ void *stackBump(Stack *stack) {
     }
 
     return stack->buf + stack->count++ * stack->elemSize;
+}
+
+int stackPush(Stack *stack, void *value) {
+    void *buf = stackBump(stack);
+    if (!buf) return 0;
+
+    memcpy(stack->buf + stack->count++ * stack->elemSize, value, stack->elemSize);
+    return 1;
 }
 
 int stackPop(Stack *stack, void *ret) {

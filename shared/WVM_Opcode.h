@@ -18,8 +18,6 @@
     X(LOAD_IONE)\
     X(LOAD_FZERO)\
     X(LOAD_FONE)\
-    X(LOAD_BZERO)\
-    X(LOAD_BONE)\
     X(LOAD_NULL)\
     X(I2F)\
     X(F2I)\
