@@ -26,7 +26,6 @@ static const char *keywords[] = {
     "while", "continue", "break",
     "var", "func", "class",
     "return",
-    "true", "false",
 };
 
 static const char *punctuator = ",()[]";
@@ -239,12 +238,12 @@ static bool buildToken(WLexer *lexer, WToken *out) {
 }
 
 //readonly
-bool lexerToken(WLexer *lexer, WToken **out) {
-    if (lexer->tokLen) {
-        *out = &lexer->token;
-        return 1;
+bool lexerPeekToken(WLexer *lexer, WToken **out) {
+    if (!lexer->tokLen) { // if the current cached token is wrong, rebuild
+        if (!buildToken(lexer, &lexer->token))
+            return 0;
     }
-    if (!buildToken(lexer, out)) return 0;
+    *out = &lexer->token;
     return 1;
 }
 
@@ -256,12 +255,12 @@ bool lexerForward(WLexer *lexer) {
     return 1;
 }
 
-bool lexerHasNext(WLexer *lexer) {
+bool lexerHasToken(WLexer *lexer) {
     consumeWhitespaces(lexer);
     return lexer->cur != lexer->size;
 }
 
-// DO NOT USE ON RESULT OF `lexerToken`
+// DO NOT USE ON RESULT OF `lexerPeekToken`
 void tokenDestroy(WToken *token) {
     if (token->type == WTOK_IDENTIFIER)
         free((char *)token->as.id);

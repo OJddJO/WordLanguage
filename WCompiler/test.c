@@ -39,38 +39,38 @@ int main(int argc, char *argv[]) {
     }
     printf("%s", lex.buf);
 
-    WToken tok;
-    while (lexerHasNext(&lex)) {
-        lexerToken(&lex, &tok);
-        switch (tok.type) {
+    WToken *tok;
+    while (lexerHasToken(&lex)) {
+        lexerPeekToken(&lex, &tok);
+        switch (tok->type) {
             case (WTOK_IDENTIFIER): {
-                printf("{ID, %s} | ", tok.as.id);
+                printf("{ID, %s} | ", tok->as.id);
                 break;
             }
             case (WTOK_KEYWORD): {
-                printf("{KEY, %s} | ", keywords[tok.as.kw]);
+                printf("{KEY, %s} | ", keywords[tok->as.kw]);
                 break;
             }
             case (WTOK_PUNCTUATOR): {
-                printf("{PUNC, '%c'} | ", punctuator[tok.as.punc]);
+                printf("{PUNC, '%c'} | ", punctuator[tok->as.punc]);
                 break;
             }
             case (WTOK_OPERATOR): {
-                printf("{OP, %s} | ", operators[tok.as.op]);
+                printf("{OP, %s} | ", operators[tok->as.op]);
                 break;
             }
             case (WTOK_LITERAL): {
-                switch (tok.as.lit.type) {
+                switch (tok->as.lit.type) {
                     case (LIT_FLOAT): {
-                        printf("{LIT, %lf} | ", tok.as.lit.f);
+                        printf("{LIT, %lf} | ", tok->as.lit.f);
                         break;
                     }
                     case (LIT_INT): {
-                        printf("{LIT, %zd} | ", tok.as.lit.i);
+                        printf("{LIT, %zd} | ", tok->as.lit.i);
                         break;
                     }
                     case (LIT_STR): {
-                        printf("{LIT, \"%s\"} | ", tok.as.lit.s);
+                        printf("{LIT, \"%s\"} | ", tok->as.lit.s);
                         break;
                     }
                     default:

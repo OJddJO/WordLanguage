@@ -33,7 +33,6 @@ typedef enum _WTokKw : uint8_t {
     WTOKKW_WHILE, WTOKKW_CONTINUE, WTOKKW_BREAK,
     WTOKKW_VAR, WTOKKW_FUNC, WTOKKW_CLASS,
     WTOKKW_RETURN,
-    WTOKKW_TRUE, WTOKKW_FALSE,
 
     KW_NB
 } WTokKw;
@@ -74,23 +73,23 @@ typedef struct _WToken {
 } WToken;
 
 typedef struct _WLexer {
-    char    *buf;   // Whole code
-    size_t  size;   // .buf size
+    char    *buf;       // Whole code
+    size_t  size;       // .buf size
 
-    int64_t cur;    // cursor on the buffer
-    size_t  line;   // current line in the code
+    int64_t cur;        // cursor on the buffer
+    size_t  line;       // current line in the code
 
-    size_t  tokLen; // cached tokLen
-    char    *tokStr;// string of current token
+    size_t  tokLen;     // cached tokLen
+    char    *tokStr;    // string of current token
     size_t  tokStrSize; // tokStr buffer size (NOT STRING LENGTH)
-    WToken  token;  // current token
+    WToken  token;      // current token
 } WLexer;
 
 bool lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
-bool lexerToken(WLexer *lexer, WToken **out);
+bool lexerPeekToken(WLexer *lexer, WToken **out);
 bool lexerForward(WLexer *lexer);
-bool lexerHasNext(WLexer *lexer);
+bool lexerHasToken(WLexer *lexer);
 void tokenDestroy(WToken *token);
 
 #endif
