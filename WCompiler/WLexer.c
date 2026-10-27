@@ -36,6 +36,7 @@ bool lexerInit(const char *filepath, WLexer *lexer) {
 
     fseek(file, 0, SEEK_END);
     lexer->size = ftell(file);
+    if (lexer->size <= 0) return false;
     fseek(file, 0, SEEK_SET);
 
     lexer->buf = malloc(lexer->size + 1);
@@ -44,7 +45,9 @@ bool lexerInit(const char *filepath, WLexer *lexer) {
         return 0;
     }
 
-    fread(lexer->buf, 1, lexer->size, file);
+    if (fread(lexer->buf, 1, lexer->size, file) != lexer->size) {
+        return false;
+    }
     lexer->buf[lexer->size] = '\0';
     fclose(file);
 

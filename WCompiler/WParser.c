@@ -544,6 +544,7 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
             if (!lexerForward(&parser->lexer)) {
                 THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
             }
+            // resolve precedence
         } else {
             ASTNode *buf = stackBump(&operands);
             if (!buf) {
@@ -588,12 +589,12 @@ ret:
         while (stackPop(&operands, &node)) {
             ASTDestroy(&node, false);
         }
-        stackDestroy(&operands);
         while (stackPop(&operators, &node)) {
             ASTDestroy(&node, false);
         }
-        stackDestroy(&operators);
     }
+    stackDestroy(&operands);
+    stackDestroy(&operators);
     return status;
 }
 
