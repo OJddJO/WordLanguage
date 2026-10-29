@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <werror.h>
+#include <queue.h>
 #include "WParser.h"
 #include "WLexer.h"
 
@@ -261,7 +262,7 @@ static Wstatus consumeIdentifier(WParser *parser, ASTNode *node) {
     return 1;
 }
 
-static Wstatus consumeLitteral(WParser *parser, ASTNode *node) {
+static Wstatus consumeLiteral(WParser *parser, ASTNode *node) {
     WToken *tok;
     if (!lexerPeekToken(&parser->lexer, &tok)) {
         return ERR_GENERIC;
@@ -292,7 +293,7 @@ static Wstatus consumeValue(WParser *parser, ASTNode *node) {
     if (!IS_ERR(consumeIdentifier(parser, node))) {
         return 1;
     }
-    if (!IS_ERR(consumeLitteral(parser, node))) {
+    if (!IS_ERR(consumeLiteral(parser, node))) {
         return 1;
     }
     return ERR_GENERIC;
@@ -502,9 +503,8 @@ static bool opIsUnary(WTokOp op) {
     );
 }
 
-static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
+static Wstatus shuntingYard(Queue *tokQ) {
     Wstatus status = 1;
-
     Stack operands = {0};
     if (!stackInit(&operands, sizeof(ASTNode))) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init operands stack\n");
@@ -512,75 +512,6 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
     Stack operators = {0};
     if (!stackInit(&operators, sizeof(ASTNode))) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init operators stack\n");
-    }
-
-    while (lexerHasToken(&parser->lexer)) {
-        WToken *token;
-        if (!lexerPeekToken(&parser->lexer, &token)) {
-            return ERR_GENERIC;
-        }
-        if (tokIsStatementEnd(token)) {
-            if (token->as.punc == WTOKPUNC_COMMA) {
-                if (!lexerForward(&parser->lexer)) {
-                    THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
-                }
-            }
-            // resolve precedence
-            goto ret;
-        }
-
-        if (token->type == WTOK_OPERATOR) {
-            ASTNode *buf = stackBump(&operators);
-            if (!buf) {
-                THROW_ERR(ERR_INTERNAL, ret, "failed to bump operator stack\n");
-            }
-            if (opIsUnary(token->as.op)) {
-                buf->type = ASTNODE_UNARY_OP;
-                buf->as.unaryOp.unary = token->as.op;
-            } else {
-                buf->type = ASTNODE_BINARY_OP;
-                buf->as.binaryOp.op = token->as.op;
-            }
-            if (!lexerForward(&parser->lexer)) {
-                THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
-            }
-            // resolve precedence
-        } else {
-            ASTNode *buf = stackBump(&operands);
-            if (!buf) {
-                THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
-            }
-            switch (token->type) {
-                case (WTOK_KEYWORD): {
-                    if (IS_ERR(consumeKeyword(parser, buf))) {
-                        THROW_ERR(ERR_GENERIC, ret, "failed to parse keyword\n");
-                    }
-                    break;
-                }
-                case (WTOK_PUNCTUATOR): {
-                    if (IS_ERR(consumeBlock(parser, buf))) {
-                        THROW_ERR(ERR_GENERIC, ret, "unexpected punc token\n");
-                    }
-                    break;
-                }
-                case (WTOK_IDENTIFIER): {
-                    if (IS_ERR(consumeIdentifier(parser, buf))) {
-                        THROW_ERR(ERR_GENERIC, ret, "");
-                    }
-                    break;
-                }
-                case (WTOK_LITERAL): {
-                    if (IS_ERR(consumeLitteral(parser, buf))) {
-                        THROW_ERR(ERR_GENERIC, ret, "");
-                    }
-                    break;
-                }
-                default: {
-                    THROW_ERR(ERR_INTERNAL, ret, "unidentified token\n");
-                    break;
-                }
-            }
-        }
     }
 
 ret:
@@ -595,6 +526,79 @@ ret:
     }
     stackDestroy(&operands);
     stackDestroy(&operators);
+    return status;
+}
+
+static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
+    Wstatus status = 1;
+    Queue tokQ;
+    queueInit(&tokQ, sizeof(ASTNode));
+
+    while (lexerHasToken(&parser->lexer)) {
+        WToken *token;
+        if (!lexerPeekToken(&parser->lexer, &token)) {
+            return ERR_GENERIC;
+        }
+        if (tokIsStatementEnd(token)) {
+            if (token->as.punc == WTOKPUNC_COMMA) {
+                if (!lexerForward(&parser->lexer)) {
+                    THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
+                }
+            }
+            goto ret;
+        }
+
+        ASTNode *buf = queueBump(&tokQ);
+        if (!buf) {
+            THROW_ERR(ERR_INTERNAL, ret, "failed to bump stack\n");
+        }
+        switch (token->type) {
+            case (WTOK_KEYWORD): {
+                if (IS_ERR(consumeKeyword(parser, buf))) {
+                    THROW_ERR(ERR_GENERIC, ret, "failed to parse keyword\n");
+                }
+                break;
+            }
+            case (WTOK_PUNCTUATOR): {
+                if (IS_ERR(consumeBlock(parser, buf))) {
+                    THROW_ERR(ERR_GENERIC, ret, "unexpected punc token\n");
+                }
+                break;
+            }
+            case (WTOK_IDENTIFIER): {
+                if (IS_ERR(consumeIdentifier(parser, buf))) {
+                    THROW_ERR(ERR_GENERIC, ret, "failed to parse identifier\n");
+                }
+                break;
+            }
+            case (WTOK_LITERAL): {
+                if (IS_ERR(consumeLiteral(parser, buf))) {
+                    THROW_ERR(ERR_GENERIC, ret, "failed to parse literal\n");
+                }
+                break;
+            }
+            case (WTOK_OPERATOR): {
+                if (opIsUnary(token->as.op)) {
+                    buf->type = ASTNODE_UNARY_OP;
+                    buf->as.unaryOp.unary = token->as.op;
+                } else {
+                    buf->type = ASTNODE_BINARY_OP;
+                    buf->as.binaryOp.op = token->as.op;
+                }
+                if (!lexerForward(&parser->lexer)) {
+                    THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
+                }
+                break;
+            }
+            default: {
+                THROW_ERR(ERR_INTERNAL, ret, "unidentified token\n");
+                break;
+            }
+        }
+    }
+
+ret:
+    queueDestroy(&tokQ);
     return status;
 }
 
