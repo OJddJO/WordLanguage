@@ -241,13 +241,12 @@ static bool buildToken(WLexer *lexer, WToken *out) {
 }
 
 //readonly
-bool lexerPeekToken(WLexer *lexer, WToken **out) {
+const WToken *lexerPeekToken(WLexer *lexer) {
     if (!lexer->tokLen) { // if the current cached token is wrong, rebuild
         if (!buildToken(lexer, &lexer->token))
-            return 0;
+            return NULL;
     }
-    *out = &lexer->token;
-    return 1;
+    return &lexer->token;
 }
 
 bool lexerForward(WLexer *lexer) {

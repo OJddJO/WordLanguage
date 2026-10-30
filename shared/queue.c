@@ -34,6 +34,11 @@ bool queueAdd(Queue *queue, void *elt) {
     return true;
 }
 
+const void *queuePeek(Queue *queue) {
+    if (!queue->head) return NULL;
+    return queue->head->value;
+}
+
 bool queuePop(Queue *queue, void *out) {
     if (!queue->head) return false;
     QNode *head = queue->head;

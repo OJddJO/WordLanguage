@@ -18,6 +18,7 @@ void queueInit(Queue *queue, size_t eltSize);
 void *queueBump(Queue *queue);
 bool queueAdd(Queue *queue, void *elt);
 bool queuePop(Queue *queue, void *out);
+const void *queuePeek(Queue *queue);
 void queueDestroy(Queue *queue);
 
 #endif

@@ -14,7 +14,7 @@ int stackInit(Stack *stack, size_t elementSize);
 int stackPush(Stack *stack, void *element);
 int stackPop(Stack *stack, void *ret);
 void *stackBump(Stack *stack);
-void *stackTop(Stack *stack);
+const void *stackTop(Stack *stack);
 void stackDestroy(Stack *stack);
 
 #endif

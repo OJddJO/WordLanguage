@@ -56,7 +56,7 @@ int stackPop(Stack *stack, void *ret) {
     return 1;
 }
 
-void *stackTop(Stack *stack) {
+const void *stackTop(Stack *stack) {
     if (stack->count == 0) return NULL;
     return stack->buf + (stack->elemSize * stack->count);
 }

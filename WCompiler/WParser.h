@@ -39,8 +39,11 @@ struct _ASTNode {
         char        *id;
 
         struct _ASTBlock {
-            Array   *stmts;      // array of ASTNode
+            Array   *stmts;     // array of ASTNode
         } block;
+        struct _ASTOp {         // USED ONLY FOR CHECKING OP PRECEDENCE
+            WTokOp  op;
+        } op;
         struct _ASTUnary {
             WTokOp  unary;
             ASTNode *operand;   // single operand ASTNode

@@ -241,7 +241,7 @@ static Wstatus parserConsume(WParser *parser);
  */
 static Wstatus consumeIdentifier(WParser *parser, ASTNode *node) {
     WToken *tok;
-    if (!lexerPeekToken(&parser->lexer, &tok)) {
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
     if (tok->type != WTOK_IDENTIFIER) return ERR_GENERIC;
@@ -264,7 +264,7 @@ static Wstatus consumeIdentifier(WParser *parser, ASTNode *node) {
 
 static Wstatus consumeLiteral(WParser *parser, ASTNode *node) {
     WToken *tok;
-    if (!lexerPeekToken(&parser->lexer, &tok)) {
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
     if (tok->type != WTOK_LITERAL) return ERR_GENERIC;
@@ -277,8 +277,8 @@ static Wstatus consumeLiteral(WParser *parser, ASTNode *node) {
             PRINT_ERR("failed to alloc buffer for string\n");
             return ERR_INTERNAL;
         }
-        strncpy(node->as.lit.s, tok->as.lit.s, parser->lexer.tokLen - 2); // removing the quotes
-
+        strncpy(node->as.lit.s, tok->as.lit.s + 1, parser->lexer.tokLen - 2); // removing the quotes
+        node->as.lit.s[parser->lexer.tokLen - 2] = '\0';
     } else node->as.lit = tok->as.lit;
 
     if (!lexerForward(&parser->lexer)) {
@@ -300,12 +300,12 @@ static Wstatus consumeValue(WParser *parser, ASTNode *node) {
 }
 
 static inline Wstatus consumeElse(WParser *parser, ASTNode *node) {
-    node = calloc(1, sizeof(ASTNode));
-    if (!node) {
+    node->as.ifStmt.elseBlock = calloc(1, sizeof(ASTNode));
+    if (!node->as.ifStmt.elseBlock) {
         PRINT_ERR("else then block alloc error\n");
         return ERR_PARSE_ELSE_THEN;
     }
-    if (IS_ERR(consumeBlock(parser, node))) {
+    if (IS_ERR(consumeBlock(parser, node->as.ifStmt.elseBlock))) {
         PRINT_ERR("else parser error\n");
         return ERR_PARSE_ELSE_THEN;
     }
@@ -329,7 +329,7 @@ static inline Wstatus consumeIf(WParser *parser, ASTNode *node) {
     }
 
     WToken *tok;
-    if (lexerHasToken(&parser->lexer) && lexerPeekToken(&parser->lexer, &tok))
+    if (tok = lexerPeekToken(&parser->lexer))
     if (tok->type == WTOK_KEYWORD && tok->as.kw == WTOKKW_ELSE) {
         if (!lexerForward(&parser->lexer)) {
             THROW_ERR(ERR_INTERNAL, ret, "lexer error\n");
@@ -451,10 +451,11 @@ static inline Wstatus consumeReturn(WParser *parser, ASTNode *node) {
 
     Wstatus status = 1;
     WToken *tok;
-    if (!lexerPeekToken(&parser->lexer, &tok)) {
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
         THROW_ERR(ERR_GENERIC, ret, "failed to get token after return\n");
     }
-    if (!tokIsStatementEnd(tok) && IS_ERR(consumeValue(parser, node->as.retStmt.value))) {
+    if (!tokIsStatementEnd(tok) && (node->as.retStmt.value = calloc(1, sizeof(ASTNode)))
+        && IS_ERR(consumeValue(parser, node->as.retStmt.value))) {
         THROW_ERR(ERR_PARSE_RETURN_VALUE, ret, "return value parser error\n");
     }
 
@@ -471,7 +472,7 @@ ret:
  */
 static Wstatus consumeKeyword(WParser *parser, ASTNode *node) {
     WToken *token;
-    if (!lexerPeekToken(&parser->lexer, &token)) return 0;
+    if (!(token = lexerPeekToken(&parser->lexer))) return 0;
     if (token->type != WTOK_KEYWORD) return 0;
 
     WTokKw kw = token->as.kw;
@@ -503,8 +504,46 @@ static bool opIsUnary(WTokOp op) {
     );
 }
 
-static Wstatus shuntingYard(Queue *tokQ) {
+// Check if stack op has higher precedence
+static inline bool higherPrecedence(WTokOp stackOp, WTokOp curOp) {
+    if (opIsUnary(curOp)) {
+        return stackOp < curOp;
+    }
+    return stackOp <= curOp;
+}
+
+static Wstatus reduceStackOp(Stack *operators, Stack *operands) {
+    ASTNode opNode;
+    if (!stackPop(operators, &opNode)) {
+        return ERR_INTERNAL;
+    }
+
+    if (opNode.type == ASTNODE_BINARY_OP) {
+        if (!stackPop(operands, opNode.as.binaryOp.right)) {
+            return ERR_GENERIC;
+        }
+        if (!stackPop(operands, opNode.as.binaryOp.left)) {
+            return ERR_GENERIC;
+        }
+    } else if (opNode.type == ASTNODE_UNARY_OP) {
+        if (!stackPop(operands, opNode.as.unaryOp.operand)) {
+            return ERR_GENERIC;
+        }
+    } else {
+        return ERR_GENERIC;
+    }
+
+    if (!stackPush(operands, &opNode)) {
+        ASTDestroy(&opNode, false);
+        return ERR_INTERNAL;
+    }
+
+    return 1;
+}
+
+static Wstatus shuntingYard(Queue *tokQ, ASTNode *out) {
     Wstatus status = 1;
+
     Stack operands = {0};
     if (!stackInit(&operands, sizeof(ASTNode))) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init operands stack\n");
@@ -513,6 +552,44 @@ static Wstatus shuntingYard(Queue *tokQ) {
     if (!stackInit(&operators, sizeof(ASTNode))) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init operators stack\n");
     }
+
+    #define ASTNODE_IS_OP(node) ((node).type == ASTNODE_BINARY_OP || (node).type == ASTNODE_UNARY_OP)
+    ASTNode node;
+    while (queuePop(tokQ, &node)) {
+        if (!ASTNODE_IS_OP(node)) {
+            if (!stackPush(&operands, &node)) {
+                THROW_ERR(ERR_INTERNAL, ret, "failed to push node to operands stack\n");
+            }
+            continue;
+        }
+
+        const ASTNode *top;
+        while ((top = stackTop(&operators)) && ASTNODE_IS_OP(*top) && higherPrecedence(top->as.op.op, node.as.op.op)) {
+            if (IS_ERR(status = reduceStackOp(&operators, &operands))) {
+                THROW_ERR(status, ret, "failed to reduce operator\n");
+            }
+        }
+
+        if (!stackPush(&operators, &node)) {
+            THROW_ERR(ERR_INTERNAL, ret, "failed to push node to operators stack\n");
+        }
+    }
+
+    while (stackTop(&operators)) {
+        if (IS_ERR(status = reduceStackOp(&operators, &operands))) {
+            THROW_ERR(status, ret, "failed to reduce leftover operator\n");
+        }
+    }
+    ASTNode root;
+    if (!stackPop(&operands, &root)) {
+        THROW_ERR(ERR_GENERIC, ret, "empty statement\n");
+    }
+    if (stackTop(&operands)) {
+        ASTDestroy(&root, false);
+        THROW_ERR(ERR_GENERIC, ret, "invalid statement: extra operands\n");
+    }
+
+    *out = root;
 
 ret:
     if (IS_ERR(status)) {
@@ -536,7 +613,7 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
 
     while (lexerHasToken(&parser->lexer)) {
         WToken *token;
-        if (!lexerPeekToken(&parser->lexer, &token)) {
+        if (!(token = lexerPeekToken(&parser->lexer))) {
             return ERR_GENERIC;
         }
         if (tokIsStatementEnd(token)) {
@@ -544,6 +621,9 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
                 if (!lexerForward(&parser->lexer)) {
                     THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
                 }
+            }
+            if (IS_ERR(status = shuntingYard(&tokQ, out))) {
+                THROW_ERR(status, ret, "expression reduction failed\n");
             }
             goto ret;
         }
@@ -579,10 +659,14 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
             }
             case (WTOK_OPERATOR): {
                 if (opIsUnary(token->as.op)) {
-                    buf->type = ASTNODE_UNARY_OP;
+                    if (!ASTNodeInit(ASTNODE_UNARY_OP, buf)) {
+                        THROW_ERR(ERR_INTERNAL, ret, "failed to init node\n");
+                    }
                     buf->as.unaryOp.unary = token->as.op;
                 } else {
-                    buf->type = ASTNODE_BINARY_OP;
+                    if (!ASTNodeInit(ASTNODE_BINARY_OP, buf)) {
+                        THROW_ERR(ERR_INTERNAL, ret, "failed to init node\n");
+                    }
                     buf->as.binaryOp.op = token->as.op;
                 }
                 if (!lexerForward(&parser->lexer)) {
@@ -596,6 +680,8 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
             }
         }
     }
+    PRINT_ERR("unexpected end of file\n");
+    status = ERR_GENERIC;
 
 ret:
     queueDestroy(&tokQ);
@@ -612,7 +698,7 @@ static WTokPunc matchedCloser(WTokPunc open) {
 
 static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
     WToken *tok;
-    if (!lexerPeekToken(&parser->lexer, &tok)) {
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
     Wstatus status = 1;
@@ -629,7 +715,7 @@ static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
         THROW_ERR(ERR_INTERNAL, ret, "failed to init block\n");
     }
     while (lexerHasToken(&parser->lexer)) {
-        if (!lexerPeekToken(&parser->lexer, &tok)) {
+        if (!(tok = lexerPeekToken(&parser->lexer))) {
             THROW_ERR(ERR_GENERIC, ret, "lexer error, no token\n");
         }
         if (tok->type == WTOK_PUNCTUATOR && tok->as.punc == closing) {

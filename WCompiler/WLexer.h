@@ -54,9 +54,9 @@ typedef enum _WTokPunc : uint8_t {
 
 typedef struct _WLit {
     union {
-        const char  *s;
-        int64_t     i;
-        double      f;
+        char    *s;
+        int64_t i;
+        double  f;
     };
     WLitType    type;
 } WLiteral;
@@ -87,7 +87,7 @@ typedef struct _WLexer {
 
 bool lexerInit(const char *filepath, WLexer *lexer);
 void lexerDestroy(WLexer *lexer);
-bool lexerPeekToken(WLexer *lexer, WToken **out);
+const WToken *lexerPeekToken(WLexer *lexer);
 bool lexerForward(WLexer *lexer);
 bool lexerHasToken(WLexer *lexer);
 void tokenDestroy(WToken *token);
