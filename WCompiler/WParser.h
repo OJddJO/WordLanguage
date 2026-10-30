@@ -5,8 +5,9 @@
 
 #include <array.h>
 #include <stack.h>
-#include <unorderedArray.h>
+#include <array.h>
 #include "WLexer.h"
+#include "werror.h"
 
 typedef enum _ASTNodeType : uint8_t {
     ASTNODE_NOT_INIT,
@@ -39,7 +40,7 @@ struct _ASTNode {
         char        *id;
 
         struct _ASTBlock {
-            Array   *stmts;     // array of ASTNode
+            Array   stmts;     // array of ASTNode
         } block;
         struct _ASTOp {         // USED ONLY FOR CHECKING OP PRECEDENCE
             WTokOp  op;
@@ -56,9 +57,7 @@ struct _ASTNode {
         struct _ASTClass {
             ASTNode *name;
             ASTNode *fields;    // single block of varDecl ASTNode
-            size_t  fieldsCount;
             ASTNode *methods;   // single block of funcDef ASTNode
-            size_t  methodsCount;
         } classDef;
         struct _ASTFunc {
             ASTNode *retType;   // single identifier (type name) ASTNode
@@ -80,10 +79,10 @@ struct _ASTNode {
             ASTNode *body;      // single block ASTNode
         } whileStmt;
         struct _ASTCall {
-            ASTNode *args;      // single block ASTNode of identifier ASTNode
+            ASTNode *args;      // single block ASTNode of value ASTNode
         } call;
         struct _ASTRet {
-            ASTNode *value;     // NULL by default, single identifier ASTNode
+            ASTNode *value;     // NULL by default, single value ASTNode
         } retStmt;
     } as;
     ASTNodeType type;
@@ -91,8 +90,13 @@ struct _ASTNode {
 
 typedef struct _WParser {
     WLexer      lexer;
-    Stack       nodes;
-    UArray      program;
+    Array       program;    // Array of ASTs
 } WParser;
+
+bool parserInit(const char *src, WParser *parser);
+void parserDestroy(WParser *parser);
+Wstatus parserBuildAST(WParser *parser);
+void ASTPrint(ASTNode *ast);
+void parserPrintProgram(WParser *parser);
 
 #endif

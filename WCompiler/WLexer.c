@@ -7,7 +7,7 @@
 #include "WLexer.h"
 
 // operators precedence is defined by the order of each operators in this array
-static const char *operators[] = {
+const char *operators[] = {
     ".", // member access
     "+", "-", // unary sign
     "not", "bitnot", // logical/bitwise not
@@ -21,14 +21,14 @@ static const char *operators[] = {
     "is", // assignment
 };
 
-static const char *keywords[] = {
+const char *keywords[] = {
     "if", "else",
     "while", "continue", "break",
     "var", "func", "class",
     "return",
 };
 
-static const char *punctuator = ",()[]";
+const char *punctuator = ",()[]";
 
 bool lexerInit(const char *filepath, WLexer *lexer) {
     FILE *file = fopen(filepath, "rb");
@@ -242,6 +242,7 @@ static bool buildToken(WLexer *lexer, WToken *out) {
 
 //readonly
 const WToken *lexerPeekToken(WLexer *lexer) {
+    consumeWhitespaces(lexer);
     if (!lexer->tokLen) { // if the current cached token is wrong, rebuild
         if (!buildToken(lexer, &lexer->token))
             return NULL;

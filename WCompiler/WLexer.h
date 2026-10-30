@@ -12,6 +12,7 @@ typedef enum _WTokType : uint8_t {
     WTOK_LITERAL,
 } WTokType;
 
+extern const char *operators[];
 typedef enum _WTokOp : uint8_t {
     WTOKOP_MEMBER_ACCESS,
     WTOKOP_POS, WTOKOP_NEG,
@@ -28,6 +29,7 @@ typedef enum _WTokOp : uint8_t {
     OP_NB
 } WTokOp;
 
+extern const char *keywords[];
 typedef enum _WTokKw : uint8_t {
     WTOKKW_IF, WTOKKW_ELSE,
     WTOKKW_WHILE, WTOKKW_CONTINUE, WTOKKW_BREAK,
@@ -44,6 +46,7 @@ typedef enum _WLitType : uint8_t {
     LIT_STR,
 } WLitType;
 
+extern const char *punctuator;
 typedef enum _WTokPunc : uint8_t {
     WTOKPUNC_COMMA,
     WTOKPUNC_OPEN,

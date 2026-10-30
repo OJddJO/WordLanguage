@@ -5,6 +5,9 @@
 #include "WParser.h"
 #include "WLexer.h"
 
+static Wstatus consumeBlock(WParser *parser, ASTNode *out);
+static void ASTDestroy(ASTNode *ast, bool freeRoot);
+
 /**
  * @brief Init a parser struct
  * @param src The path to the file to parse
@@ -18,14 +21,8 @@ bool parserInit(const char *src, WParser *parser) {
         return 0;
     }
 
-    if (!stackInit(&ret.nodes, sizeof(WToken))) {
+    if (!arrayInit(&ret.program, sizeof(ASTNode))) {
         lexerDestroy(&ret.lexer);
-        return 0;
-    }
-
-    if (!uArrayInit(&ret.program, sizeof(ASTNode))) {
-        lexerDestroy(&ret.lexer);
-        stackDestroy(&ret.nodes);
         return 0;
     }
 
@@ -33,12 +30,22 @@ bool parserInit(const char *src, WParser *parser) {
     return 1;
 }
 
+void parserDestroy(WParser *parser) {
+    lexerDestroy(&parser->lexer);
+    for (size_t i = 0; i < parser->program.count; i++) {
+        ASTNode *tmp = arrayGet(&parser->program, i);
+        if (!tmp) continue;
+        ASTDestroy(tmp, false);
+    }
+    arrayDestroy(&parser->program);
+}
+
 /**
  * @brief Destroy an AST
  * @param ast The AST to destroy
  * @param freeRoot If the root should be freed or not
  */
-void ASTDestroy(ASTNode *ast, bool freeRoot) {
+static void ASTDestroy(ASTNode *ast, bool freeRoot) {
     if (!ast) return;
     switch (ast->type) {
         case (ASTNODE_LITERAL): {
@@ -52,10 +59,12 @@ void ASTDestroy(ASTNode *ast, bool freeRoot) {
             break;
         }
         case (ASTNODE_BLOCK): {
-            for (size_t i = 0; i < ast->as.block.stmts->count; i++) {
-                ASTDestroy(&ast->as.block.stmts[i], false);
+            for (size_t i = 0; i < ast->as.block.stmts.count; i++) {
+                ASTNode *node = arrayGet(&ast->as.block.stmts, i);
+                if (!node) continue;
+                ASTDestroy(node, false);
             }
-            arrayDestroy(ast->as.block.stmts);
+            arrayDestroy(&ast->as.block.stmts);
             break;
         }
         case (ASTNODE_UNARY_OP): {
@@ -68,12 +77,9 @@ void ASTDestroy(ASTNode *ast, bool freeRoot) {
             break;
         }
         case (ASTNODE_CLASS_DEF): {
-            for (size_t i = 0; i < ast->as.classDef.fieldsCount; i++) {
-                ASTDestroy(&ast->as.classDef.fields[i], false);
-            }
-            for (size_t i = 0; i < ast->as.classDef.methodsCount; i++) {
-                ASTDestroy(&ast->as.classDef.methods[i], false);
-            }
+            free(ast->as.classDef.name);
+            ASTDestroy(ast->as.classDef.fields, true);
+            ASTDestroy(ast->as.classDef.methods, true);
             break;
         }
         case (ASTNODE_FUNC_DEF): {
@@ -118,7 +124,7 @@ void ASTDestroy(ASTNode *ast, bool freeRoot) {
  * @param out The node to init
  * @return 1 if success, 0 else
  */
-inline static bool ASTNodeInit(ASTNodeType type, ASTNode *out) {
+static bool ASTNodeInit(ASTNodeType type, ASTNode *out) {
     ASTNode ret = {0};
     ret.type = type;
     switch (type) {
@@ -224,14 +230,12 @@ inline static bool ASTNodeInit(ASTNodeType type, ASTNode *out) {
     return 1;
 }
 
-static bool tokIsStatementEnd(WToken *token) {
+static bool tokIsStatementEnd(const WToken *token) {
     return token->type == WTOK_PUNCTUATOR
             && (token->as.punc == WTOKPUNC_COMMA
                 || token->as.punc == WTOKPUNC_CLOSE
                 || token->as.punc == WTOKPUNC_CALLCLOSE);
 }
-
-static Wstatus parserConsume(WParser *parser);
 
 /**
  * @brief Consume an identifier
@@ -240,51 +244,58 @@ static Wstatus parserConsume(WParser *parser);
  * @return 1 if success, non-positive else
  */
 static Wstatus consumeIdentifier(WParser *parser, ASTNode *node) {
-    WToken *tok;
+    const WToken *tok;
+    ASTNode ret = {0};
     if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
     if (tok->type != WTOK_IDENTIFIER) return ERR_GENERIC;
 
-    node->type = ASTNODE_IDENTIFIER;
-    node->as.id = malloc(parser->lexer.tokLen + 1);
-    if (!node->as.id) {
+    ret.type = ASTNODE_IDENTIFIER;
+    ret.as.id = malloc(parser->lexer.tokLen + 1);
+    if (!ret.as.id) {
         PRINT_ERR("failed to alloc buffer for id\n");
         return ERR_INTERNAL;
     }
-    strcpy(node->as.id, tok->as.id);
+    strcpy(ret.as.id, tok->as.id);
 
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
+        free(ret.as.id);
         return ERR_INTERNAL;
     }
 
+    *node = ret;
     return 1;
 }
 
 static Wstatus consumeLiteral(WParser *parser, ASTNode *node) {
-    WToken *tok;
+    const WToken *tok;
+    ASTNode ret = {0};
     if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
     if (tok->type != WTOK_LITERAL) return ERR_GENERIC;
 
-    node->type = ASTNODE_LITERAL;
+    ret.type = ASTNODE_LITERAL;
     if (tok->as.lit.type == LIT_STR) {
-        node->as.lit.type = LIT_STR;
-        node->as.lit.s = malloc(parser->lexer.tokLen - 1); // removing the quotes
-        if (!node->as.lit.s) {
+        ret.as.lit.type = LIT_STR;
+        ret.as.lit.s = malloc(parser->lexer.tokLen - 1); // removing the quotes
+        if (!ret.as.lit.s) {
             PRINT_ERR("failed to alloc buffer for string\n");
             return ERR_INTERNAL;
         }
-        strncpy(node->as.lit.s, tok->as.lit.s + 1, parser->lexer.tokLen - 2); // removing the quotes
-        node->as.lit.s[parser->lexer.tokLen - 2] = '\0';
-    } else node->as.lit = tok->as.lit;
+        strncpy(ret.as.lit.s, tok->as.lit.s + 1, parser->lexer.tokLen - 2); // removing the quotes
+        ret.as.lit.s[parser->lexer.tokLen - 2] = '\0';
+    } else ret.as.lit = tok->as.lit;
 
     if (!lexerForward(&parser->lexer)) {
         PRINT_ERR("lexer error\n");
+        free(ret.as.lit.s);
         return ERR_INTERNAL;
     }
+
+    *node = ret;
 
     return 1;
 }
@@ -296,71 +307,80 @@ static Wstatus consumeValue(WParser *parser, ASTNode *node) {
     if (!IS_ERR(consumeLiteral(parser, node))) {
         return 1;
     }
+    if (!IS_ERR(consumeBlock(parser, node))) {
+        return 1;
+    }
     return ERR_GENERIC;
 }
 
 static inline Wstatus consumeElse(WParser *parser, ASTNode *node) {
-    node->as.ifStmt.elseBlock = calloc(1, sizeof(ASTNode));
-    if (!node->as.ifStmt.elseBlock) {
+    ASTNode ret = {0};
+    ret.as.ifStmt.elseBlock = calloc(1, sizeof(ASTNode));
+    if (!ret.as.ifStmt.elseBlock) {
         PRINT_ERR("else then block alloc error\n");
         return ERR_PARSE_ELSE_THEN;
     }
-    if (IS_ERR(consumeBlock(parser, node->as.ifStmt.elseBlock))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.ifStmt.elseBlock))) {
         PRINT_ERR("else parser error\n");
         return ERR_PARSE_ELSE_THEN;
     }
 
+    *node = ret;
     return 1;
 }
 
 static inline Wstatus consumeIf(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_IF, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_IF, &ret)) {
         PRINT_ERR("if node initialization failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    if (IS_ERR(consumeBlock(parser, node->as.ifStmt.condition))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.ifStmt.condition))) {
         THROW_ERR(ERR_PARSE_IF_COND, ret, "if condition parser error\n");
     }
 
-    if (IS_ERR(consumeBlock(parser, node->as.ifStmt.thenBlock))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.ifStmt.thenBlock))) {
         THROW_ERR(ERR_PARSE_IF_THEN, ret, "if then parser error\n");
     }
 
-    WToken *tok;
+    const WToken *tok;
     if (tok = lexerPeekToken(&parser->lexer))
     if (tok->type == WTOK_KEYWORD && tok->as.kw == WTOKKW_ELSE) {
         if (!lexerForward(&parser->lexer)) {
             THROW_ERR(ERR_INTERNAL, ret, "lexer error\n");
         }
-        if (IS_ERR(status = consumeElse(parser, node))) {
+        if (IS_ERR(status = consumeElse(parser, &ret))) {
             goto ret;
         }
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
 static inline Wstatus consumeWhile(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_WHILE, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_WHILE, &ret)) {
         PRINT_ERR("while node initialization failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    if (IS_ERR(consumeBlock(parser,node->as.whileStmt.condition))) {
+    if (IS_ERR(consumeBlock(parser,ret.as.whileStmt.condition))) {
         THROW_ERR(ERR_PARSE_WHILE_COND, ret, "while condition parser error\n");
     }
 
-    if (IS_ERR(consumeBlock(parser,node->as.whileStmt.body))) {
+    if (IS_ERR(consumeBlock(parser,ret.as.whileStmt.body))) {
         THROW_ERR(ERR_PARSE_WHILE_THEN, ret, "while then parser error\n");
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
@@ -375,92 +395,137 @@ static inline Wstatus consumeBreak(WParser *parser, ASTNode *node) {
 }
 
 static inline Wstatus consumeVar(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_VAR_DECL, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_VAR_DECL, &ret)) {
         PRINT_ERR("var node init failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    if (IS_ERR(consumeIdentifier(parser, node->as.varDecl.typeName))) {
+    if (IS_ERR(consumeIdentifier(parser, ret.as.varDecl.typeName))) {
         THROW_ERR(ERR_PARSE_VAR_TYPE, ret, "var type parser error\n");
     }
 
-    if (IS_ERR(consumeIdentifier(parser, node->as.varDecl.varName))) {
+    if (IS_ERR(consumeIdentifier(parser, ret.as.varDecl.varName))) {
         THROW_ERR(ERR_PARSE_VAR_ID, ret, "var id parser error\n");
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
+static Wstatus consumeFuncName(WParser *parser, ASTNode *node) {
+    const WToken *tok;
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
+        return ERR_GENERIC;
+    }
+
+    if (tok->type == WTOK_IDENTIFIER) {
+        return consumeIdentifier(parser, node);
+    }
+
+    if (tok->type == WTOK_OPERATOR) {
+        ASTNode ret = {0};
+        ret.type = ASTNODE_IDENTIFIER;
+
+        const char *opName = operators[tok->as.op];
+        size_t len = strlen(opName);
+
+        ret.as.id = malloc(len + 1);
+        if (!ret.as.id) {
+            PRINT_ERR("failed to alloc buffer for operator function name\n");
+            return ERR_INTERNAL;
+        }
+        memcpy(ret.as.id, opName, len + 1);
+
+        if (!lexerForward(&parser->lexer)) {
+            free(ret.as.id);
+            PRINT_ERR("lexer error\n");
+            return ERR_INTERNAL;
+        }
+
+        *node = ret;
+        return 1;
+    }
+
+    return ERR_GENERIC;
+}
+
 static inline Wstatus consumeFunc(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_FUNC_DEF, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_FUNC_DEF, &ret)) {
         PRINT_ERR("func node init failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    if (IS_ERR(consumeIdentifier(parser, node->as.funcDef.retType))) {
+    if (IS_ERR(consumeIdentifier(parser, ret.as.funcDef.retType))) {
         THROW_ERR(ERR_PARSE_FUNC_TYPE, ret, "func type parser error\n");
     }
-    if (IS_ERR(consumeIdentifier(parser, node->as.funcDef.name))) {
+    if (IS_ERR(consumeFuncName(parser, ret.as.funcDef.name))) {
         THROW_ERR(ERR_PARSE_FUNC_ID, ret, "func id parser error\n");
     }
 
-    if (IS_ERR(consumeBlock(parser, node->as.funcDef.params))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.funcDef.params))) {
         THROW_ERR(ERR_PARSE_FUNC_ARGS, ret, "func args parser error\n");
     }
 
-    if (IS_ERR(consumeBlock(parser, node->as.funcDef.body))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.funcDef.body))) {
         THROW_ERR(ERR_PARSE_FUNC_BODY, ret, "func body parser error\n");
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
 static inline Wstatus consumeClass(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_CLASS_DEF, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_CLASS_DEF, &ret)) {
         PRINT_ERR("class node init failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    if (IS_ERR(consumeIdentifier(parser, node->as.classDef.name))) {
+    if (IS_ERR(consumeIdentifier(parser, ret.as.classDef.name))) {
         THROW_ERR(ERR_PARSE_CLASS_ID, ret, "class id parser error\n");
     }
-    if (IS_ERR(consumeBlock(parser, node->as.classDef.fields))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.classDef.fields))) {
         THROW_ERR(ERR_PARSE_CLASS_FIELDS, ret, "class fields parser error\n");
     }
-    if (IS_ERR(consumeBlock(parser, node->as.classDef.methods))) {
+    if (IS_ERR(consumeBlock(parser, ret.as.classDef.methods))) {
         THROW_ERR(ERR_PARSE_CLASS_METHODS, ret, "class methods parser error\n");
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
 static inline Wstatus consumeReturn(WParser *parser, ASTNode *node) {
-    if (!ASTNodeInit(ASTNODE_RETURN, node)) {
+    ASTNode ret = {0};
+    if (!ASTNodeInit(ASTNODE_RETURN, &ret)) {
         PRINT_ERR("return node init failed\n");
         return ERR_INTERNAL;
     }
 
     Wstatus status = 1;
-    WToken *tok;
+    const WToken *tok;
     if (!(tok = lexerPeekToken(&parser->lexer))) {
         THROW_ERR(ERR_GENERIC, ret, "failed to get token after return\n");
     }
-    if (!tokIsStatementEnd(tok) && (node->as.retStmt.value = calloc(1, sizeof(ASTNode)))
-        && IS_ERR(consumeValue(parser, node->as.retStmt.value))) {
+    if (!tokIsStatementEnd(tok) && (ret.as.retStmt.value = calloc(1, sizeof(ASTNode)))
+        && IS_ERR(consumeValue(parser, ret.as.retStmt.value))) {
         THROW_ERR(ERR_PARSE_RETURN_VALUE, ret, "return value parser error\n");
     }
 
+    *node = ret;
 ret:
-    if (IS_ERR(status)) ASTDestroy(node, false);
+    if (IS_ERR(status)) ASTDestroy(&ret, false);
     return status;
 }
 
@@ -471,7 +536,7 @@ ret:
  * @return 1 if success, non-positive else
  */
 static Wstatus consumeKeyword(WParser *parser, ASTNode *node) {
-    WToken *token;
+    const WToken *token;
     if (!(token = lexerPeekToken(&parser->lexer))) return 0;
     if (token->type != WTOK_KEYWORD) return 0;
 
@@ -600,6 +665,7 @@ ret:
         while (stackPop(&operators, &node)) {
             ASTDestroy(&node, false);
         }
+        ASTDestroy(out, false);
     }
     stackDestroy(&operands);
     stackDestroy(&operators);
@@ -612,7 +678,7 @@ static Wstatus consumeStatement(WParser *parser, ASTNode *out) {
     queueInit(&tokQ, sizeof(ASTNode));
 
     while (lexerHasToken(&parser->lexer)) {
-        WToken *token;
+        const WToken *token;
         if (!(token = lexerPeekToken(&parser->lexer))) {
             return ERR_GENERIC;
         }
@@ -697,7 +763,7 @@ static WTokPunc matchedCloser(WTokPunc open) {
 }
 
 static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
-    WToken *tok;
+    const WToken *tok;
     if (!(tok = lexerPeekToken(&parser->lexer))) {
         return ERR_GENERIC;
     }
@@ -707,6 +773,14 @@ static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
     if (closing == (WTokPunc)-1) {
         THROW_ERR(ERR_INTERNAL, ret, "unknown bracket\n");
     }
+
+    if (tok->as.punc == WTOKPUNC_CALLOPEN) {
+        if (!ASTNodeInit(ASTNODE_CALL, out)) {
+            THROW_ERR(ERR_INTERNAL, ret, "failed to init call block\n");
+        }
+        out = out->as.call.args;
+    }
+
     if (!lexerForward(&parser->lexer)) {
         THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
     }
@@ -735,15 +809,134 @@ static Wstatus consumeBlock(WParser *parser, ASTNode *out) {
     THROW_ERR(ERR_GENERIC, ret, "block never closed\n");
 
 ret:
-    if (IS_ERR(status)) ASTDestroy(out, false);
+    // if (IS_ERR(status)) ASTDestroy(out, false); // DO NOT FREE, NOT OWNER
+    return status;
+}
+
+Wstatus parserBuildAST(WParser *parser) {
+    Wstatus status = 1;
+    ASTNode node;
+    while (lexerHasToken(&parser->lexer)) {
+        if (IS_ERR(status = consumeStatement(parser, &node))) {
+            THROW_ERR(status, ret, "failed to build AST for program\n");
+        }
+
+        if (node.type != ASTNODE_FUNC_DEF && node.type != ASTNODE_CLASS_DEF) {
+            THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
+        }
+
+        arrayAdd(&parser->program, &node);
+    }
+
+ret:
+    if (IS_ERR(status)) {
+        for (size_t i = 0; i < parser->program.count; i++) {
+            ASTNode *tmp = arrayGet(&parser->program, i);
+            if (!tmp) continue;
+            ASTDestroy(tmp, false);
+        }
+    }
     return status;
 }
 
 
-int parserConsume(WParser *parser) {
-
+static void _ASTPrint(ASTNode *ast, int indent) {
+    if (!ast) return;
+    for (int i = 0; i < indent; i++) {
+        puts("| ");
+    }
+    puts("+-");
+    switch (ast->type) {
+        case (ASTNODE_LITERAL): {
+            switch (ast->as.lit.type) {
+                case (LIT_STR): {
+                    printf("LIT {STR, %s}\n", ast->as.lit.s);
+                    break;
+                }
+                case (LIT_INT): {
+                    printf("LIT {INT, %zd}\n", ast->as.lit.i);
+                    break;
+                }
+                case (LIT_FLOAT): {
+                    printf("LIT {FLT, %lf}\n", ast->as.lit.f);
+                    break;
+                }
+            }
+            break;
+        }
+        case (ASTNODE_IDENTIFIER): {
+            printf("ID {%s}\n", ast->as.id);
+            break;
+        }
+        case (ASTNODE_BLOCK): {
+            printf("BLOCK {}\n");
+            for (size_t i = 0; i < ast->as.block.stmts.count; i++) {
+                ASTNode *node = arrayGet(&ast->as.block.stmts, i);
+                _ASTPrint(node, indent + 1);
+            }
+            break;
+        }
+        case (ASTNODE_UNARY_OP): {
+            printf("UNARY {%s}\n", operators[ast->as.unaryOp.unary]);
+            _ASTPrint(ast->as.unaryOp.operand, indent + 1);
+            break;
+        }
+        case (ASTNODE_BINARY_OP): {
+            printf("BINARY {%s}\n", operators[ast->as.binaryOp.op]);
+            _ASTPrint(ast->as.binaryOp.left, indent + 1);
+            _ASTPrint(ast->as.binaryOp.right, indent + 1);
+            break;
+        }
+        case (ASTNODE_CLASS_DEF): {
+            printf("CLASS {%s}\n", ast->as.classDef.name->as.id);
+            _ASTPrint(ast->as.classDef.fields, indent + 1);
+            _ASTPrint(ast->as.classDef.methods, indent + 1);
+            break;
+        }
+        case (ASTNODE_FUNC_DEF): {
+            printf("FUNC {%s, %s}", ast->as.funcDef.retType->as.id, ast->as.funcDef.name->as.id);
+            _ASTPrint(ast->as.funcDef.params, indent + 1);
+            _ASTPrint(ast->as.funcDef.body, indent + 1);
+            break;
+        }
+        case (ASTNODE_VAR_DECL): {
+            printf("VAR {%s, %s}\n", ast->as.varDecl.typeName->as.id, ast->as.varDecl.varName->as.id);
+            break;
+        }
+        case (ASTNODE_IF): {
+            printf("IF {}\n");
+            _ASTPrint(ast->as.ifStmt.condition, indent + 1);
+            _ASTPrint(ast->as.ifStmt.thenBlock, indent + 1);
+            _ASTPrint(ast->as.ifStmt.thenBlock, indent + 1);
+            break;
+        }
+        case (ASTNODE_WHILE): {
+            printf("WHILE {}\n");
+            _ASTPrint(ast->as.whileStmt.condition, indent + 1);
+            _ASTPrint(ast->as.whileStmt.body, indent + 1);
+            break;
+        }
+        case (ASTNODE_CALL): {
+            printf("CALL {}\n");
+            _ASTPrint(ast->as.call.args, indent + 1);
+            break;
+        }
+        case (ASTNODE_RETURN): {
+            printf("RETURN {}\n");
+            _ASTPrint(ast->as.retStmt.value, indent + 1);
+            break;
+        }
+        default: printf("unknown ???\n");
+    }
 }
 
-int parserBuildAST(WParser *parser) {
+void ASTPrint(ASTNode *ast) {
+    _ASTPrint(ast, 0);
+}
 
+void parserPrintProgram(WParser *parser) {
+    for (size_t i = 0; i < parser->program.count; i++) {
+        ASTNode *node = arrayGet(&parser->program, i);
+        ASTPrint(node);
+    }
 }

@@ -1,31 +1,8 @@
 #include "WLexer.h"
+#include "WParser.h"
 
 #include <stdio.h>
 #include <werror.h>
-
-static const char *operators[] = {
-    ".", // member access
-    "+", "-", // unary sign
-    "not", "bitnot", // logical/bitwise not
-    "time", "div", "mod", // multiplicative operators
-    "plus", "minus", // additive operators
-    "lsh", "rsh", // bitshift
-    "lt", "le", "gt", "ge", // relational operators
-    "eq", "neq", // equality operators
-    "bitand", "bitxor", "bitor", // bitwise operators (excluding not)
-    "and", "or", // logical operators (excluding not)
-    "is", // assignment
-};
-
-static const char *keywords[] = {
-    "if", "else",
-    "while", "continue", "break",
-    "var", "func", "class",
-    "return",
-    "true", "false",
-};
-
-static const char *punctuator = ",()[]";
 
 int main(int argc, char *argv[]) {
     printf("argc: %d\n", argc);
@@ -39,9 +16,9 @@ int main(int argc, char *argv[]) {
     }
     printf("%s", lex.buf);
 
-    WToken *tok;
+    const WToken *tok;
     while (lexerHasToken(&lex)) {
-        lexerPeekToken(&lex, &tok);
+        tok = lexerPeekToken(&lex);
         switch (tok->type) {
             case (WTOK_IDENTIFIER): {
                 printf("{ID, %s} | ", tok->as.id);
@@ -82,6 +59,18 @@ int main(int argc, char *argv[]) {
         }
         lexerForward(&lex);
     }
+
+    putchar('\n');
+    WParser parser;
+    if (!parserInit(file, &parser)) {
+        PRINT_ERR("failed to init parser\n");
+        return 1;
+    }
+    if (IS_ERR(parserBuildAST(&parser))) {
+        PRINT_ERR("failed to parse program\n");
+        return 1;
+    }
+    parserPrintProgram(&parser);
 
     return 0;
 }
