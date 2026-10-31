@@ -37,14 +37,15 @@ int stackPush(Stack *stack, void *value) {
     void *buf = stackBump(stack);
     if (!buf) return 0;
 
-    memcpy(stack->buf + stack->count++ * stack->elemSize, value, stack->elemSize);
+    memcpy(buf, value, stack->elemSize);
     return 1;
 }
 
 int stackPop(Stack *stack, void *ret) {
     if (stack->count == 0) return 0;
 
-    memcpy(ret, stack->buf + --stack->count * stack->elemSize, stack->elemSize);
+    stack->count--;
+    memcpy(ret, stack->buf + stack->count * stack->elemSize, stack->elemSize);
     if (stack->size > DEFAULT_SIZE && stack->count == stack->size / GROWTH_FACTOR / GROWTH_FACTOR) {
         size_t targetSize = stack->size / GROWTH_FACTOR;
         uint8_t *new = realloc(stack->buf, stack->elemSize * targetSize);
@@ -58,7 +59,7 @@ int stackPop(Stack *stack, void *ret) {
 
 const void *stackTop(Stack *stack) {
     if (stack->count == 0) return NULL;
-    return stack->buf + (stack->elemSize * stack->count);
+    return stack->buf + (stack->elemSize * (stack->count - 1));
 }
 
 void stackDestroy(Stack *stack) {

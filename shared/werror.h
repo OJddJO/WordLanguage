@@ -7,11 +7,16 @@
 #ifdef DEBUG
     #define PRINT_ERR(format, ...)  fprintf(stderr, "[ ERROR ][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
     #define PRINT_WARN(format, ...) fprintf(stderr, "[WARNING][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
-
+    #ifdef VERBOSE
+        #define PRINT_DEBUG(format, ...) fprintf(stderr, "[ DEBUG ][%s:%u] " format, __func__, __LINE__, ##__VA_ARGS__)
+    #else
+        #define PRINT_DEBUG(format, ...)
+    #endif
     #define THROW_ERR(code, label, format, ...) {status = code; PRINT_ERR(format, ##__VA_ARGS__); goto label;}
 #else
     #define PRINT_ERR(format, ...)
     #define PRINT_WARN(format, ...)
+    #define PRINT_DEBUG(format, ...)
     #define THROW_ERR(code, label, format, ...) {status = code; goto label;}
 #endif
 
@@ -21,6 +26,8 @@ typedef int32_t Wstatus;
 
 #define ERR_GENERIC             0
 #define ERR_INTERNAL            INT32_MIN
+
+#define ERR_PARSE_CALL_BLOCK    -1
 
 #define ERR_PARSE_IF_COND       -1
 #define ERR_PARSE_IF_THEN       -2

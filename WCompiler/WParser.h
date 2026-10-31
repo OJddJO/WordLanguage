@@ -79,6 +79,7 @@ struct _ASTNode {
             ASTNode *body;      // single block ASTNode
         } whileStmt;
         struct _ASTCall {
+            ASTNode *callee;    // single ASTNode
             ASTNode *args;      // single block ASTNode of value ASTNode
         } call;
         struct _ASTRet {

@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     putchar('\n');
+    fflush(NULL);
     WParser parser;
     if (!parserInit(file, &parser)) {
         PRINT_ERR("failed to init parser\n");

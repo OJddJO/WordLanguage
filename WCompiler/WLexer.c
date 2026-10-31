@@ -169,7 +169,7 @@ static WLitType isLiteral(const char *str, int64_t *iout, double *fout) {
     return NOT_LIT;
 }
 
-static bool buildToken(WLexer *lexer, WToken *out) {
+static bool buildToken(WLexer *lexer) {
     lexer->tokLen = getTokenLen(lexer);
     if (!lexer->tokLen) return 0;
 
@@ -183,60 +183,59 @@ static bool buildToken(WLexer *lexer, WToken *out) {
     lexer->tokStr[lexer->tokLen] = '\0';
     // lexer->cur += lexer->tokLen;
 
-
     for (int i = 0; i < OP_NB; i++) {
         if (strcmp(lexer->tokStr, operators[i]) == 0) {
-            out->type = WTOK_OPERATOR;
-            out->as.op = i;
+            lexer->token.type = WTOK_OPERATOR;
+            lexer->token.as.op = i;
             return 1;
         }
     }
 
     for (int i = 0; i < KW_NB; i++) {
         if (strcmp(lexer->tokStr, keywords[i]) == 0) {
-            out->type = WTOK_KEYWORD;
-            out->as.kw = i;
+            lexer->token.type = WTOK_KEYWORD;
+            lexer->token.as.kw = i;
             return 1;
         }
     }
 
     if (isPunctuator(*lexer->tokStr)) {
-        out->type = WTOK_PUNCTUATOR;
+        lexer->token.type = WTOK_PUNCTUATOR;
         switch (*lexer->tokStr) {
             case '(': {
-                out->as.punc = WTOKPUNC_OPEN;
+                lexer->token.as.punc = WTOKPUNC_OPEN;
                 break;
             }
             case ')': {
-                out->as.punc = WTOKPUNC_CLOSE;
+                lexer->token.as.punc = WTOKPUNC_CLOSE;
                 break;
             }
             case '[': {
-                out->as.punc = WTOKPUNC_CALLOPEN;
+                lexer->token.as.punc = WTOKPUNC_CALLOPEN;
                 break;
             }
             case ']': {
-                out->as.punc = WTOKPUNC_CALLCLOSE;
+                lexer->token.as.punc = WTOKPUNC_CALLCLOSE;
                 break;
             }
             case ',': {
-                out->as.punc = WTOKPUNC_COMMA;
+                lexer->token.as.punc = WTOKPUNC_COMMA;
                 break;
             }
         }
         return 1;
     }
 
-    WLitType litType = isLiteral(lexer->tokStr, &out->as.lit.i, &out->as.lit.f);
+    WLitType litType = isLiteral(lexer->tokStr, &lexer->token.as.lit.i, &lexer->token.as.lit.f);
     if (litType) {
-        out->type = WTOK_LITERAL;
-        out->as.lit.type = litType;
-        if (litType == LIT_STR) out->as.lit.s = lexer->tokStr;
+        lexer->token.type = WTOK_LITERAL;
+        lexer->token.as.lit.type = litType;
+        if (litType == LIT_STR) lexer->token.as.lit.s = lexer->tokStr;
         return 1;
     }
 
-    out->type = WTOK_IDENTIFIER;
-    out->as.id = lexer->tokStr;
+    lexer->token.type = WTOK_IDENTIFIER;
+    lexer->token.as.id = lexer->tokStr;
     return 1;
 }
 
@@ -244,9 +243,12 @@ static bool buildToken(WLexer *lexer, WToken *out) {
 const WToken *lexerPeekToken(WLexer *lexer) {
     consumeWhitespaces(lexer);
     if (!lexer->tokLen) { // if the current cached token is wrong, rebuild
-        if (!buildToken(lexer, &lexer->token))
+        if (!buildToken(lexer)) {
+            PRINT_DEBUG("PEEK failed\n");
             return NULL;
+        }
     }
+    PRINT_DEBUG("PEEK {%s}\n", lexer->tokStr);
     return &lexer->token;
 }
 
