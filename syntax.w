@@ -22,8 +22,8 @@ class Point (var Int x, var Int y) (
 
     func Int distance(var Point p1, var Point p2) (
         return ((p1.x minus p2.x).pow[2] plus (p1.y minus p2.y).pow[2]).sqrt[],
-    ),
-),
+    )
+)
 
 func Int main() (
     var Point p1 is Point.init[2, -3],
@@ -32,14 +32,14 @@ func Int main() (
 
     var Point closerToZero,
     if (zero.distance[p1] le zero.distance[p2]) (
-        closerToZero is p1,
+        closerToZero is p1
     ) else (
-        closerToZero is p2,
+        closerToZero is p2
     ),
 
     while (1) (
-        break,
+        break
     ),
 
-    return 0,
-),
+    return 0
+)

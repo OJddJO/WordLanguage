@@ -115,6 +115,7 @@ static void ASTDestroy(ASTNode *ast, bool freeRoot) {
             ASTDestroy(ast->as.retStmt.value, true);
             break;
         }
+        default: break;
     }
 
     if (freeRoot) free(ast);
@@ -227,6 +228,7 @@ static bool ASTNodeInit(ASTNodeType type, ASTNode *out) {
             }
             break;
         }
+        default: break;
     }
 
     *out = ret;
@@ -346,18 +348,18 @@ static Wstatus consumeLiteral(WParser *parser, ASTNode *node) {
     return 1;
 }
 
-static Wstatus consumeValue(WParser *parser, ASTNode *node) {
-    if (!IS_ERR(consumeIdentifier(parser, node))) {
-        return 1;
-    }
-    if (!IS_ERR(consumeLiteral(parser, node))) {
-        return 1;
-    }
-    if (!IS_ERR(consumeBlock(parser, node))) {
-        return 1;
-    }
-    return ERR_GENERIC;
-}
+// static Wstatus consumeValue(WParser *parser, ASTNode *node) {
+//     if (!IS_ERR(consumeIdentifier(parser, node))) {
+//         return 1;
+//     }
+//     if (!IS_ERR(consumeLiteral(parser, node))) {
+//         return 1;
+//     }
+//     if (!IS_ERR(consumeBlock(parser, node))) {
+//         return 1;
+//     }
+//     return ERR_GENERIC;
+// }
 
 static inline Wstatus consumeElse(WParser *parser, ASTNode *node) {
     PRINT_DEBUG("consuming else\n");
@@ -391,7 +393,7 @@ static inline Wstatus consumeIf(WParser *parser, ASTNode *node) {
     }
 
     const WToken *tok;
-    if (tok = lexerPeekToken(&parser->lexer)) {
+    if ((tok = lexerPeekToken(&parser->lexer))) {
         if (tok->type == WTOK_KEYWORD && tok->as.kw == WTOKKW_ELSE) {
             if (!lexerForward(&parser->lexer)) {
                 THROW_ERR(ERR_INTERNAL, ret, "lexer error\n");
@@ -878,36 +880,39 @@ Wstatus parserBuildAST(WParser *parser) {
     Wstatus status = 1;
     ASTNode node;
     while (lexerHasToken(&parser->lexer)) {
-        if (IS_ERR(status = consumeStatement(parser, &node, true))) {
-            THROW_ERR(status, ret, "failed to build AST for program\n");
+        // if (IS_ERR(status = consumeStatement(parser, &node, true))) {
+        //     THROW_ERR(status, ret, "failed to build AST for program\n");
+        // }
+
+        // if (node.type != ASTNODE_FUNC_DEF && node.type != ASTNODE_CLASS_DEF) {
+        //     THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
+        // }
+
+        const WToken *tok;
+        if (!(tok = lexerPeekToken(&parser->lexer))) {
+            break;
         }
 
-        if (node.type != ASTNODE_FUNC_DEF && node.type != ASTNODE_CLASS_DEF) {
+        if (tok->type != WTOK_KEYWORD) {
             THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
         }
 
-        // const WToken *tok;
-        // if (!(tok = lexerPeekToken(&parser->lexer))) {
-        //     break;
-        // }
+        if (tok->as.kw != WTOKKW_CLASS && tok->as.kw != WTOKKW_FUNC) {
+            THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
+        }
 
-        // if (tok->type != WTOK_KEYWORD) {
-        //     THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
-        // }
-
-        // if (tok->as.kw != WTOKKW_CLASS && tok->as.kw != WTOKKW_FUNC) {
-        //     THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
-        // }
-
-        // if (tok->as.kw == WTOKKW_CLASS) {
-        //     if (IS_ERR(consumeClass(parser, &node))) {
-        //         THROW_ERR(status, ret, "failed to build AST for program\n");
-        //     }
-        // } else if (tok->as.kw == WTOKKW_FUNC) {
-        //     if (IS_ERR(consumeFunc(parser, &node))) {
-        //         THROW_ERR(status, ret, "failed to build AST for program\n");
-        //     }
-        // } else THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
+        if (!(status = lexerForward(&parser->lexer))) {
+            THROW_ERR(status, ret, "lexer error\n");
+        }
+        if (tok->as.kw == WTOKKW_CLASS) {
+            if (IS_ERR(consumeClass(parser, &node))) {
+                THROW_ERR(status, ret, "failed to build AST for program\n");
+            }
+        } else if (tok->as.kw == WTOKKW_FUNC) {
+            if (IS_ERR(consumeFunc(parser, &node))) {
+                THROW_ERR(status, ret, "failed to build AST for program\n");
+            }
+        } else THROW_ERR(status, ret, "failed to build AST for program: unexpected statement\n");
 
         arrayAdd(&parser->program, &node);
     }
@@ -943,6 +948,10 @@ static void _ASTPrint(ASTNode *ast, int indent) {
                 }
                 case (LIT_FLOAT): {
                     printf("LIT {FLT, %lf}\n", ast->as.lit.f);
+                    break;
+                }
+                default: {
+                    printf("unknown literal\n");
                     break;
                 }
             }
