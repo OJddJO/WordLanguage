@@ -16,6 +16,7 @@ typedef enum _ASTNodeType : uint8_t {
     ASTNODE_IDENTIFIER,
 
     ASTNODE_BLOCK,
+    ASTNODE_ARGS_DECL,
 
     ASTNODE_UNARY_OP,
     ASTNODE_BINARY_OP,
@@ -41,7 +42,7 @@ struct _ASTNode {
 
         struct _ASTBlock {
             Array   stmts;     // array of ASTNode
-        } block;
+        } block, argsDecl;
         struct _ASTOp {         // USED ONLY FOR CHECKING OP PRECEDENCE
             WTokOp  op;
         } op;

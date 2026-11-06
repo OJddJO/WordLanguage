@@ -131,6 +131,7 @@ static bool ASTNodeInit(ASTNodeType type, ASTNode *out) {
     ASTNode ret = {0};
     ret.type = type;
     switch (type) {
+        case (ASTNODE_ARGS_DECL):
         case (ASTNODE_BLOCK): {
             if (!arrayInit(&ret.as.block.stmts, sizeof(ASTNode))) {
                 ASTDestroy(&ret, false);
@@ -602,7 +603,6 @@ static Wstatus consumeKeyword(WParser *parser, ASTNode *node) {
     }
     switch (kw) {
         case (WTOKKW_IF): return consumeIf(parser, node);
-        // case (WTOKKW_ELSE): return 0; // Handled by if
         case (WTOKKW_WHILE): return consumeWhile(parser, node);
         case (WTOKKW_CONTINUE): return consumeContinue(parser, node);
         case (WTOKKW_BREAK): return consumeBreak(parser, node);
@@ -703,13 +703,7 @@ static Wstatus shuntingYard(Queue *tokQ, ASTNode *out) {
     ASTNode root = {0};
     if (!stackPop(&operands, &root)) {
         PRINT_DEBUG("empty statement");
-        // THROW_ERR(ERR_GENERIC, ret, "empty statement\n");
     }
-
-    // {
-    //     PRINT_DEBUG("printing partial tree\n");
-    //     ASTPrint(&root);
-    // }
 
     {
         ASTNode tmp = {0};
@@ -829,6 +823,36 @@ static WTokPunc matchedCloser(WTokPunc open) {
         case WTOKPUNC_CALLOPEN: return WTOKPUNC_CALLCLOSE;
         default: return (WTokPunc)-1;
     }
+}
+
+static Wstatus consumeArgsDecl(WParser *parser, ASTNode *out) {
+    PRINT_DEBUG("consuming args\n");
+    const WToken *tok;
+    if (!(tok = lexerPeekToken(&parser->lexer))) {
+        return ERR_GENERIC;
+    }
+
+    Wstatus status = 1;
+    if (tok->type != WTOK_PUNCTUATOR) return ERR_GENERIC;
+    WTokPunc closing = matchedCloser(tok->as.punc);
+    if (closing == (WTokPunc)-1) {
+        THROW_ERR(ERR_INTERNAL, ret, "unknown bracket\n");
+    }
+
+    if (!lexerForward(&parser->lexer)) {
+        THROW_ERR(ERR_INTERNAL, ret, "lexer failed to forward\n");
+    }
+
+    if (!ASTNodeInit(ASTNODE_BLOCK, out)) {
+        THROW_ERR(ERR_INTERNAL, ret, "failed to init args\n");
+    }
+
+    while (lexerHasToken(&parser)) {
+
+    }
+
+ret:
+    return status;
 }
 
 static Wstatus consumeBlock(WParser *parser, ASTNode *out) {

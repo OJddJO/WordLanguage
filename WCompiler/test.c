@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     parserPrintProgram(&parser);
+    parserDestroy(&parser);
 
     return 0;
 }
