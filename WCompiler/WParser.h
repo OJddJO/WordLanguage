@@ -41,13 +41,13 @@ struct _ASTNode {
         char        *id;
 
         struct _ASTBlock {
-            Array   stmts;     // array of ASTNode
+            Array   stmts;      // array of ASTNode
         } block, argsDecl;
         struct _ASTOp {         // USED ONLY FOR CHECKING OP PRECEDENCE
             WTokOp  op;
         } op;
         struct _ASTUnary {
-            WTokOp  unary;
+            WTokOp  op;
             ASTNode *operand;   // single operand ASTNode
         } unaryOp;
         struct _ASTBinary {
@@ -57,13 +57,13 @@ struct _ASTNode {
         } binaryOp;
         struct _ASTClass {
             ASTNode *name;
-            ASTNode *fields;    // single block of varDecl ASTNode
+            ASTNode *fields;    // single argsDecl ASTNode of varDecl ASTNode
             ASTNode *methods;   // single block of funcDef ASTNode
         } classDef;
         struct _ASTFunc {
             ASTNode *retType;   // single identifier (type name) ASTNode
             ASTNode *name;      // single identifier ASTNode
-            ASTNode *params;    // single block ASTNode of varDecl ASTNode
+            ASTNode *params;    // single argsDecl ASTNode of varDecl ASTNode
             ASTNode *body;      // single block ASTNode
         } funcDef;
         struct _ASTVar {
@@ -81,7 +81,7 @@ struct _ASTNode {
         } whileStmt;
         struct _ASTCall {
             ASTNode *callee;    // single ASTNode
-            ASTNode *args;      // single block ASTNode of value ASTNode
+            Array   args;       // array of ASTNode
         } call;
         struct _ASTRet {
             ASTNode *value;     // NULL by default, single value ASTNode

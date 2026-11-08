@@ -12,6 +12,7 @@ typedef struct _Queue {
     QNode   *head;
     QNode   *tail;
     size_t  eltSize;
+    size_t  count;
 } Queue;
 
 void queueInit(Queue *queue, size_t eltSize);

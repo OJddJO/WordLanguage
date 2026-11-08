@@ -28,7 +28,7 @@ const char *keywords[] = {
     "return",
 };
 
-const char *punctuator = ",()[]";
+const char *punctuator = ",{}()[]";
 
 bool lexerInit(const char *filepath, WLexer *lexer) {
     FILE *file = fopen(filepath, "rb");
@@ -248,7 +248,7 @@ const WToken *lexerPeekToken(WLexer *lexer) {
             return NULL;
         }
     }
-    PRINT_DEBUG("PEEK {%s}\n", lexer->tokStr);
+    PRINT_DEBUG("PEEK {%s, %zd}\n", lexer->tokStr, lexer->line);
     return &lexer->token;
 }
 
